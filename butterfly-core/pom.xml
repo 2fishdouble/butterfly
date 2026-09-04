@@ -10,20 +10,16 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>butterfly-spring-boot-autoconfigure</artifactId>
-    <name>butterfly-spring-boot-autoconfigure</name>
-    <description>Butterfly Spring Boot AutoConfigure</description>
+    <artifactId>butterfly-core</artifactId>
+    <name>butterfly-core</name>
+    <description>Butterfly Core: 纯 Java 工具库，无 Spring 运行时依赖</description>
 
-    <!-- 版本由父 POM 统一管理（内容与 butterfly-bom 一致），无需声明 -->
+    <!-- 无运行时依赖；测试栈版本由父 POM 统一管理 -->
     <dependencies>
         <dependency>
-            <groupId>io.github.2fishdouble</groupId>
-            <artifactId>butterfly-core</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

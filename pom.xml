@@ -39,12 +39,13 @@
 
     <modules>
         <module>butterfly-bom</module>
+        <module>butterfly-core</module>
         <module>butterfly-spring-boot-autoconfigure</module>
         <module>butterfly-spring-boot-starter</module>
     </modules>
 
     <properties>
-        <revision>0.1.0</revision>
+        <revision>0.1.1</revision>
 
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -80,6 +81,12 @@
             <!-- butterfly 自身模块：内部互相引用无需再写版本号 -->
             <dependency>
                 <groupId>io.github.2fishdouble</groupId>
+                <artifactId>butterfly-core</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.2fishdouble</groupId>
                 <artifactId>butterfly-spring-boot-autoconfigure</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -102,6 +109,8 @@
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <release>${java.version}</release>
+                        <!-- Spring(反射/参数名绑定)需要方法参数名，Spring Boot 默认开启 -->
+                        <parameters>true</parameters>
                     </configuration>
                 </plugin>
 
