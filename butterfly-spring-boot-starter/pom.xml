@@ -16,7 +16,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.github.butterfly</groupId>
+            <groupId>io.github.2fishdouble</groupId>
             <artifactId>butterfly-spring-boot-autoconfigure</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -24,7 +24,6 @@
 
     <build>
         <plugins>
-            <!-- 本模块没有可文档化的类：javadoc 会报 “找不到公共/受保护类”，故禁用父 pom 的 attach-javadocs 执行 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -35,7 +34,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- 用空 jar 顶替 javadoc.jar（Maven Central 要求每个发布构件都附带 javadoc.jar） -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

@@ -55,7 +55,6 @@
 
     <build>
         <plugins>
-            <!-- Maven Central 要求每个 jar 附带 sources.jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -68,7 +67,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Maven Central 要求每个 jar 附带 javadoc.jar -->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -85,21 +84,27 @@
                     <failOnError>false</failOnError>
                 </configuration>
             </plugin>
+
+
         </plugins>
     </build>
 
     <profiles>
-        <!--
-            发布：mvn deploy -Prelease
-            前置条件：
-            1. ~/.m2/settings.xml 中配置 <server><id>central</id><username>/<password> 为
-               https://central.sonatype.com 生成的 User Token（用户名与密码两段）。
-            2. 本机有 GPG 私钥，passphrase 可被 gpg-agent 读取。
-        -->
         <profile>
             <id>release</id>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.8.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                        </configuration>
+                    </plugin>
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -113,17 +118,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.sonatype.central</groupId>
-                        <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>0.8.0</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <publishingServerId>central</publishingServerId>
-                            <tokenAuth>true</tokenAuth>
-                            <autoPublish>true</autoPublish>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
