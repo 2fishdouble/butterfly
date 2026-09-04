@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.2fishdouble</groupId>
+        <artifactId>butterfly</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>butterfly-bom</artifactId>
+    <packaging>pom</packaging>
+
+    <name>butterfly-bom</name>
+    <description>Butterfly BOM: 通过 dependencyManagement import 即可统一下游对 butterfly 构件及 Spring Boot 的版本管理</description>
+
+    <!-- 与根 POM 保持同步。BOM 作为独立可 import 的发布物，需自带属性，
+         否则扁平化(flatten)后 dependencyManagement 会残留未解析的占位符 -->
+    <properties>
+        <revision>0.1.0</revision>
+        <spring-boot.version>4.1.1</spring-boot.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- 第三方依赖：交给 Spring Boot BOM 统一版本 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- butterfly 自身模块：内部互相引用无需再写版本号 -->
+            <dependency>
+                <groupId>io.github.2fishdouble</groupId>
+                <artifactId>butterfly-spring-boot-autoconfigure</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.2fishdouble</groupId>
+                <artifactId>butterfly-spring-boot-starter</artifactId>
+                <version>${revision}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>
