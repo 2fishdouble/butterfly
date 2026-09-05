@@ -12,10 +12,9 @@
 
     <artifactId>butterfly-sandbox</artifactId>
     <name>butterfly-sandbox</name>
-    <description>Butterfly 演示应用：验证 starter 自动装配的 core 工具与 GreetingService（不参与发布）</description>
+    <description>Butterfly Sandbox</description>
 
-    <!-- 不在根 POM <modules> 中，仅本地运行/测试用，不会发布到 Maven Central。
-         需先对 butterfly 工程执行一次 install，再单独构建本模块。 -->
+
     <dependencies>
         <dependency>
             <groupId>io.github.2fishdouble</groupId>

@@ -1,4 +1,4 @@
 @NullMarked
-package io.github.butterfly.core.util;
+package io.github.butterfly.core;
 
 import org.jspecify.annotations.NullMarked;

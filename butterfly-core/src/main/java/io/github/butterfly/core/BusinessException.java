@@ -1,4 +1,4 @@
-package io.github.butterfly.core.exception;
+package io.github.butterfly.core;
 
 public class BusinessException extends RuntimeException {
     public BusinessException(String message) {
