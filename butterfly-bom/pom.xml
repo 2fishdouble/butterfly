@@ -19,7 +19,7 @@
     <!-- 与根 POM 保持同步。BOM 作为独立可 import 的发布物，需自带属性，
          否则扁平化(flatten)后 dependencyManagement 会残留未解析的占位符 -->
     <properties>
-        <revision>0.1.1</revision>
+        <revision>0.1.2</revision>
         <spring-boot.version>4.1.1</spring-boot.version>
     </properties>
 
