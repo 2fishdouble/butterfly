@@ -12,9 +12,8 @@
 
     <artifactId>butterfly-core</artifactId>
     <name>butterfly-core</name>
-    <description>Butterfly Core: 纯 Java 工具库，无 Spring 运行时依赖</description>
+    <description>Butterfly Core</description>
 
-    <!-- 无运行时依赖；测试栈版本由父 POM 统一管理 -->
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

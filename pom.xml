@@ -7,7 +7,6 @@
     <artifactId>butterfly</artifactId>
     <packaging>pom</packaging>
 
-    <!-- CI-Friendly：版本号只在这里维护（revision），子模块与 BOM 全部继承 -->
     <version>${revision}</version>
 
     <name>butterfly</name>
@@ -51,10 +50,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <!-- 第三方依赖版本统一收口在 butterfly-bom（import spring-boot-dependencies） -->
         <spring-boot.version>4.1.1</spring-boot.version>
 
-        <!-- 插件版本集中管理，保证构建可复现 -->
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
@@ -68,12 +65,9 @@
         <hutool.version>5.8.47</hutool.version>
     </properties>
 
-    <!-- 依赖版本管理：子模块构建所需的全部版本在此声明，子模块无需再写版本号。
-         与 butterfly-bom 保持一致；butterfly-bom 单独发布供下游 dependencyManagement import。
-         注：不能改成 import butterfly-bom —— 那会与 BOM 的 parent 指向本 POM 形成环。 -->
+
     <dependencyManagement>
         <dependencies>
-            <!-- 第三方依赖：交给 Spring Boot BOM 统一版本 -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -82,7 +76,6 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- butterfly 自身模块：内部互相引用无需再写版本号 -->
             <dependency>
                 <groupId>io.github.2fishdouble</groupId>
                 <artifactId>butterfly-core</artifactId>
@@ -130,19 +123,16 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- 编译：显式 release=java.version（未继承 spring-boot-parent，必须自己声明） -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <release>${java.version}</release>
-                        <!-- Spring(反射/参数名绑定)需要方法参数名，Spring Boot 默认开启 -->
                         <parameters>true</parameters>
                     </configuration>
                 </plugin>
 
-                <!-- 发布前把 ${revision} 解析为真实版本号，否则中央仓库的 POM 会残留未解析占位符 -->
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
@@ -177,7 +167,6 @@
                     <version>${maven-jar-plugin.version}</version>
                 </plugin>
 
-                <!-- release 相关插件同样在此锁定版本，profile 里只写用法 -->
                 <plugin>
                     <groupId>org.sonatype.central</groupId>
                     <artifactId>central-publishing-maven-plugin</artifactId>
@@ -193,7 +182,6 @@
         </pluginManagement>
 
         <plugins>
-            <!-- 对所有模块（含父 POM 与 BOM）在 install/deploy 前生成解析后的扁平 POM -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
