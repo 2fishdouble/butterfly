@@ -41,6 +41,7 @@
         <module>butterfly-core</module>
         <module>auto-configurations/butterfly-spring-boot-autoconfigure</module>
         <module>auto-configurations/butterfly-spring-boot-redis-autoconfigure</module>
+        <module>auto-configurations/butterfly-spring-boot-excel-autoconfigure</module>
         <module>starter/butterfly-spring-boot-starter</module>
         <module>butterfly-sandbox</module>
     </modules>
@@ -67,6 +68,7 @@
         <guava.version>33.7.1-jre</guava.version>
         <hutool.version>5.8.47</hutool.version>
         <redisson.version>4.7.0</redisson.version>
+        <fastexcel.version>1.3.0</fastexcel.version>
     </properties>
 
 
@@ -138,6 +140,12 @@
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
                 <version>${aspectjweaver.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.idev.excel</groupId>
+                <artifactId>fastexcel</artifactId>
+                <version>${fastexcel.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -265,6 +273,7 @@
                 <module>butterfly-core</module>
                 <module>auto-configurations/butterfly-spring-boot-autoconfigure</module>
                 <module>auto-configurations/butterfly-spring-boot-redis-autoconfigure</module>
+                <module>auto-configurations/butterfly-spring-boot-excel-autoconfigure</module>
                 <module>starter/butterfly-spring-boot-starter</module>
             </modules>
             <build>
