@@ -53,6 +53,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <spring-boot.version>4.1.1</spring-boot.version>
+        <aspectjweaver.version>1.9.25.1</aspectjweaver.version>
 
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
@@ -131,6 +132,12 @@
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson</artifactId>
                 <version>${redisson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>${aspectjweaver.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

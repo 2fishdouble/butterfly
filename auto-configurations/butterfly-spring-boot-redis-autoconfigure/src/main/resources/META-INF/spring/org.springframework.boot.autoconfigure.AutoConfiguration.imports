@@ -1,1 +1,3 @@
 io.github.butterfly.redis.autoconfigure.ButterflyRedisConfiguration
+io.github.butterfly.redis.autoconfigure.ButterflyRedissonConfiguration
+io.github.butterfly.redis.autoconfigure.IdempotentAspect

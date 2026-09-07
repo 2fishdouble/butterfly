@@ -15,12 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>io.github.2fishdouble</groupId>
-            <artifactId>butterfly-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
+            <artifactId>butterfly-spring-boot-autoconfigure</artifactId>
         </dependency>
 
         <dependency>
@@ -42,6 +37,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-json</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
         </dependency>
     </dependencies>
 
