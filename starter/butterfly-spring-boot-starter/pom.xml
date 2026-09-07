@@ -7,14 +7,13 @@
         <groupId>io.github.2fishdouble</groupId>
         <artifactId>butterfly</artifactId>
         <version>${revision}</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>butterfly-spring-boot-starter</artifactId>
     <name>butterfly-spring-boot-starter</name>
     <description>Butterfly Spring Boot Starter</description>
 
-    <!-- 版本由父 POM 统一管理（内容与 butterfly-bom 一致，含内部构件），无需声明 -->
     <dependencies>
         <dependency>
             <groupId>io.github.2fishdouble</groupId>

@@ -7,7 +7,7 @@
         <groupId>io.github.2fishdouble</groupId>
         <artifactId>butterfly</artifactId>
         <version>${revision}</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>butterfly-spring-boot-autoconfigure</artifactId>

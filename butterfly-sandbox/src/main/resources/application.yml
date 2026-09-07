@@ -1,4 +1,25 @@
 server:
   port: 8080
 
-
+spring:
+  profiles:
+    active:
+      - test
+  application:
+    name: sandbox
+  data:
+    redis:
+      host: 192.168.12.23
+      port: 51111
+      password: Redis.51111.redis
+      database: 0
+      timeout: 10s
+      connect-timeout: 10s
+      client-type: lettuce
+      lettuce:
+        shutdown-timeout: 100ms
+        pool:
+          enabled: true
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
