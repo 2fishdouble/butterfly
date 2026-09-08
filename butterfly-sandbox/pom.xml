@@ -23,6 +23,21 @@
         </dependency>
 
         <dependency>
+            <groupId>io.github.2fishdouble</groupId>
+            <artifactId>butterfly-spring-boot-mybatis-plus-autoconfigure</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.2fishdouble</groupId>
+            <artifactId>butterfly-spring-boot-excel-autoconfigure</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.2fishdouble</groupId>
+            <artifactId>butterfly-spring-boot-security-autoconfigure</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>

@@ -7,6 +7,32 @@ spring:
       - test
   application:
     name: sandbox
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.12.22:3306/hotkey_db?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true&allowMultiQueries=true
+    username: root
+    password: Mysql.3306.mysql
+    type: com.zaxxer.hikari.HikariDataSource
+    # HikariCP 连接池详细配置
+    hikari:
+      # 池中最大连接数（推荐：CPU核心数 * 2 + 核心磁盘数）
+      maximum-pool-size: 20
+      # 最小空闲连接数（建议与 maximum-pool-size 保持一致，避免频繁创建/销毁连接）
+      minimum-idle: 5
+      # 空闲连接存活最大超时时间（毫秒），超出的空闲连接将被释放，默认 600000（10分钟）
+      idle-timeout: 600000
+      # 连接在池中的最大生命周期（毫秒），必须短于 MySQL 的 wait_timeout，默认 1800000（30分钟）
+      max-lifetime: 1800000
+      # 等待连接池分配连接的最大超时时间（毫秒），超过将抛出 SQLException，默认 30000（30秒）
+      connection-timeout: 30000
+      # 用于测试连接有效性的 SQL 语句
+      connection-test-query: SELECT 1
+      # 连接测试超时时间（毫秒），默认 5000（5秒）
+      validation-timeout: 5000
+      # 自动提交事务，默认 true
+      auto-commit: true
+      # 连接池名称
+      pool-name: HotkeyHikariCP
   data:
     redis:
       host: 192.168.12.23
