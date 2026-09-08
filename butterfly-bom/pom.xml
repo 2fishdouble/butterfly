@@ -46,9 +46,36 @@
 
             <dependency>
                 <groupId>io.github.2fishdouble</groupId>
+                <artifactId>butterfly-spring-boot-redis-autoconfigure</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.2fishdouble</groupId>
+                <artifactId>butterfly-spring-boot-excel-autoconfigure</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.2fishdouble</groupId>
+                <artifactId>butterfly-spring-boot-mybatis-plus-autoconfigure</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.2fishdouble</groupId>
+                <artifactId>butterfly-spring-boot-security-autoconfigure</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>io.github.2fishdouble</groupId>
                 <artifactId>butterfly-spring-boot-starter</artifactId>
                 <version>${revision}</version>
             </dependency>
+
+
         </dependencies>
     </dependencyManagement>
 
