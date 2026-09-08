@@ -1,5 +1,7 @@
 package io.github.butterfly.security.autoconfigure;
 
+import org.jspecify.annotations.Nullable;
+
 public enum SamplePermission implements IPermission {
 
     SYSTEM_PAGE(SamplePermissionGroup.SYSTEM, 100L, "系统管理", "", "系统管理-列表", null),
@@ -12,10 +14,11 @@ public enum SamplePermission implements IPermission {
     private final String title;
     private final String description;
     private final String uiDescription;
+    @Nullable
     private final SamplePermission parent;
 
     SamplePermission(SamplePermissionGroup group, long id, String title,
-                     String description, String uiDescription, SamplePermission parent) {
+                     String description, String uiDescription, @Nullable SamplePermission parent) {
         this.group = group;
         this.id = id;
         this.title = title;
@@ -50,6 +53,7 @@ public enum SamplePermission implements IPermission {
     }
 
     @Override
+    @Nullable
     public SamplePermission getParent() {
         return this.parent;
     }

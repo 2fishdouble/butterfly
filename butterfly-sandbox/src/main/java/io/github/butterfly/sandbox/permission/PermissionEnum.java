@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.github.butterfly.security.autoconfigure.IPermission;
 import io.github.butterfly.security.autoconfigure.IPermissionGroup;
+import org.jspecify.annotations.Nullable;
 
 
 public enum PermissionEnum implements IPermission {
@@ -13,7 +14,7 @@ public enum PermissionEnum implements IPermission {
 
     ;
 
-    PermissionEnum(PermissionGroupEnum group, long id, String title, String description, String uiDescription, PermissionEnum parent) {
+    PermissionEnum(PermissionGroupEnum group, long id, String title, String description, String uiDescription, @Nullable PermissionEnum parent) {
         this.group = group;
         this.id = id;
         this.title = title;
@@ -62,6 +63,7 @@ public enum PermissionEnum implements IPermission {
      * 父级权限 对应的权限信息
      * 可以为空代表其本身就是根节点权限
      */
+    @Nullable
     private final PermissionEnum parent;
 
 
@@ -91,6 +93,7 @@ public enum PermissionEnum implements IPermission {
     }
 
     @Override
+    @Nullable
     public IPermission getParent() {
         return this.parent;
     }
