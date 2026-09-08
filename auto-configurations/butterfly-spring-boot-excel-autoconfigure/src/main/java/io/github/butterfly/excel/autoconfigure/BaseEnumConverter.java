@@ -8,6 +8,7 @@ import cn.idev.excel.metadata.data.ReadCellData;
 import cn.idev.excel.metadata.data.WriteCellData;
 import cn.idev.excel.metadata.property.ExcelContentProperty;
 import io.github.butterfly.core.BaseEnum;
+import jakarta.annotation.Nullable;
 
 
 public class BaseEnumConverter implements Converter<BaseEnum> {
@@ -23,7 +24,10 @@ public class BaseEnumConverter implements Converter<BaseEnum> {
     }
 
     @Override
-    public WriteCellData<?> convertToExcelData(BaseEnum value, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
+    public WriteCellData<?> convertToExcelData(@Nullable BaseEnum value, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
+        if (value == null) {
+            return new WriteCellData<>();
+        }
         return new WriteCellData<>(value.getTitle());
     }
 

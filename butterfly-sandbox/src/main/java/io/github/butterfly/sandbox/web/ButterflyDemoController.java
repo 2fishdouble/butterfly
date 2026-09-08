@@ -1,6 +1,7 @@
 package io.github.butterfly.sandbox.web;
 
 import io.github.butterfly.redis.autoconfigure.Idempotent;
+import io.github.butterfly.sandbox.model.TimeModuleBean;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,6 +28,12 @@ public class ButterflyDemoController {
         body.put("service", "butterfly-sandbox");
         log.info("id: {}", id);
         return body;
+    }
+
+    @GetMapping("/time")
+    public TimeModuleBean time(
+    ) {
+        return new TimeModuleBean();
     }
 
 }

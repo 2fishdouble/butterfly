@@ -7,6 +7,7 @@ import cn.idev.excel.metadata.data.ReadCellData;
 import cn.idev.excel.metadata.data.WriteCellData;
 import cn.idev.excel.metadata.property.ExcelContentProperty;
 import io.github.butterfly.core.BaseEnum;
+import jakarta.annotation.Nullable;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
@@ -28,8 +29,8 @@ public class CollectionBaseEnumConverter implements Converter<Collection<? exten
     }
 
     @Override
-    public WriteCellData<?> convertToExcelData(Collection<? extends BaseEnum> value, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
-        if (value.isEmpty()) {
+    public WriteCellData<?> convertToExcelData(@Nullable Collection<? extends BaseEnum> value, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
+        if (value == null || value.isEmpty()) {
             return new WriteCellData<>("");
         }
         String combinedTitle = value.stream()
