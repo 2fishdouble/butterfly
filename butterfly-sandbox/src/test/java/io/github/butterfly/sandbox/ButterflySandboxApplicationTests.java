@@ -1,16 +1,19 @@
 package io.github.butterfly.sandbox;
 
+import io.github.butterfly.mail.autoconfigure.MailTemplate;
 import io.github.butterfly.sandbox.model.Computer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 
 @SpringBootTest
@@ -22,6 +25,8 @@ class ButterflySandboxApplicationTests {
     private RedisTemplate<Object, Object> objectRedisTemplate;
     @Autowired
     private RedisTemplate<String, Computer> computerRedisTemplate;
+    @Autowired
+    private MailTemplate mailTemplate;
 
     @BeforeEach
     void setUp() {
@@ -47,5 +52,11 @@ class ButterflySandboxApplicationTests {
                 }}
         ));
         computerRedisTemplate.opsForValue().set("computer:1", computer);
+    }
+
+    @Test
+    void mailTest() {
+        mailTemplate.sendAttachment("cjd0655@gmail.com", "测试邮件", "这是一封测试邮件",
+                Map.of("README.md", new ClassPathResource("README.md")));
     }
 }

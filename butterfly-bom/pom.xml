@@ -68,6 +68,12 @@
                 <version>${revision}</version>
             </dependency>
 
+            <dependency>
+                <groupId>io.github.2fishdouble</groupId>
+                <artifactId>butterfly-spring-boot-mail-autoconfigure</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>io.github.2fishdouble</groupId>

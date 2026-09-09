@@ -49,8 +49,21 @@ spring:
           max-active: 16
           max-idle: 8
           min-idle: 2
+  mail:
+    host: smtp.qq.com
+    username: 2737224577@qq.com
+    password: rjiaekbmgarwdgda
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
 butterfly:
   security:
     permission:
       enabled: true
       db: true
+  mail:
+    default-from: 2737224577@qq.com
