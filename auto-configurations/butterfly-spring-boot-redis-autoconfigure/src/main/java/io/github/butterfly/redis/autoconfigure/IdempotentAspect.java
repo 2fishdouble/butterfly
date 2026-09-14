@@ -11,14 +11,15 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 
+/**
+ * 由 {@link ButterflyRedisConfiguration} 以 {@code @Bean} 方式注册,不参与组件扫描。
+ */
 @Aspect
-@Component
 public class IdempotentAspect {
 
 

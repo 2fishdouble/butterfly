@@ -2,13 +2,14 @@ package io.github.butterfly.mybatis.plus.autoconfigure;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import org.apache.ibatis.reflection.MetaObject;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 
-@Component
+/**
+ * 由 {@link MybatisPlusAutoConfiguration} 以 {@code @Bean} 方式注册,不参与组件扫描。
+ */
 public class BaseEntityHandler implements MetaObjectHandler {
 
 

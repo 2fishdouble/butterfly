@@ -28,7 +28,7 @@ public class ButterflyAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnClass(SpelSup.class)
+    @ConditionalOnClass(name = "cn.hutool.core.lang.Validator")
     public SpelSup spelSup(BeanFactory beanFactory) {
         return new SpelSup(beanFactory);
     }
