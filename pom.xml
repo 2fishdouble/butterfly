@@ -298,6 +298,7 @@
                         <includeTestSourceDirectory>false</includeTestSourceDirectory>
                         <consoleOutput>true</consoleOutput>
                         <failOnViolation>true</failOnViolation>
+                        <linkXRef>false</linkXRef>
                     </configuration>
                 </plugin>
             </plugins>
