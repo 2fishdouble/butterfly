@@ -67,6 +67,15 @@
         <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
         <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+
+        <spring-javaformat.version>0.0.48</spring-javaformat.version>
+        <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+        <!-- spring-javaformat-checkstyle 基于 checkstyle 9.3 编译,必须显式钉住,避免用到插件自带版本 -->
+        <checkstyle.version>9.3</checkstyle.version>
+        <!-- 多模块构建下所有模块共用根目录这一份 checkstyle 配置 -->
+        <checkstyle.config.location>${maven.multiModuleProjectDirectory}/src/checkstyle/checkstyle.xml</checkstyle.config.location>
+
+        <!-- 第三方版本:同时在 butterfly-bom 的 dependencyManagement 中声明,改动时请同步 -->
         <jspecify.version>1.0.0</jspecify.version>
         <lombok.version>1.18.48</lombok.version>
         <hutool.version>5.8.47</hutool.version>
@@ -261,6 +270,36 @@
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>${maven-deploy-plugin.version}</version>
                 </plugin>
+
+                <plugin>
+                    <groupId>io.spring.javaformat</groupId>
+                    <artifactId>spring-javaformat-maven-plugin</artifactId>
+                    <version>${spring-javaformat.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven-checkstyle-plugin.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>${checkstyle.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>io.spring.javaformat</groupId>
+                            <artifactId>spring-javaformat-checkstyle</artifactId>
+                            <version>${spring-javaformat.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <configLocation>${checkstyle.config.location}</configLocation>
+                        <includeTestSourceDirectory>false</includeTestSourceDirectory>
+                        <consoleOutput>true</consoleOutput>
+                        <failOnViolation>true</failOnViolation>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -311,9 +350,39 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <doclint>none</doclint>
+                    <doclint>all,-missing</doclint>
                     <failOnError>false</failOnError>
                 </configuration>
+            </plugin>
+
+            <!-- 代码格式校验:失败时用 mvnw spring-javaformat:apply 自动修复 -->
+            <plugin>
+                <groupId>io.spring.javaformat</groupId>
+                <artifactId>spring-javaformat-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>format-validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>validate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- 静态检查:配置见根目录 src/checkstyle/checkstyle.xml -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>checkstyle-check</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -329,7 +398,7 @@
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>
-                            <autoPublish>true</autoPublish>
+                            <autoPublish>false</autoPublish>
                         </configuration>
                     </plugin>
 
