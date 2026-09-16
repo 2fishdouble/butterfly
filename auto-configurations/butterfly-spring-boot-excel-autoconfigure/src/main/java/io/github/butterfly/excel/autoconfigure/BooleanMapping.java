@@ -45,7 +45,7 @@ public @interface BooleanMapping {
 	String falseValue();
 
 	/**
-	 * 布尔值为 {@code null} 时的占位文本,默认空串.当前 {@link BooleanStringGenericConverter} 未读取该属性。
+	 * 布尔值为 {@code null} 时的占位文本,默认空串.当前 {@link BooleanStringGenericConverter} 未读取该属性.
 	 * @return {@code null} 的占位文本
 	 */
 	String nullValue() default "";

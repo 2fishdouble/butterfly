@@ -28,7 +28,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class MailTemplateProperties {
 
 	/**
-	 * 默认发件人(From).发件时优先取它,其次取 JavaMailSender 的 username。 两者都为空时交给底层 SMTP/JNDI 会话处理。
+	 * 默认发件人(From).发件时优先取它,其次取 JavaMailSender 的 username。 两者都为空时交给底层 SMTP/JNDI 会话处理.
 	 */
 	private @Nullable String defaultFrom;
 

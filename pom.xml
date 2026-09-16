@@ -70,9 +70,7 @@
 
         <spring-javaformat.version>0.0.48</spring-javaformat.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
-        <!-- spring-javaformat-checkstyle 基于 checkstyle 9.3 编译,必须显式钉住,避免用到插件自带版本 -->
-        <checkstyle.version>9.3</checkstyle.version>
-        <!-- 多模块构建下所有模块共用根目录这一份 checkstyle 配置 -->
+        <checkstyle.version>14.1.0</checkstyle.version>
         <checkstyle.config.location>${maven.multiModuleProjectDirectory}/src/checkstyle/checkstyle.xml</checkstyle.config.location>
 
         <!-- 第三方版本:同时在 butterfly-bom 的 dependencyManagement 中声明,改动时请同步 -->
@@ -291,6 +289,12 @@
                             <groupId>io.spring.javaformat</groupId>
                             <artifactId>spring-javaformat-checkstyle</artifactId>
                             <version>${spring-javaformat.version}</version>
+                            <exclusions>
+                                <exclusion>
+                                    <groupId>com.puppycrawl.tools</groupId>
+                                    <artifactId>checkstyle</artifactId>
+                                </exclusion>
+                            </exclusions>
                         </dependency>
                     </dependencies>
                     <configuration>

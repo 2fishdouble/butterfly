@@ -80,7 +80,7 @@ public class ExcelDataListener<T> implements ReadListener<T> {
 	}
 
 	/**
-	 * 全部行解析完成时调用:把缓存中的整批数据传给回调.缓存列表按解析顺序累积,回调后不清空。
+	 * 全部行解析完成时调用:把缓存中的整批数据传给回调.缓存列表按解析顺序累积,回调后不清空.
 	 * @param analysisContext 当前解析上下文
 	 */
 	@Override

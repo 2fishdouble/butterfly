@@ -31,7 +31,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 幂等切面:为标注了 {@link Idempotent} 的方法提供基于 Redisson 分布式锁的幂等控制。
+ * 幂等切面:为标注了 {@link Idempotent} 的方法提供基于 Redisson 分布式锁的幂等控制.
  * <p>
  * 由 {@link ButterflyRedisConfiguration} 以 {@code @Bean} 方式注册,不参与组件扫描。
  * <p>

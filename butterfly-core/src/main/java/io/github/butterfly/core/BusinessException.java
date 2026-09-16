@@ -17,7 +17,7 @@
 package io.github.butterfly.core;
 
 /**
- * 业务异常, 继承 {@link RuntimeException}。
+ * 业务异常, 继承 {@link RuntimeException}.
  * <p>
  * 用于业务流程中可预期的失败场景(参数校验不通过、状态非法、重复提交等), 因此无需在方法签名上 声明 {@code throws};Servlet Web
  * 环境下由全局异常处理器转换为失败响应 {@link R#error(String)}, 异常描述即响应中的 {@code msg}.
