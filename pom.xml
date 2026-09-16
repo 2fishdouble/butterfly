@@ -72,6 +72,7 @@
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <checkstyle.version>14.1.0</checkstyle.version>
         <checkstyle.config.location>${maven.multiModuleProjectDirectory}/src/checkstyle/checkstyle.xml</checkstyle.config.location>
+        <license-maven-plugin.version>5.1.2</license-maven-plugin.version>
 
         <!-- 第三方版本:同时在 butterfly-bom 的 dependencyManagement 中声明,改动时请同步 -->
         <jspecify.version>1.0.0</jspecify.version>
@@ -308,6 +309,26 @@
                         <linkXRef>false</linkXRef>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>${license-maven-plugin.version}</version>
+                    <configuration>
+                        <properties>
+                            <owner>2fishdouble</owner>
+                            <email>cjd0655@gmail.com</email>
+                        </properties>
+                        <licenseSets>
+                            <licenseSet>
+                                <header>${maven.multiModuleProjectDirectory}/src/license/HEADER</header>
+                                <includes>
+                                    <include>src/main/java/**/*.java</include>
+                                </includes>
+                            </licenseSet>
+                        </licenseSets>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -383,6 +404,19 @@
                 <executions>
                     <execution>
                         <id>checkstyle-check</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>license-check</id>
                         <phase>validate</phase>
                         <goals>
                             <goal>check</goal>
