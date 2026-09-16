@@ -296,6 +296,9 @@
                     <configuration>
                         <configLocation>${checkstyle.config.location}</configLocation>
                         <includeTestSourceDirectory>false</includeTestSourceDirectory>
+                        <includeTestResources>false</includeTestResources>
+                        <logViolationCountToConsole>true</logViolationCountToConsole>
+                        <logViolationsToConsole>true</logViolationsToConsole>
                         <consoleOutput>true</consoleOutput>
                         <failOnViolation>true</failOnViolation>
                         <linkXRef>false</linkXRef>
@@ -356,7 +359,6 @@
                 </configuration>
             </plugin>
 
-            <!-- 代码格式校验:失败时用 mvnw spring-javaformat:apply 自动修复 -->
             <plugin>
                 <groupId>io.spring.javaformat</groupId>
                 <artifactId>spring-javaformat-maven-plugin</artifactId>
@@ -371,7 +373,6 @@
                 </executions>
             </plugin>
 
-            <!-- 静态检查:配置见根目录 src/checkstyle/checkstyle.xml -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
