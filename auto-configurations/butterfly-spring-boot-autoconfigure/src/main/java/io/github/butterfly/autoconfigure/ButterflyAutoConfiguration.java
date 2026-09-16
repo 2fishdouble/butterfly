@@ -22,6 +22,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import tools.jackson.databind.ext.javatime.deser.LocalDateDeserializer;
@@ -49,9 +51,12 @@ import java.time.format.DateTimeFormatter;
  * {@link BaseEnum} 枚举序列化/反序列化、{@code Long}/{@code long} 转字符串(避免前端 JavaScript 精度丢失)以及基于
  * {@link PatternConstant} 中格式的 {@code LocalDateTime}/{@code LocalDate}/ {@code LocalTime}
  * 读写模块。</li>
+ * <li>{@link TraceIdFilter}:TraceId 过滤器,仅在 butterfly-web 配置中 traceId.enabled 为 true
+ * 时注册。</li>
  * </ul>
  */
 @AutoConfiguration
+@EnableConfigurationProperties(WebProperties.class)
 public class ButterflyAutoConfiguration {
 
 	/**
@@ -119,6 +124,19 @@ public class ButterflyAutoConfiguration {
 					new LocalTimeSerializer(DateTimeFormatter.ofPattern(PatternConstant.TIME_FORMAT)));
 			builder.addModule(timeModule);
 		};
+	}
+
+	/**
+	 * 装配 TraceId 过滤器.
+	 * @param properties butterfly-web 配置
+	 * @return traceId 过滤器
+	 */
+	@Bean
+	@ConditionalOnMissingBean
+	@ConditionalOnProperty(prefix = "butterfly.web.trace-id", name = "enabled", havingValue = "true",
+			matchIfMissing = true)
+	TraceIdFilter traceIdFilter(WebProperties properties) {
+		return new TraceIdFilter(properties.getTraceId().getHeader());
 	}
 
 }
