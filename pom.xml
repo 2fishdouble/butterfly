@@ -515,6 +515,13 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>snapshot</id>
+            <build>
+                <plugins>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
 </project>
