@@ -49,4 +49,5 @@ public enum WeekType {
 	 * 周日.
 	 */
 	SUNDAY
+
 }
