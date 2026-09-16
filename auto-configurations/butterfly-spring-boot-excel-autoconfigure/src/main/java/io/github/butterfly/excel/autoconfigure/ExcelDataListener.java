@@ -22,6 +22,7 @@ import cn.idev.excel.metadata.data.ReadCellData;
 import cn.idev.excel.read.listener.ReadListener;
 import io.github.butterfly.core.BusinessException;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,7 +127,7 @@ public class ExcelDataListener<T> implements ReadListener<T> {
 		}
 	}
 
-	private String findFirstCauseMessage(Throwable throwable) {
+	private @Nullable String findFirstCauseMessage(Throwable throwable) {
 		Throwable cause = throwable.getCause();
 		while (cause != null) {
 			String message = cause.getMessage();
