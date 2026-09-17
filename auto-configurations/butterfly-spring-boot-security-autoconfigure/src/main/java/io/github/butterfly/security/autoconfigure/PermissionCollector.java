@@ -77,7 +77,7 @@ public class PermissionCollector implements ApplicationListener<ContextRefreshed
 
 		List<String> packages = resolveBasePackages();
 		if (packages.isEmpty()) {
-			log.warn("未配置 butterfly.security.permission.scan-packages,且无法推断启动类包,跳过权限收集");
+			log.warn("There are no configured butterfly.security.permission.scan-packages, and no auto-configuration package found, skipping permission collection.");
 			return;
 		}
 
@@ -86,12 +86,12 @@ public class PermissionCollector implements ApplicationListener<ContextRefreshed
 		scan(packages, groups, permissions);
 
 		if (groups.isEmpty() && permissions.isEmpty()) {
-			log.info("在包 {} 下未发现实现 IPermission/IPermissionGroup 的枚举", packages);
+			log.info("There are no IPermission/IPermissionGroup enums in the packages {}.", packages);
 			return;
 		}
 
 		this.storage.store(groups, permissions);
-		log.info("权限收集完成:分组 {} 个,权限 {} 个,存储类型 {}", groups.size(), permissions.size(),
+		log.info("Permission collection completed: {} groups, {} permissions, storage type {}.", groups.size(), permissions.size(),
 				this.storage.getClass().getSimpleName());
 	}
 
@@ -122,7 +122,7 @@ public class PermissionCollector implements ApplicationListener<ContextRefreshed
 					type = ClassUtils.forName(className, this.context.getClassLoader());
 				}
 				catch (ClassNotFoundException ex) {
-					log.debug("无法加载候选类 {},跳过", className);
+					log.debug("Unable to load candidate class {}, skipping.", className);
 					continue;
 				}
 				if (!type.isEnum()) {
