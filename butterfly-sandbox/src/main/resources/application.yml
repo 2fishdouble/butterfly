@@ -49,6 +49,22 @@ spring:
           max-active: 16
           max-idle: 8
           min-idle: 2
+  kafka:
+    bootstrap-servers: 192.168.12.29:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      acks: all
+      retries: 3
+    consumer:
+      group-id: butterfly-sandbox
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      properties:
+        spring.json.trusted.packages: io.github.butterfly.sandbox.model
+    listener:
+      ack-mode: record
   mail:
     host: smtp.qq.com
     username: 2737224577@qq.com
@@ -67,3 +83,11 @@ butterfly:
       db: true
   mail:
     default-from: 2737224577@qq.com
+  kafka:
+    topic:
+      # 主题名/分区数/副本数均可选;这里只覆盖主题名,分区数与副本数用全局默认值
+      entities:
+        computer:
+          name: butterfly-sandbox-computer
+          partitions: 1
+          replicas: 1

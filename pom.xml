@@ -47,6 +47,7 @@
         <module>auto-configurations/butterfly-spring-boot-mail-autoconfigure</module>
         <module>auto-configurations/butterfly-spring-boot-rabbitmq-autoconfigure</module>
         <module>auto-configurations/butterfly-spring-boot-netty-autoconfigure</module>
+        <module>auto-configurations/butterfly-spring-boot-kafka-autoconfigure</module>
         <module>starter/butterfly-spring-boot-starter</module>
         <module>butterfly-sandbox</module>
     </modules>
@@ -150,6 +151,12 @@
             <dependency>
                 <groupId>io.github.2fishdouble</groupId>
                 <artifactId>butterfly-spring-boot-netty-autoconfigure</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.2fishdouble</groupId>
+                <artifactId>butterfly-spring-boot-kafka-autoconfigure</artifactId>
                 <version>${revision}</version>
             </dependency>
 

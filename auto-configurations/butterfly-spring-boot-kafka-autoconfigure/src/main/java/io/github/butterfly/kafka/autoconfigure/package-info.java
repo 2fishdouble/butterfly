@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package io.github.butterfly.sandbox;
+/**
+ * Kafka 支持:提供 {@link io.github.butterfly.kafka.autoconfigure.EnableKafkaTemplates} 注解,
+ * 按实体类批量 注册类型安全的 {@code KafkaTemplate} Bean 与对应的 {@code NewTopic} Bean, 连接参数复用容器中已有的
+ * {@code ProducerFactory}, 主题名/分区数/副本数由
+ * {@link io.github.butterfly.kafka.autoconfigure.KafkaTopicProperties} 可选配置.
+ */
+@NullMarked
+package io.github.butterfly.kafka.autoconfigure;
 
-import io.github.butterfly.kafka.autoconfigure.EnableKafkaTemplates;
-import io.github.butterfly.redis.autoconfigure.EnableRedisTemplates;
-import io.github.butterfly.sandbox.model.Computer;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-@SpringBootApplication
-@EnableRedisTemplates(Computer.class)
-@EnableKafkaTemplates(Computer.class)
-public class ButterflySandboxApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(ButterflySandboxApplication.class, args);
-	}
-
-}
+import org.jspecify.annotations.NullMarked;

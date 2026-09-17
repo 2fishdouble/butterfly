@@ -1,0 +1,139 @@
+/*
+ * Copyright 2012-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.github.butterfly.kafka.autoconfigure;
+
+import org.apache.kafka.clients.admin.NewTopic;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
+
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * 校验 {@link EnableKafkaTemplates} 按实体类注册专用模板与主题、命名规则与默认值,全程不触网.
+ */
+class EnableKafkaTemplatesTests {
+
+	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+		.withUserConfiguration(ProducerFactoryConfiguration.class);
+
+	@Test
+	void registersTemplatePerEntityClass() {
+		this.contextRunner.withUserConfiguration(SampleConfiguration.class).run((context) -> {
+			assertThat(context).hasBean("sampleKafkaTemplate");
+			assertThat(context).hasBean("otherKafkaTemplate");
+			assertThat(context).getBean("sampleKafkaTemplate").isInstanceOf(KafkaTemplate.class);
+		});
+	}
+
+	@Test
+	void registeredTemplateTargetsEntityTypeWithJsonSerializer() {
+		this.contextRunner.withUserConfiguration(SampleConfiguration.class).run((context) -> {
+			KafkaTemplate<?, ?> template = context.getBean("sampleKafkaTemplate", KafkaTemplate.class);
+
+			assertThat(template.getProducerFactory().getValueSerializer()).isInstanceOf(JacksonJsonSerializer.class);
+		});
+	}
+
+	@Test
+	void registersNewTopicPerEntityClassWithDefaults() {
+		this.contextRunner.withUserConfiguration(SampleConfiguration.class).run((context) -> {
+			assertThat(context).hasBean("sampleNewTopic");
+			assertThat(context).hasBean("otherNewTopic");
+
+			NewTopic sample = context.getBean("sampleNewTopic", NewTopic.class);
+			assertThat(sample.name()).isEqualTo("sample");
+			assertThat(sample.numPartitions()).isEqualTo(1);
+			assertThat(sample.replicationFactor()).isEqualTo((short) 1);
+		});
+	}
+
+	/**
+	 * {@code butterfly.kafka.topic.*} 的三项配置都要能覆盖默认值,且按实体类分别生效。
+	 */
+	@Test
+	void topicConfigurationOverridesNamePartitionsAndReplicasPerEntity() {
+		this.contextRunner.withUserConfiguration(SampleConfiguration.class)
+			.withPropertyValues("butterfly.kafka.topic.partitions=3", "butterfly.kafka.topic.replicas=2",
+					"butterfly.kafka.topic.entities.sample.name=butterfly-sample",
+					"butterfly.kafka.topic.entities.sample.replicas=4")
+			.run((context) -> {
+				NewTopic sample = context.getBean("sampleNewTopic", NewTopic.class);
+				assertThat(sample.name()).isEqualTo("butterfly-sample");
+				assertThat(sample.numPartitions()).isEqualTo(3);
+				assertThat(sample.replicationFactor()).isEqualTo((short) 4);
+
+				NewTopic other = context.getBean("otherNewTopic", NewTopic.class);
+				assertThat(other.name()).isEqualTo("other");
+				assertThat(other.numPartitions()).isEqualTo(3);
+				assertThat(other.replicationFactor()).isEqualTo((short) 2);
+			});
+	}
+
+	@Test
+	void topicEntityKeyIsCaseInsensitive() {
+		this.contextRunner.withUserConfiguration(SampleConfiguration.class)
+			.withPropertyValues("butterfly.kafka.topic.entities.Sample.name=butterfly-sample")
+			.run((context) -> assertThat(context.getBean("sampleNewTopic", NewTopic.class).name())
+				.isEqualTo("butterfly-sample"));
+	}
+
+	@Test
+	void noEntityClassesRegistersNothing() {
+		this.contextRunner.withUserConfiguration(EmptyConfiguration.class)
+			.run((context) -> assertThat(context).doesNotHaveBean("sampleKafkaTemplate")
+				.doesNotHaveBean("sampleNewTopic"));
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableKafkaTemplates({ Sample.class, Other.class })
+	static class SampleConfiguration {
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableKafkaTemplates
+	static class EmptyConfiguration {
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class ProducerFactoryConfiguration {
+
+		@Bean
+		ProducerFactory<Object, Object> producerFactory() {
+			return new DefaultKafkaProducerFactory<>(Map.of());
+		}
+
+	}
+
+	static class Sample {
+
+	}
+
+	static class Other {
+
+	}
+
+}
