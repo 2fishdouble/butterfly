@@ -81,6 +81,12 @@
                 <version>${revision}</version>
             </dependency>
 
+            <dependency>
+                <groupId>io.github.2fishdouble</groupId>
+                <artifactId>butterfly-spring-boot-rabbitmq-autoconfigure</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>io.github.2fishdouble</groupId>
@@ -88,7 +94,6 @@
                 <version>${revision}</version>
             </dependency>
 
-            <!-- 以下第三方构件在本项目的 autoconfigure 中被声明为 optional,使用方需自行引入,故在此统一版本 -->
             <dependency>
                 <groupId>org.jspecify</groupId>
                 <artifactId>jspecify</artifactId>

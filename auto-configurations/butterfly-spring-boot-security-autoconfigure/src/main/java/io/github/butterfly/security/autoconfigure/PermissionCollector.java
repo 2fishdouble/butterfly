@@ -77,7 +77,8 @@ public class PermissionCollector implements ApplicationListener<ContextRefreshed
 
 		List<String> packages = resolveBasePackages();
 		if (packages.isEmpty()) {
-			log.warn("There are no configured butterfly.security.permission.scan-packages, and no auto-configuration package found, skipping permission collection.");
+			log.warn(
+					"There are no configured butterfly.security.permission.scan-packages, and no auto-configuration package found, skipping permission collection.");
 			return;
 		}
 
@@ -91,8 +92,8 @@ public class PermissionCollector implements ApplicationListener<ContextRefreshed
 		}
 
 		this.storage.store(groups, permissions);
-		log.info("Permission collection completed: {} groups, {} permissions, storage type {}.", groups.size(), permissions.size(),
-				this.storage.getClass().getSimpleName());
+		log.info("Permission collection completed: {} groups, {} permissions, storage type {}.", groups.size(),
+				permissions.size(), this.storage.getClass().getSimpleName());
 	}
 
 	private List<String> resolveBasePackages() {
