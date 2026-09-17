@@ -90,6 +90,12 @@
 
             <dependency>
                 <groupId>io.github.2fishdouble</groupId>
+                <artifactId>butterfly-spring-boot-netty-autoconfigure</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.2fishdouble</groupId>
                 <artifactId>butterfly-spring-boot-starter</artifactId>
                 <version>${revision}</version>
             </dependency>
