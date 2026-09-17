@@ -29,13 +29,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.MessageListenerContainer;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -47,22 +53,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  * 校验 {@code @EnableKafkaTemplates} 注册的 {@code computerKafkaTemplate} 能对真实 Kafka 完成一次 JSON
  * 收发闭环,且主题按配置自动创建.
  * <p>
- * 连接相关配置(Broker 地址 {@value #BROKER}、序列化器等)通过 {@link SpringBootTest#properties()} 内联声明,
- * 由测试自己携带,不读取 {@code application.yml};而主题名/分区数/副本数刻意留给 {@code butterfly.kafka.topic.*},由
- * {@code application.yml} 驱动,以覆盖「配置可选」这条链路。因此测试内 {@link #TOPIC} 必须与 yml 中
- * {@code butterfly.kafka.topic.entities.computer.name} 保持一致,下面的
+ * 连接相关配置(Broker 地址 {@value #BROKER}、消费端反序列化器等)通过 {@link SpringBootTest#properties()}
+ * 内联声明,由测试自己携带,不读取 {@code application.yml};而主题名/分区数/副本数刻意留给
+ * {@code butterfly.kafka.topic.*},由 {@code application.yml} 驱动,以覆盖「配置可选」这条链路。因此测试内
+ * {@link #TOPIC} 必须与 yml 中 {@code butterfly.kafka.topic.entities.computer.name} 保持一致,下面的
  * {@code topicIsAutoCreatedFromConfiguration} 会把两者绑定校验,yml 被改动时会直接失败而不是静默跑偏。
+ * <p>
+ * 这里刻意<b>不</b>声明任何 {@code spring.kafka.consumer.*} /
+ * {@code spring.kafka.listener.*}:消费组名、 起始位移、value 反序列化器与 manual ack 全部由
+ * {@link io.github.butterfly.kafka.autoconfigure.ButterflyKafkaAutoConfiguration}
+ * 提供默认值。本用例能通过, 即证明消费端无需任何 {@code spring.kafka.*} 配置(只保留 Broker 地址)。
  */
-@SpringBootTest(properties = { "spring.kafka.bootstrap-servers=" + KafkaSandboxTests.BROKER,
-		"spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer",
-		"spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JacksonJsonSerializer",
-		"spring.kafka.producer.acks=all", "spring.kafka.producer.retries=3",
-		"spring.kafka.consumer.group-id=" + KafkaSandboxTests.GROUP_ID,
-		"spring.kafka.consumer.auto-offset-reset=earliest",
-		"spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer",
-		"spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JacksonJsonDeserializer",
-		"spring.kafka.consumer.properties.spring.json.trusted.packages=io.github.butterfly.sandbox.model",
-		"spring.kafka.listener.ack-mode=record" })
+@SpringBootTest(properties = { "spring.kafka.bootstrap-servers=" + KafkaSandboxTests.BROKER })
 class KafkaSandboxTests {
 
 	/**
@@ -93,6 +95,9 @@ class KafkaSandboxTests {
 	@Autowired
 	@Qualifier("computerNewTopic")
 	private NewTopic computerNewTopic;
+
+	@Autowired
+	private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
 
 	@BeforeEach
 	void clearReceived() {
@@ -129,6 +134,19 @@ class KafkaSandboxTests {
 		TopicDescription description = this.kafkaAdmin.describeTopics(expected.name()).get(expected.name());
 		assertThat(description).isNotNull();
 		assertThat(description.partitions()).hasSize(expected.partitions());
+	}
+
+	/**
+	 * 实际跑起来的监听容器必须落在框架默认的 manual ack 上——这是「默认使用 manual 监听」的端到端证据。
+	 */
+	@Test
+	void listenerContainerRunsInManualAckMode() {
+		Collection<MessageListenerContainer> containers = this.kafkaListenerEndpointRegistry.getListenerContainers();
+
+		assertThat(containers).isNotEmpty();
+		assertThat(containers).allSatisfy((container) -> assertThat(
+				((ConcurrentMessageListenerContainer<?, ?>) container).getContainerProperties().getAckMode())
+			.isEqualTo(ContainerProperties.AckMode.MANUAL));
 	}
 
 	@Test
@@ -189,8 +207,9 @@ class KafkaSandboxTests {
 		static final BlockingQueue<Computer> RECEIVED = new LinkedBlockingQueue<>();
 
 		@KafkaListener(topics = TOPIC, groupId = GROUP_ID)
-		void onComputer(Computer computer) {
+		void onComputer(Computer computer, Acknowledgment acknowledgment) {
 			RECEIVED.add(computer);
+			acknowledgment.acknowledge();
 		}
 
 	}
