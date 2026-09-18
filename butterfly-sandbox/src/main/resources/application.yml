@@ -71,9 +71,19 @@ butterfly:
     default-from: 2737224577@qq.com
   kafka:
     topic:
+      # 重试与死信的全局默认:每个实体主题默认建立 <主题>-retry-<延迟> 与 <主题>-dlt
+      retry:
+        attempts: 4
+        back-off:
+          delay: 1s
+          multiplier: 3.0
+          max-delay: 30s
       # 主题名/分区数/副本数均可选;这里只覆盖主题名,分区数与副本数用全局默认值
       entities:
         computer:
           name: butterfly-sandbox-computer
           partitions: 1
           replicas: 1
+          # 该实体独有的重试覆盖:死信处理器指向消费端的方法
+          retry:
+            dlt-handler: kafkaComputerConsumer#onDlt

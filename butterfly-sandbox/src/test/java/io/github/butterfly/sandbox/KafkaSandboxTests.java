@@ -81,6 +81,12 @@ class KafkaSandboxTests {
 
 	static final String GROUP_ID = "butterfly-sandbox-test";
 
+	/**
+	 * 测试监听专用消费组.必须与 {@code KafkaComputerConsumer} 的消费组区分开:同一消费组内两个监听器会变成
+	 * 竞争消费者,消息被应用内的消费者抢走后,本用例的 {@code RECEIVED} 队列会一直为空直至超时。
+	 */
+	private static final String TEST_GROUP_ID = GROUP_ID + "-test-listener";
+
 	@Autowired
 	private KafkaTemplate<String, Computer> computerKafkaTemplate;
 
@@ -237,7 +243,7 @@ class KafkaSandboxTests {
 
 		static final BlockingQueue<Computer> RECEIVED = new LinkedBlockingQueue<>();
 
-		@KafkaListener(topics = TOPIC, groupId = GROUP_ID)
+		@KafkaListener(topics = TOPIC, groupId = TEST_GROUP_ID)
 		void onComputer(Computer computer, Acknowledgment acknowledgment) {
 			RECEIVED.add(computer);
 			acknowledgment.acknowledge();
