@@ -51,6 +51,16 @@ spring:
           min-idle: 2
   kafka:
     bootstrap-servers: 192.168.12.29:9092
+  rabbitmq:
+    host: 192.168.12.24
+    port: 5672
+    virtual-host: /
+    username: root
+    password: Rabbitmq.15672.rabbitmq
+    # 打开 confirm 与 return:correlated 是 CorrelationDataPostProcessor 被调用的前提,
+    # 也是消息上能盖出 correlationId 的前提
+    publisher-confirm-type: correlated
+    publisher-returns: true
   mail:
     host: smtp.qq.com
     username: 2737224577@qq.com
@@ -87,3 +97,16 @@ butterfly:
           # 该实体独有的重试覆盖:死信处理器指向消费端的方法
           retry:
             dlt-handler: kafkaComputerConsumer#onDlt
+  rabbitmq:
+    # 重试与死信的全局默认:失败消息在容器内按退避重试,耗尽后重新投递到 <exchange>.dlx
+    retry:
+      attempts: 2
+      delay: 200ms
+      multiplier: 2.0
+      max-delay: 3s
+    # 拓扑名称/交换机类型/持久化/延时等均可选;这里只覆盖名称,交换机类型、持久化与派生的死信名称用默认规则
+    entities:
+      computer:
+        exchange: butterfly-sandbox-computer
+        queue: butterfly-sandbox-computer-queue
+        routing-key: butterfly-sandbox.computer

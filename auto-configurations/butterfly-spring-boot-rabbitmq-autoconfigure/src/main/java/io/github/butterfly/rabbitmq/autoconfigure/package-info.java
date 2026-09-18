@@ -15,8 +15,10 @@
  */
 
 /**
- * RabbitMQ 自动配置:在类路径存在 Spring Boot AMQP 自动配置与 {@code RabbitTemplate} 时, 注册基于它的
- * {@link io.github.butterfly.rabbitmq.autoconfigure.RabbitMqTemplate} 门面.
+ * RabbitMQ 自动配置:在类路径存在 Spring AMQP 时注册容器中唯一的 JSON 消息转换器,并按实体类声明式地创建交换机、
+ * 队列、绑定、死信拓扑、延时拓扑与带重试的监听容器工厂.
+ * <p>
+ * 本包不注册 {@code RabbitTemplate}:收发统一复用 Boot 自动配置的那一个模板,发送时显式给出交换机与路由键。
  */
 @NullMarked
 package io.github.butterfly.rabbitmq.autoconfigure;
