@@ -88,6 +88,7 @@
         <mybatis-plus.version>3.5.17</mybatis-plus.version>
         <pagehelper.version>4.1.1</pagehelper.version>
         <guava.version>33.7.1-jre</guava.version>
+        <wx-java.version>4.8.3.B</wx-java.version>
     </properties>
 
 
@@ -232,6 +233,15 @@
                 <artifactId>pagehelper-spring-boot-starter</artifactId>
                 <version>${pagehelper.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.github.binarywang</groupId>
+                <artifactId>wx-java-bom</artifactId>
+                <version>${wx-java.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
