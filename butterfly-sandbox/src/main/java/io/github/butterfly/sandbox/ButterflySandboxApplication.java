@@ -19,12 +19,13 @@ package io.github.butterfly.sandbox;
 import io.github.butterfly.kafka.autoconfigure.EnableKafkaTemplates;
 import io.github.butterfly.redis.autoconfigure.EnableRedisTemplates;
 import io.github.butterfly.sandbox.model.Computer;
+import io.github.butterfly.sandbox.model.TimeModuleBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @EnableRedisTemplates(Computer.class)
-@EnableKafkaTemplates(Computer.class)
+@EnableKafkaTemplates({ Computer.class, TimeModuleBean.class })
 public class ButterflySandboxApplication {
 
 	public static void main(String[] args) {

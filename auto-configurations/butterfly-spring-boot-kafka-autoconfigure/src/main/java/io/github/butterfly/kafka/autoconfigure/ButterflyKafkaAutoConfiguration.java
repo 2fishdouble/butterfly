@@ -42,7 +42,7 @@ import java.util.Map;
  * 只在对应配置缺失时补齐,使用方显式配置过的项一律不覆盖:
  * <ul>
  * <li>value 反序列化器默认 {@link JacksonJsonDeserializer}(信任所有包),key 保持 Boot 默认的
- * {@link StringDeserializer};</li>
+ * {@link StringDeserializer};两项都只登记类型,序列化器实例由 Kafka 客户端创建并负责关闭;</li>
  * <li>{@code group.id} 默认取 {@code spring.application.name},取不到时用
  * {@value #FALLBACK_GROUP_ID};</li>
  * <li>{@code auto.offset.reset} 默认 {@code earliest};</li>
@@ -112,19 +112,16 @@ public class ButterflyKafkaAutoConfiguration {
 		if (consumer.getAutoOffsetReset() == null) {
 			defaults.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 		}
+
+		if (!environment.containsProperty(VALUE_DESERIALIZER_PROPERTY)) {
+			defaults.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class);
+			if (!consumer.getProperties().containsKey(JacksonJsonDeserializer.TRUSTED_PACKAGES)) {
+				defaults.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "*");
+			}
+		}
 		if (!defaults.isEmpty()) {
 			factory.updateConfigs(defaults);
 		}
-
-		// Boot 的 Consumer 构造器把 value 也初始化成 StringDeserializer,因此无法用"当前值是否为默认值"来判断
-		// 使用方有没有配过;直接看属性本身是否出现过,没出现过才装 JSON 默认值
-		if (!environment.containsProperty(VALUE_DESERIALIZER_PROPERTY)) {
-			factory.setValueDeserializer(jsonDeserializer());
-		}
-	}
-
-	private static <V> JacksonJsonDeserializer<V> jsonDeserializer() {
-		return new JacksonJsonDeserializer<V>().trustedPackages("*");
 	}
 
 }

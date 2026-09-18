@@ -17,6 +17,7 @@
 package io.github.butterfly.kafka.autoconfigure;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration;
@@ -49,8 +50,9 @@ class ButterflyKafkaAutoConfigurationTests {
 
 			assertThat(factory.getConfigurationProperties())
 				.containsEntry(ConsumerConfig.GROUP_ID_CONFIG, "order-service")
-				.containsEntry(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-			assertThat(factory.getValueDeserializer()).isInstanceOf(JacksonJsonDeserializer.class);
+				.containsEntry(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+				.containsEntry(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class)
+				.containsEntry(JacksonJsonDeserializer.TRUSTED_PACKAGES, "*");
 		});
 	}
 
@@ -72,13 +74,13 @@ class ButterflyKafkaAutoConfigurationTests {
 			.run((context) -> {
 				DefaultKafkaConsumerFactory<?, ?> factory = consumerFactory(context);
 
+				// 使用方配过 value 反序列化器,框架就不能再声明自己的 JSON 反序列化器与信任包
 				assertThat(factory.getConfigurationProperties())
 					.containsEntry(ConsumerConfig.GROUP_ID_CONFIG, "my-group")
-					.containsEntry(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-				// 使用方配过 value 反序列化器,框架就不能再装 JSON 默认值。
-				// Boot 只把反序列化器的 class 名放进 config,实例由 Kafka 客户端自行创建,
-				// 因此这里为 null 恰好说明框架没有插手;默认场景下同一个 getter 会返回 JacksonJsonDeserializer。
-				assertThat(factory.getValueDeserializer()).isNull();
+					.containsEntry(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
+					.doesNotContainKey(JacksonJsonDeserializer.TRUSTED_PACKAGES);
+				assertThat(factory.getConfigurationProperties().get(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG))
+					.isIn(StringDeserializer.class, StringDeserializer.class.getName());
 			});
 	}
 

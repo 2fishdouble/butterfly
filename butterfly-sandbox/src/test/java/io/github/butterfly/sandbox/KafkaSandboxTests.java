@@ -16,10 +16,12 @@
 
 package io.github.butterfly.sandbox;
 
+import cn.hutool.core.util.IdUtil;
 import io.github.butterfly.kafka.autoconfigure.KafkaTopicProperties;
 import io.github.butterfly.sandbox.model.Computer;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.admin.TopicDescription;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.kafka.support.Acknowledgment;
@@ -112,10 +113,13 @@ class KafkaSandboxTests {
 		assertThat(this.kafkaProperties.getBootstrapServers()).containsExactly(BROKER);
 	}
 
+	/**
+	 * 模板只把序列化器类型写进生产者配置,实例由 Kafka 客户端创建;真正的 JSON 收发闭环由下面的用例验证。
+	 */
 	@Test
-	void computerTemplateUsesJacksonJsonSerializer() {
-		assertThat(this.computerKafkaTemplate.getProducerFactory().getValueSerializer())
-			.isInstanceOf(JacksonJsonSerializer.class);
+	void computerTemplateConfiguresJacksonJsonSerializer() {
+		assertThat(this.computerKafkaTemplate.getProducerFactory().getConfigurationProperties())
+			.containsEntry(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
 	}
 
 	/**
@@ -144,8 +148,7 @@ class KafkaSandboxTests {
 		Collection<MessageListenerContainer> containers = this.kafkaListenerEndpointRegistry.getListenerContainers();
 
 		assertThat(containers).isNotEmpty();
-		assertThat(containers).allSatisfy((container) -> assertThat(
-				((ConcurrentMessageListenerContainer<?, ?>) container).getContainerProperties().getAckMode())
+		assertThat(containers).allSatisfy((container) -> assertThat(container.getContainerProperties().getAckMode())
 			.isEqualTo(ContainerProperties.AckMode.MANUAL));
 	}
 
@@ -169,6 +172,17 @@ class KafkaSandboxTests {
 		assertThat(received.getProducts().getFirst().getTotalAmount()).isEqualByComparingTo(new BigDecimal("398.00"));
 	}
 
+	@Test
+	void sendsComputer() throws Exception {
+		Computer computer = randomComputer();
+
+		SendResult<String, Computer> result = this.computerKafkaTemplate.send(TOPIC, "computer-1", computer)
+			.get(15, TimeUnit.SECONDS);
+
+		assertThat(result.getRecordMetadata().topic()).isEqualTo(TOPIC);
+		assertThat(result.getRecordMetadata().hasOffset()).isTrue();
+	}
+
 	private Computer sampleComputer() {
 		Computer.Product product = new Computer.Product();
 		product.setId(10L);
@@ -182,6 +196,23 @@ class KafkaSandboxTests {
 		computer.setId(1L);
 		computer.setName("butterfly-sandbox");
 		computer.setCreateTime(LocalDateTime.of(2026, 9, 17, 16, 0));
+		computer.setProducts(List.of(product));
+		return computer;
+	}
+
+	private Computer randomComputer() {
+		Computer.Product product = new Computer.Product();
+		product.setId(IdUtil.getSnowflakeNextId());
+		product.setName("keyboard");
+		product.setDescription("mechanical keyboard");
+		product.setPrice(new BigDecimal("199.00"));
+		product.setQuantity(2);
+		product.setTotalAmount(new BigDecimal("398.00"));
+
+		Computer computer = new Computer();
+		computer.setId(IdUtil.getSnowflakeNextId());
+		computer.setName("butterfly-sandbox");
+		computer.setCreateTime(LocalDateTime.now());
 		computer.setProducts(List.of(product));
 		return computer;
 	}

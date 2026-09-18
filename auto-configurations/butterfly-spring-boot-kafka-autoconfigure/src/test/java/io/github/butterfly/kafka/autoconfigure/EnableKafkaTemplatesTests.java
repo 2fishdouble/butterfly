@@ -17,6 +17,8 @@
 package io.github.butterfly.kafka.autoconfigure;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
@@ -47,12 +49,18 @@ class EnableKafkaTemplatesTests {
 		});
 	}
 
+	/**
+	 * 注册器只把序列化器的类型写进生产者配置,实例留给 Kafka 客户端创建:Serializer 实现 Closeable, 框架自己 new
+	 * 出来再交出去,既会被判定为"未关闭的资源",也让多个生产者共享同一个实例。
+	 */
 	@Test
-	void registeredTemplateTargetsEntityTypeWithJsonSerializer() {
+	void registeredTemplateConfiguresJsonValueSerializer() {
 		this.contextRunner.withUserConfiguration(SampleConfiguration.class).run((context) -> {
 			KafkaTemplate<?, ?> template = context.getBean("sampleKafkaTemplate", KafkaTemplate.class);
 
-			assertThat(template.getProducerFactory().getValueSerializer()).isInstanceOf(JacksonJsonSerializer.class);
+			assertThat(template.getProducerFactory().getConfigurationProperties())
+				.containsEntry(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class)
+				.containsEntry(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
 		});
 	}
 

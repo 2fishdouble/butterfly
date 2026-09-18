@@ -161,12 +161,10 @@ public class KafkaTemplateRegistrar implements ImportBeanDefinitionRegistrar, Be
 			}
 
 			Map<String, Object> configs = new HashMap<>(sharedProducerFactory.getConfigurationProperties());
-			configs.remove(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG);
-			configs.remove(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG);
+			configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+			configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
 
-			JacksonJsonSerializer<T> valueSerializer = new JacksonJsonSerializer<>();
-			DefaultKafkaProducerFactory<String, T> producerFactory = new DefaultKafkaProducerFactory<>(configs,
-					new StringSerializer(), valueSerializer);
+			DefaultKafkaProducerFactory<String, T> producerFactory = new DefaultKafkaProducerFactory<>(configs);
 
 			return new KafkaTemplate<>(producerFactory);
 		});
