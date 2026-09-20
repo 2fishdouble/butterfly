@@ -88,7 +88,7 @@
         <mybatis-plus.version>3.5.17</mybatis-plus.version>
         <pagehelper.version>4.1.1</pagehelper.version>
         <guava.version>33.7.1-jre</guava.version>
-        <wx-java.version>4.8.3.B</wx-java.version>
+        <wx-java.version>4.8.6.B</wx-java.version>
     </properties>
 
 
