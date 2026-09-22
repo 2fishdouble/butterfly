@@ -20,13 +20,21 @@ import cn.hutool.core.util.IdUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+import java.util.Locale;
+
 @Slf4j
 public class ButterflyTests {
 
+	/**
+	 * VM options: -Duser.language=en -Duser.country=CA.
+	 */
 	@Test
 	public void contextLoads() {
 		IdUtil.getSnowflake().nextId();
 		log.info("{}", IdUtil.getSnowflake().nextId());
+		log.info("Default locale: {}", Locale.getDefault());
+		log.info("Language: {}", Locale.getDefault().getLanguage());
+		log.info("Country: {}", Locale.getDefault().getCountry());
 	}
 
 }
