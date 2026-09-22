@@ -166,8 +166,7 @@ class RabbitMqRetrySandboxTests {
 		static final AtomicInteger ATTEMPTS = new AtomicInteger();
 
 		@RabbitListener(queues = QUEUE, containerFactory = "timeModuleBeanRabbitListenerContainerFactory")
-		void onTimeModule(TimeModuleBean bean, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag)
-				throws IOException {
+		void onTimeModule(TimeModuleBean bean, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
 			ATTEMPTS.incrementAndGet();
 			throw new IllegalStateException("always fails");
 		}

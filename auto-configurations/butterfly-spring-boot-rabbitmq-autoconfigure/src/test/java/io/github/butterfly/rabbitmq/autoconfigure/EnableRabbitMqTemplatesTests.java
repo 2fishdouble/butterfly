@@ -91,15 +91,15 @@ class EnableRabbitMqTemplatesTests {
 		this.contextRunner.withUserConfiguration(SampleConfiguration.class).run((context) -> {
 			Declarables computer = declarables(context, "computerDeclarables");
 
-			Queue queue = computer.getDeclarablesByType(Queue.class).get(0);
+			Queue queue = computer.getDeclarablesByType(Queue.class).getFirst();
 			assertThat(queue.isDurable()).isTrue();
 			assertThat(queue.isExclusive()).isFalse();
 			assertThat(queue.isAutoDelete()).isFalse();
 			assertThat(queue.getArguments()).containsEntry("x-dead-letter-exchange", "computer.dlx")
 				.containsEntry("x-dead-letter-routing-key", "computer.dead");
 
-			assertThat(computer.getDeclarablesByType(Exchange.class).get(0).getType()).isEqualTo("topic");
-			assertThat(computer.getDeclarablesByType(Exchange.class).get(0).isDurable()).isTrue();
+			assertThat(computer.getDeclarablesByType(Exchange.class).getFirst().getType()).isEqualTo("topic");
+			assertThat(computer.getDeclarablesByType(Exchange.class).getFirst().isDurable()).isTrue();
 		});
 	}
 
@@ -148,7 +148,7 @@ class EnableRabbitMqTemplatesTests {
 			.run((context) -> {
 				Declarables computer = declarables(context, "computerDeclarables");
 
-				assertThat(computer.getDeclarablesByType(Exchange.class).get(0).getType()).isEqualTo("fanout");
+				assertThat(computer.getDeclarablesByType(Exchange.class).getFirst().getType()).isEqualTo("fanout");
 				assertThat(bindings(computer)).containsExactly("computer->->computer", "computer.dlx->->computer.dlq");
 			});
 	}
@@ -172,7 +172,7 @@ class EnableRabbitMqTemplatesTests {
 					.containsExactly("computer");
 				assertThat(computer.getDeclarablesByType(Queue.class)).extracting(Queue::getName)
 					.containsExactly("computer");
-				assertThat(computer.getDeclarablesByType(Queue.class).get(0).getArguments())
+				assertThat(computer.getDeclarablesByType(Queue.class).getFirst().getArguments())
 					.doesNotContainKey("x-dead-letter-exchange");
 				assertThat(bindings(computer)).containsExactly("computer->computer->computer");
 

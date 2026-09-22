@@ -66,7 +66,7 @@ class IdempotentAspectTests {
 	}
 
 	@Test
-	void failsWhenLockIsNotAcquired() throws Throwable {
+	void failsWhenLockIsNotAcquired() {
 		FakeLock lock = new FakeLock(false, false);
 		IdempotentAspect aspect = new IdempotentAspect(this.spelSup, redisson(lock));
 
