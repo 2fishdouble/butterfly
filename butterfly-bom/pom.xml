@@ -28,7 +28,7 @@
         <mybatis-plus.version>3.5.17</mybatis-plus.version>
         <pagehelper.version>4.1.1</pagehelper.version>
         <rocketmq.v5.client.spring.boot.starter.version>2.3.6</rocketmq.v5.client.spring.boot.starter.version>
-        <rocketmq.client.version>5.3.1</rocketmq.client.version>
+        <rocketmq.client.version>5.3.2</rocketmq.client.version>
     </properties>
 
     <dependencyManagement>
