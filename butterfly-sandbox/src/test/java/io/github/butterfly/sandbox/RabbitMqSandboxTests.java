@@ -96,9 +96,6 @@ class RabbitMqSandboxTests {
 	private AmqpAdmin amqpAdmin;
 
 	@Autowired
-	private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
-
-	@Autowired
 	private ApplicationContext applicationContext;
 
 	/**
@@ -246,10 +243,14 @@ class RabbitMqSandboxTests {
 
 	/**
 	 * 取出应用自带消费者在 computer 队列上的监听容器.
+	 * <p>
+	 * 监听端点注册表由 Boot 的 RabbitMQ 自动配置在运行时注册,这里按类型从上下文取,而不是 {@code @Autowired} 一个字段: 该 bean
+	 * 来自条件化自动配置,IDE 的静态 Bean 模型看不到它,直接注入会报"找不到该类型的 bean"。
 	 * @return 监听容器
 	 */
 	private AbstractMessageListenerContainer computerContainer() {
-		return this.rabbitListenerEndpointRegistry.getListenerContainers()
+		return this.applicationContext.getBean(RabbitListenerEndpointRegistry.class)
+			.getListenerContainers()
 			.stream()
 			.map(AbstractMessageListenerContainer.class::cast)
 			.filter((candidate) -> Arrays.asList(candidate.getQueueNames()).contains(RabbitMqComputerConsumer.QUEUE))

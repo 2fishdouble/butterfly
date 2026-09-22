@@ -25,10 +25,10 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
@@ -99,12 +99,13 @@ class KafkaSandboxTests {
 	@Autowired
 	private KafkaAdmin kafkaAdmin;
 
+	/**
+	 * 主题 bean 由 {@code @EnableKafkaTemplates} 的注册器在运行时登记,监听端点注册表由 Boot 的 Kafka 自动配置
+	 * 提供:两者都是条件化/运行时注册的 bean,IDE 的静态模型看不到,所以这里按类型或名字从上下文取,而不是 {@code @Autowired}
+	 * 字段(否则会报"找不到该类型的 bean"或"找不到限定符")。
+	 */
 	@Autowired
-	@Qualifier("computerNewTopic")
-	private NewTopic computerNewTopic;
-
-	@Autowired
-	private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
+	private ApplicationContext applicationContext;
 
 	@BeforeEach
 	void clearReceived() {
@@ -137,9 +138,10 @@ class KafkaSandboxTests {
 		KafkaTopicProperties.TopicDefinition expected = this.topicProperties.resolve(Computer.class);
 
 		assertThat(expected.name()).isEqualTo(TOPIC);
-		assertThat(this.computerNewTopic.name()).isEqualTo(expected.name());
-		assertThat(this.computerNewTopic.numPartitions()).isEqualTo(expected.partitions());
-		assertThat(this.computerNewTopic.replicationFactor()).isEqualTo((short) expected.replicas());
+		NewTopic computerNewTopic = this.applicationContext.getBean("computerNewTopic", NewTopic.class);
+		assertThat(computerNewTopic.name()).isEqualTo(expected.name());
+		assertThat(computerNewTopic.numPartitions()).isEqualTo(expected.partitions());
+		assertThat(computerNewTopic.replicationFactor()).isEqualTo((short) expected.replicas());
 
 		TopicDescription description = this.kafkaAdmin.describeTopics(expected.name()).get(expected.name());
 		assertThat(description).isNotNull();
@@ -151,7 +153,8 @@ class KafkaSandboxTests {
 	 */
 	@Test
 	void listenerContainerRunsInManualAckMode() {
-		Collection<MessageListenerContainer> containers = this.kafkaListenerEndpointRegistry.getListenerContainers();
+		KafkaListenerEndpointRegistry registry = this.applicationContext.getBean(KafkaListenerEndpointRegistry.class);
+		Collection<MessageListenerContainer> containers = registry.getListenerContainers();
 
 		assertThat(containers).isNotEmpty();
 		assertThat(containers).allSatisfy((container) -> assertThat(container.getContainerProperties().getAckMode())
