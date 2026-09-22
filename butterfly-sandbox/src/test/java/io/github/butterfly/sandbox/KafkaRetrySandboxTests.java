@@ -30,7 +30,6 @@ import org.springframework.kafka.support.Acknowledgment;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,7 +58,7 @@ class KafkaRetrySandboxTests {
 
 	@BeforeEach
 	void resetRecorders() {
-		FailingTimeModuleConsumer.ATTEMPTS.set(0);
+		FailingTimeModuleConsumer.ATTEMPTS.clear();
 		TimeModuleDltRecorder.RECEIVED.clear();
 	}
 
@@ -80,15 +79,18 @@ class KafkaRetrySandboxTests {
 		assertThat(dead).as("消息应当在重试耗尽后进入死信主题").isNotNull();
 	}
 
+	/**
+	 * 阻塞等待消息被投递 {@code expected} 次:每次投递都会入队,因此不需要轮询等待.
+	 */
 	private boolean awaitAttempts(int expected, long timeoutSeconds) throws InterruptedException {
 		long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(timeoutSeconds);
-		while (System.nanoTime() < deadline) {
-			if (FailingTimeModuleConsumer.ATTEMPTS.get() >= expected) {
-				return true;
+		for (int delivered = 0; delivered < expected; delivered++) {
+			long remaining = deadline - System.nanoTime();
+			if (remaining <= 0 || FailingTimeModuleConsumer.ATTEMPTS.poll(remaining, TimeUnit.NANOSECONDS) == null) {
+				return false;
 			}
-			Thread.sleep(50);
 		}
-		return false;
+		return true;
 	}
 
 	private TimeModuleBean awaitDlt(TimeModuleBean sent, long timeoutSeconds) throws InterruptedException {
@@ -118,15 +120,16 @@ class KafkaRetrySandboxTests {
 	}
 
 	/**
-	 * 必然失败的监听器:记录被投递的次数后抛异常.
+	 * 必然失败的监听器:记录每次投递后抛异常.
 	 */
 	static class FailingTimeModuleConsumer {
 
-		static final AtomicInteger ATTEMPTS = new AtomicInteger();
+		/** 每次投递入队一条消息,供用例阻塞等待重试次数,避免轮询. */
+		static final BlockingQueue<TimeModuleBean> ATTEMPTS = new LinkedBlockingQueue<>();
 
 		@KafkaListener(topics = TOPIC, groupId = "butterfly-sandbox-retry-test")
 		void onTimeModule(TimeModuleBean bean, Acknowledgment acknowledgment) {
-			ATTEMPTS.incrementAndGet();
+			ATTEMPTS.add(bean);
 			throw new IllegalStateException("always fails");
 		}
 

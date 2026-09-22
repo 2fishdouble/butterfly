@@ -27,6 +27,7 @@ import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
+import org.springframework.amqp.core.QueueInformation;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -156,7 +157,9 @@ class RabbitMqSandboxTests {
 
 		assertThat(this.amqpAdmin.getQueueProperties(definition.queue())).isNotNull();
 		assertThat(this.amqpAdmin.getQueueProperties(definition.deadLetterQueue())).isNotNull();
-		assertThat(this.amqpAdmin.getQueueInfo(definition.queue()).getName()).isEqualTo(definition.queue());
+		assertThat(this.amqpAdmin.getQueueInfo(definition.queue())).isNotNull()
+			.extracting(QueueInformation::getName)
+			.isEqualTo(definition.queue());
 	}
 
 	/**

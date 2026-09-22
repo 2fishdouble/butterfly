@@ -220,7 +220,13 @@ class ButterflyRabbitMqAutoConfigurationTests {
 	@Configuration(proxyBeanMethods = false)
 	static class CustomCorrelationDataConfiguration {
 
-		static final CorrelationDataPostProcessor PROCESSOR = (message, correlationData) -> correlationData;
+		/**
+		 * 使用方自定义处理器:沿用调用方给的关联数据,缺省时现造一个.
+		 * <p>
+		 * {@code postProcess} 的入参可空、返回值非空,因此不能把入参直接透传回去.
+		 */
+		static final CorrelationDataPostProcessor PROCESSOR = (message, correlationData) -> (correlationData != null)
+				? correlationData : new CorrelationData();
 
 		@Bean
 		CorrelationDataPostProcessor customCorrelationDataPostProcessor() {

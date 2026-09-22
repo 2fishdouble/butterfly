@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,7 +70,7 @@ class RabbitMqRetrySandboxTests {
 
 	@BeforeEach
 	void reset() {
-		FailingTimeModuleConsumer.ATTEMPTS.set(0);
+		FailingTimeModuleConsumer.ATTEMPTS.clear();
 		TimeModuleDltRecorder.RECEIVED.clear();
 		// 队列跨运行保留消息,先清干净,免得上一轮的残留影响本次的投递次数
 		this.amqpAdmin.purgeQueue(QUEUE);
@@ -118,15 +117,18 @@ class RabbitMqRetrySandboxTests {
 		assertThat(dead.xDeath().getFirst().get("queue")).isEqualTo(QUEUE);
 	}
 
+	/**
+	 * 阻塞等待消息被投递 {@code expected} 次:每次投递都会入队,因此不需要轮询等待.
+	 */
 	private boolean awaitAttempts(int expected, long timeoutSeconds) throws InterruptedException {
 		long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(timeoutSeconds);
-		while (System.nanoTime() < deadline) {
-			if (FailingTimeModuleConsumer.ATTEMPTS.get() >= expected) {
-				return true;
+		for (int delivered = 0; delivered < expected; delivered++) {
+			long remaining = deadline - System.nanoTime();
+			if (remaining <= 0 || FailingTimeModuleConsumer.ATTEMPTS.poll(remaining, TimeUnit.NANOSECONDS) == null) {
+				return false;
 			}
-			Thread.sleep(50);
 		}
-		return false;
+		return true;
 	}
 
 	/**
@@ -159,15 +161,16 @@ class RabbitMqRetrySandboxTests {
 	}
 
 	/**
-	 * 必然失败的监听器:记录被投递的次数后抛异常,既不 ack 也不 nack,交给容器内的重试通知链处理.
+	 * 必然失败的监听器:记录每次投递后抛异常,既不 ack 也不 nack,交给容器内的重试通知链处理.
 	 */
 	static class FailingTimeModuleConsumer {
 
-		static final AtomicInteger ATTEMPTS = new AtomicInteger();
+		/** 每次投递入队一条消息,供用例阻塞等待重试次数,避免轮询. */
+		static final BlockingQueue<TimeModuleBean> ATTEMPTS = new LinkedBlockingQueue<>();
 
 		@RabbitListener(queues = QUEUE, containerFactory = "timeModuleBeanRabbitListenerContainerFactory")
 		void onTimeModule(TimeModuleBean bean, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
-			ATTEMPTS.incrementAndGet();
+			ATTEMPTS.add(bean);
 			throw new IllegalStateException("always fails");
 		}
 

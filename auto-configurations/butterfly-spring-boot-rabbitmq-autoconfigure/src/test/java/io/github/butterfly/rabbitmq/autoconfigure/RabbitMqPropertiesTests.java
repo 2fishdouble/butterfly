@@ -123,8 +123,9 @@ class RabbitMqPropertiesTests {
 		entity.setExchange("butterfly-computer");
 		entity.setQueue("butterfly-computer-queue");
 		entity.setRoutingKey("computer.created");
-		entity.setRetry(new RabbitMqProperties.Retry());
-		entity.getRetry().setAttempts(7);
+		RabbitMqProperties.Retry retry = new RabbitMqProperties.Retry();
+		retry.setAttempts(7);
+		entity.setRetry(retry);
 		this.properties.setEntities(entities("computer", entity));
 
 		RabbitMqProperties.EntityDefinition definition = this.properties.resolve(Computer.class);
@@ -183,8 +184,9 @@ class RabbitMqPropertiesTests {
 	@Test
 	void nonPositiveEntityAttemptsFailsFast() {
 		RabbitMqProperties.Entity entity = new RabbitMqProperties.Entity();
-		entity.setRetry(new RabbitMqProperties.Retry());
-		entity.getRetry().setAttempts(-1);
+		RabbitMqProperties.Retry retry = new RabbitMqProperties.Retry();
+		retry.setAttempts(-1);
+		entity.setRetry(retry);
 		this.properties.setEntities(entities("computer", entity));
 
 		assertThatThrownBy(() -> this.properties.resolve(Computer.class)).isInstanceOf(IllegalStateException.class)
