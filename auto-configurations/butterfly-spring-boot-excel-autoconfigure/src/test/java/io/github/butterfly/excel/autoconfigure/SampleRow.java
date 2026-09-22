@@ -53,7 +53,7 @@ public class SampleRow {
 		return row;
 	}
 
-    /**
+	/**
 	 * 不含任何常量的枚举,用于覆盖集合转换器的异常分支.
 	 */
 	public enum EmptyEnum implements BaseEnum {
