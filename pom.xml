@@ -79,13 +79,11 @@
         <checkstyle.config.location>${maven.multiModuleProjectDirectory}/src/checkstyle/checkstyle.xml</checkstyle.config.location>
         <license-maven-plugin.version>5.1.2</license-maven-plugin.version>
 
-        <!-- 第三方版本:同时在 butterfly-bom 的 dependencyManagement 中声明,改动时请同步 -->
         <jspecify.version>1.0.1</jspecify.version>
         <lombok.version>1.18.48</lombok.version>
         <hutool.version>5.8.47</hutool.version>
         <redisson.version>4.7.0</redisson.version>
         <fastexcel.version>1.3.0</fastexcel.version>
-        <!-- POI 5.4.1 需要 >= 2.16 的 commons-io(BoundedInputStream.builder),而 BOM 传递进来的 2.14.0 会导致读取 Excel 时 NoSuchMethodError -->
         <commons-io.version>2.18.0</commons-io.version>
         <mybatis-plus.version>3.5.17</mybatis-plus.version>
         <pagehelper.version>4.1.1</pagehelper.version>
@@ -240,14 +238,6 @@
                 <groupId>com.github.pagehelper</groupId>
                 <artifactId>pagehelper-spring-boot-starter</artifactId>
                 <version>${pagehelper.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.github.binarywang</groupId>
-                <artifactId>wx-java-bom</artifactId>
-                <version>${wx-java.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
             </dependency>
 
         </dependencies>
