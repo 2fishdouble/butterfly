@@ -12,6 +12,11 @@
     <name>butterfly-wechat</name>
     <description>butterfly-wechat</description>
 
+    <properties>
+        <!-- This module is not part of the reactor yet, so it keeps its own wx-java version. -->
+        <wx-java.version>4.8.6.B</wx-java.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

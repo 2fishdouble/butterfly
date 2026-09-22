@@ -5,30 +5,28 @@
 
     <parent>
         <groupId>io.github.2fishdouble</groupId>
-        <artifactId>butterfly</artifactId>
+        <artifactId>butterfly-parent</artifactId>
         <version>${revision}</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../butterfly-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>butterfly-bom</artifactId>
     <packaging>pom</packaging>
 
     <name>butterfly-bom</name>
-    <description>Butterfly BOM</description>
-
+    <description>Butterfly BOM (single source of truth for all managed dependency versions)</description>
 
     <properties>
-        <revision>0.1.3</revision>
-        <spring-boot.version>4.1.1</spring-boot.version>
         <jspecify.version>1.0.1</jspecify.version>
         <lombok.version>1.18.48</lombok.version>
         <hutool.version>5.8.47</hutool.version>
+        <guava.version>33.7.1-jre</guava.version>
         <redisson.version>4.7.0</redisson.version>
+        <aspectjweaver.version>1.9.25.1</aspectjweaver.version>
         <fastexcel.version>1.3.0</fastexcel.version>
         <commons-io.version>2.18.0</commons-io.version>
         <mybatis-plus.version>3.5.17</mybatis-plus.version>
         <pagehelper.version>4.1.1</pagehelper.version>
-        <guava.version>33.7.1-jre</guava.version>
     </properties>
 
     <dependencyManagement>
@@ -67,13 +65,13 @@
 
             <dependency>
                 <groupId>io.github.2fishdouble</groupId>
-                <artifactId>butterfly-spring-boot-mybatis-plus-autoconfigure</artifactId>
+                <artifactId>butterfly-spring-boot-security-autoconfigure</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.2fishdouble</groupId>
-                <artifactId>butterfly-spring-boot-security-autoconfigure</artifactId>
+                <artifactId>butterfly-spring-boot-mybatis-plus-autoconfigure</artifactId>
                 <version>${revision}</version>
             </dependency>
 
@@ -88,7 +86,6 @@
                 <artifactId>butterfly-spring-boot-rabbitmq-autoconfigure</artifactId>
                 <version>${revision}</version>
             </dependency>
-
 
             <dependency>
                 <groupId>io.github.2fishdouble</groupId>
@@ -142,6 +139,12 @@
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson</artifactId>
                 <version>${redisson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>${aspectjweaver.version}</version>
             </dependency>
 
             <dependency>
