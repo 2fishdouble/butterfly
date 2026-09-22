@@ -99,7 +99,7 @@ class KafkaRetrySandboxTests {
 				return candidate;
 			}
 		}
-		return null;
+		throw new AssertionError("等待死信超时: " + TOPIC);
 	}
 
 	@TestConfiguration(proxyBeanMethods = false)

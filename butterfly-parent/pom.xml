@@ -165,8 +165,8 @@
                     </dependencies>
                     <configuration>
                         <configLocation>${checkstyle.config.location}</configLocation>
-                        <includeTestSourceDirectory>false</includeTestSourceDirectory>
-                        <includeTestResources>false</includeTestResources>
+                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                        <includeTestResources>true</includeTestResources>
                         <logViolationCountToConsole>true</logViolationCountToConsole>
                         <logViolationsToConsole>true</logViolationsToConsole>
                         <consoleOutput>true</consoleOutput>
@@ -189,6 +189,7 @@
                                 <header>${maven.multiModuleProjectDirectory}/src/license/HEADER</header>
                                 <includes>
                                     <include>src/main/java/**/*.java</include>
+                                    <include>src/test/java/**/*.java</include>
                                 </includes>
                             </licenseSet>
                         </licenseSets>

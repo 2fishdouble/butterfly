@@ -140,7 +140,7 @@ class RabbitMqRetrySandboxTests {
 				return candidate;
 			}
 		}
-		return null;
+		throw new AssertionError("等待死信超时: " + DEAD_LETTER_QUEUE);
 	}
 
 	@TestConfiguration(proxyBeanMethods = false)

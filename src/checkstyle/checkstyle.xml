@@ -7,6 +7,8 @@
         <!--https://github.com/spring-io/spring-javaformat/tree/main/spring-javaformat/spring-javaformat-checkstyle/src/main/java/io/spring/javaformat/checkstyle/check-->
 		<!--	lombok.experimental.UtilityClass使用之后此条检查无法通过	-->
         <property name="excludes" value="io.spring.javaformat.checkstyle.check.SpringHideUtilityClassConstructor"/>
+		<!--	空枚举的 `;` 必须独占一行(spring-javaformat 也只会格式化成这一种),与格式化结果冲突;同行 `foo ;` 由格式化校验兜底	-->
+        <property name="excludes" value="io.spring.javaformat.checkstyle.check.SpringNoWhitespaceBeforeCheck"/>
         <property name="excludes" value="io.spring.javaformat.checkstyle.check.SpringImportOrderCheck"/>
         <property name="excludes" value="io.spring.javaformat.checkstyle.check.SpringMethodVisibilityCheck"/>
 

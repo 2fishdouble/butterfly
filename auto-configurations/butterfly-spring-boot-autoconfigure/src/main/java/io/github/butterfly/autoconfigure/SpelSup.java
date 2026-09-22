@@ -18,6 +18,7 @@ package io.github.butterfly.autoconfigure;
 
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.ArrayUtil;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
@@ -69,7 +70,7 @@ public class SpelSup {
 	 * @return 拼接后的字符串;没有任何有效片段时返回空字符串
 	 * @throws IllegalArgumentException 任一表达式解析或求值失败时抛出,原始异常作为 cause 保留
 	 */
-	public String parseSpel(Method method, String[] keys, Object[] args) {
+	public String parseSpel(Method method, @Nullable String @Nullable [] keys, Object[] args) {
 		StringBuilder sbu = new StringBuilder();
 		try {
 			if (!ArrayUtil.isEmpty(keys)) {

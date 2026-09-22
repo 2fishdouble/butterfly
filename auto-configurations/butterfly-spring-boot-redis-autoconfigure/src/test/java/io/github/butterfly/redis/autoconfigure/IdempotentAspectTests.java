@@ -1,9 +1,26 @@
+/*
+ * Copyright 2012-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.github.butterfly.redis.autoconfigure;
 
 import io.github.butterfly.autoconfigure.SpelSup;
 import io.github.butterfly.core.BusinessException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -67,7 +84,7 @@ class IdempotentAspectTests {
 		Object result = aspect.interceptor(joinPoint(method("plain"), new Object[] { "1" }, "plain", null));
 
 		assertThat(result).isEqualTo("plain");
-		assertThat(lock.key).hasValue(null);
+		assertThat(lock.key).hasNullValue();
 	}
 
 	@Test
@@ -81,7 +98,7 @@ class IdempotentAspectTests {
 	}
 
 	@Test
-	void unlocksWhenTargetMethodThrows() throws Throwable {
+	void unlocksWhenTargetMethodThrows() {
 		FakeLock lock = new FakeLock(true, true);
 		IdempotentAspect aspect = new IdempotentAspect(this.spelSup, redisson(lock));
 		IllegalStateException failure = new IllegalStateException("boom");
@@ -106,7 +123,8 @@ class IdempotentAspectTests {
 				});
 	}
 
-	private static ProceedingJoinPoint joinPoint(Method method, Object[] args, Object result, Throwable failure) {
+	private static ProceedingJoinPoint joinPoint(Method method, Object[] args, @Nullable Object result,
+			@Nullable Throwable failure) {
 		MethodSignature signature = (MethodSignature) Proxy.newProxyInstance(
 				IdempotentAspectTests.class.getClassLoader(), new Class<?>[] { MethodSignature.class },
 				(proxy, invoked, invokedArgs) -> "getMethod".equals(invoked.getName()) ? method
@@ -134,7 +152,7 @@ class IdempotentAspectTests {
 				});
 	}
 
-	private static Object defaultValue(Class<?> type) {
+	private static @Nullable Object defaultValue(Class<?> type) {
 		if (!type.isPrimitive() || type == void.class) {
 			return null;
 		}
@@ -185,7 +203,7 @@ class IdempotentAspectTests {
 
 	private static final class FakeLock {
 
-		private final AtomicReference<String> key = new AtomicReference<>();
+		private final AtomicReference<@Nullable String> key = new AtomicReference<>();
 
 		private final AtomicBoolean unlocked = new AtomicBoolean();
 

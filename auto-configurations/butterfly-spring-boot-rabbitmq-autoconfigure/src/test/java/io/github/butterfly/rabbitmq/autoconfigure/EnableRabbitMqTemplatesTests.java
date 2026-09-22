@@ -19,6 +19,7 @@ package io.github.butterfly.rabbitmq.autoconfigure;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.core.AcknowledgeMode;
@@ -489,13 +490,13 @@ class EnableRabbitMqTemplatesTests {
 	 */
 	static class FailingMethodInvocation implements MethodInvocation {
 
-		private final Object[] arguments;
+		private final @Nullable Object[] arguments;
 
 		private final RuntimeException failure;
 
 		private int attempts;
 
-		FailingMethodInvocation(Object[] arguments, RuntimeException failure) {
+		FailingMethodInvocation(@Nullable Object[] arguments, RuntimeException failure) {
 			this.arguments = arguments;
 			this.failure = failure;
 		}

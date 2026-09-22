@@ -21,6 +21,7 @@ import jakarta.mail.Multipart;
 import jakarta.mail.Part;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.core.io.ByteArrayResource;
@@ -95,7 +96,7 @@ class MailTemplateTests {
 		}
 	}
 
-	private String partText(Part part) {
+	private @Nullable String partText(Part part) {
 		try {
 			return (part.getContent() instanceof String text) ? text : null;
 		}

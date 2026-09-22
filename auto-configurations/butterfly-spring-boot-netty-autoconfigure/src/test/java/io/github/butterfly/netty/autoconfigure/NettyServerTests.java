@@ -23,6 +23,7 @@ import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.LineEncoder;
 import io.netty.handler.codec.string.LineSeparator;
 import io.netty.handler.codec.string.StringDecoder;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class NettyServerTests {
 
-	private NettyServer server;
+	private @Nullable NettyServer server;
 
 	@AfterEach
 	void stopServer() {
