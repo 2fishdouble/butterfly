@@ -17,6 +17,7 @@
 package io.github.butterfly.core;
 
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 
@@ -40,17 +41,17 @@ public class R<T> implements Serializable {
 	/**
 	 * 是否成功标记, 与 {@code code} 对应:成功为 {@code true}, 失败为 {@code false}.
 	 */
-	private Boolean isSuccess;
+	private @Nullable Boolean isSuccess;
 
 	/**
 	 * 错误描述, 失败时由 {@link #error(String)} 写入;成功时不会被赋值.
 	 */
-	private String msg;
+	private @Nullable String msg;
 
 	/**
 	 * 业务数据, 成功时由 {@link #success(Object)} 或 {@link #R(Object)} 写入;失败时不会被赋值.
 	 */
-	private T data;
+	private @Nullable T data;
 
 	/**
 	 * 构造成功响应并携带业务数据, 等价于 {@code code=200}、{@code isSuccess=true}.

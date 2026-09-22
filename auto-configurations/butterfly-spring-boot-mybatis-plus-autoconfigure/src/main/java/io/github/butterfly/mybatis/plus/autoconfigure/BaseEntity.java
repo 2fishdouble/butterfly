@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
 
@@ -44,7 +45,7 @@ public class BaseEntity {
 	 * 赋值,需使用方自行设置或注册自定义的 {@code MetaObjectHandler}.
 	 */
 	@TableField(value = "creator_id", fill = FieldFill.INSERT)
-	private Long creatorId;
+	private @Nullable Long creatorId;
 
 	/**
 	 * 最后修改时间,对应列 {@code edit_time};声明为插入与更新时填充,由 {@link BaseEntityHandler} 写入当前时间
@@ -58,7 +59,7 @@ public class BaseEntity {
 	 * 的赋值,需使用方自行设置或注册自定义的 {@code MetaObjectHandler}.
 	 */
 	@TableField(value = "editor_id", fill = FieldFill.INSERT_UPDATE)
-	private Long editorId;
+	private @Nullable Long editorId;
 
 	/**
 	 * 逻辑删除标记,对应列 {@code is_deleted};标注 {@link TableLogic} 后,删除操作会改为更新该字段,

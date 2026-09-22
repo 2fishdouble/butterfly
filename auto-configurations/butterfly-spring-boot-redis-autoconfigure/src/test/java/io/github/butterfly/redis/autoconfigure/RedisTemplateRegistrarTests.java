@@ -86,9 +86,18 @@ class RedisTemplateRegistrarTests {
 			.run((context) -> assertThat(context.getBeanNamesForType(RedisTemplate.class)).isEmpty());
 	}
 
+	/**
+	 * 连接工厂只作为占位 Bean,除 {@code equals/hashCode/toString} 外一律返回 {@code null}; 这三个 Object
+	 * 方法必须自行代理,否则代理对象放进 Set/Map 或打印时会出问题.
+	 */
 	private static RedisConnectionFactory connectionFactory() {
 		return (RedisConnectionFactory) Proxy.newProxyInstance(RedisConnectionFactory.class.getClassLoader(),
-				new Class<?>[] { RedisConnectionFactory.class }, (proxy, method, args) -> null);
+				new Class<?>[] { RedisConnectionFactory.class }, (proxy, method, args) -> switch (method.getName()) {
+					case "equals" -> proxy == args[0];
+					case "hashCode" -> System.identityHashCode(proxy);
+					case "toString" -> "RedisConnectionFactory stub";
+					default -> null;
+				});
 	}
 
 	@Configuration(proxyBeanMethods = false)

@@ -66,9 +66,18 @@ class ButterflyRedisConfigurationTests {
 			.run((context) -> assertThat(context).doesNotHaveBean(IdempotentAspect.class));
 	}
 
+	/**
+	 * 只关心 Bean 的存在性与让位规则,因此除 {@code equals/hashCode/toString} 外一律返回 {@code null}; 这三个
+	 * Object 方法必须自行代理,否则代理对象放进 Set/Map 或打印时会出问题.
+	 */
 	private static RedissonClient redissonClient() {
 		return (RedissonClient) Proxy.newProxyInstance(RedissonClient.class.getClassLoader(),
-				new Class<?>[] { RedissonClient.class }, (proxy, method, args) -> null);
+				new Class<?>[] { RedissonClient.class }, (proxy, method, args) -> switch (method.getName()) {
+					case "equals" -> proxy == args[0];
+					case "hashCode" -> System.identityHashCode(proxy);
+					case "toString" -> "RedissonClient stub";
+					default -> null;
+				});
 	}
 
 }

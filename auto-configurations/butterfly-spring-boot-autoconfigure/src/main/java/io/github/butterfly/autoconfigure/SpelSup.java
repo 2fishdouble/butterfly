@@ -79,7 +79,8 @@ public class SpelSup {
 				context.setBeanResolver(this.beanResolver);
 				for (int i = 0; i < keys.length; i++) {
 					String value = keys[i];
-					if (Validator.isNotEmpty(value)) {
+					// Validator 未标注可空性,这里显式判空,后续 parseExpression 才能完成空值收窄
+					if (value != null && Validator.isNotEmpty(value)) {
 						String parseValue = PARSER.parseExpression(value).getValue(context, String.class);
 						sbu.append(parseValue);
 						if (i < keys.length - 1) {

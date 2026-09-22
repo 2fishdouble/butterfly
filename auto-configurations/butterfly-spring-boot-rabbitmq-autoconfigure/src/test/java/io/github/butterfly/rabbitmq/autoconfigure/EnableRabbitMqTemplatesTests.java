@@ -40,7 +40,6 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.retry.RetryOperations;
 import org.springframework.core.retry.RetryPolicy;
 import org.springframework.core.retry.RetryTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -50,6 +49,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -364,7 +364,9 @@ class EnableRabbitMqTemplatesTests {
 	 */
 	private static FailingMethodInvocation failingInvocation() {
 		Message message = MessageBuilder.withBody("boom".getBytes(StandardCharsets.UTF_8)).build();
-		return new FailingMethodInvocation(new Object[] { null, message }, new IllegalStateException("boom"));
+		// 元素类型显式声明为可空:数组字面量在 @NullMarked 下默认是非空元素
+		@Nullable Object[] arguments = { null, message };
+		return new FailingMethodInvocation(arguments, new IllegalStateException("boom"));
 	}
 
 	/**
@@ -414,9 +416,10 @@ class EnableRabbitMqTemplatesTests {
 	}
 
 	private static ExponentialBackOff backOff(ApplicationContext context, String beanName) {
-		RetryOperations retryOperations = (RetryOperations) ReflectionTestUtils.getField(retryAdvice(context, beanName),
-				"retryOperations");
-		RetryPolicy retryPolicy = ((RetryTemplate) retryOperations).getRetryPolicy();
+		RetryTemplate retryTemplate = Objects.requireNonNull(
+				(RetryTemplate) ReflectionTestUtils.getField(retryAdvice(context, beanName), "retryOperations"),
+				"retryAdvice must hold a RetryTemplate");
+		RetryPolicy retryPolicy = retryTemplate.getRetryPolicy();
 		return (ExponentialBackOff) retryPolicy.getBackOff();
 	}
 
@@ -508,7 +511,7 @@ class EnableRabbitMqTemplatesTests {
 		}
 
 		@Override
-		public Object[] getArguments() {
+		public @Nullable Object[] getArguments() {
 			return this.arguments;
 		}
 

@@ -108,10 +108,10 @@ class ButterflySpringBootAutoConfigurationTests {
 	void spelSupSkipsEmptyKeys() throws Exception {
 		SpelSup spelSup = new SpelSup(new DefaultListableBeanFactory());
 		Method method = SampleController.class.getDeclaredMethod("handle", String.class, int.class);
+		// 元素类型显式声明为可空:数组字面量在 @NullMarked 下默认是非空元素
+		@Nullable String[] keys = { "#name", "", null, "#age" };
 
-		assertThat(
-				spelSup.parseSpel(method, new String[] { "#name", "", null, "#age" }, new Object[] { "butterfly", 3 }))
-			.isEqualTo("butterfly.3");
+		assertThat(spelSup.parseSpel(method, keys, new Object[] { "butterfly", 3 })).isEqualTo("butterfly.3");
 		assertThat(spelSup.parseSpel(method, null, new Object[] { "butterfly", 3 })).isEmpty();
 		assertThat(spelSup.parseSpel(method, new String[0], new Object[] { "butterfly", 3 })).isEmpty();
 	}

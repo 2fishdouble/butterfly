@@ -19,6 +19,7 @@ package io.github.butterfly.mybatis.plus.autoconfigure;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.ibatis.reflection.SystemMetaObject;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -102,7 +103,7 @@ class BaseEntityHandlerTests {
 	@Getter
 	static class PlainEntity {
 
-		private String name;
+		private @Nullable String name;
 
 	}
 

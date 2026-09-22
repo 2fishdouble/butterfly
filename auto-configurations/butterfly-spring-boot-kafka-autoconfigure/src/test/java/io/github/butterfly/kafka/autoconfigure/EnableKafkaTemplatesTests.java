@@ -35,6 +35,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -212,7 +213,8 @@ class EnableKafkaTemplatesTests {
 
 	private List<String> retryTopicNames(ApplicationContext context, String beanName) {
 		KafkaAdmin.NewTopics newTopics = context.getBean(beanName, KafkaAdmin.NewTopics.class);
-		Collection<NewTopic> topics = ReflectionTestUtils.invokeMethod(newTopics, "getNewTopics");
+		Collection<NewTopic> topics = Objects.requireNonNull(
+				ReflectionTestUtils.invokeMethod(newTopics, "getNewTopics"), "getNewTopics must not be null");
 		return topics.stream().map(NewTopic::name).toList();
 	}
 

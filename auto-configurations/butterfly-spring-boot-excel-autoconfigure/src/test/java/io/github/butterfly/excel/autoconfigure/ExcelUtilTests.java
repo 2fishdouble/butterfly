@@ -27,6 +27,7 @@ import cn.idev.excel.write.handler.CellWriteHandler;
 import cn.idev.excel.write.handler.context.CellWriteHandlerContext;
 import io.github.butterfly.core.BusinessException;
 import jakarta.servlet.ServletOutputStream;
+import lombok.Getter;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -215,14 +216,11 @@ class ExcelUtilTests {
 		return row;
 	}
 
+	@Getter
 	static class BrokenRow {
 
 		@ExcelProperty(value = "值", converter = BrokenConverter.class)
-		private String value = "v";
-
-		String getValue() {
-			return this.value;
-		}
+		private final String value = "v";
 
 	}
 

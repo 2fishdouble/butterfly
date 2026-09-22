@@ -79,7 +79,7 @@ class NettyServerTests {
 		this.server = createServer(new EchoChannelInitializer());
 		this.server.start();
 
-		assertThat(roundTrip("butterfly")).isEqualTo("butterfly");
+		assertThat(roundTrip(this.server.getPort(), "butterfly")).isEqualTo("butterfly");
 	}
 
 	@Test
@@ -109,9 +109,9 @@ class NettyServerTests {
 		return new NettyServer(properties, channelInitializer, new NioNettyTransportFactory());
 	}
 
-	private String roundTrip(String message) throws Exception {
+	private String roundTrip(int port, String message) throws Exception {
 		try (Socket socket = new Socket()) {
-			socket.connect(new InetSocketAddress("127.0.0.1", this.server.getPort()), 5000);
+			socket.connect(new InetSocketAddress("127.0.0.1", port), 5000);
 			socket.setSoTimeout(5000);
 			PrintWriter writer = new PrintWriter(
 					new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
