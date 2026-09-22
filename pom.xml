@@ -30,6 +30,7 @@
         <module>auto-configurations/butterfly-spring-boot-rabbitmq-autoconfigure</module>
         <module>auto-configurations/butterfly-spring-boot-netty-autoconfigure</module>
         <module>auto-configurations/butterfly-spring-boot-kafka-autoconfigure</module>
+        <module>auto-configurations/butterfly-spring-boot-rocketmq-autoconfigure</module>
         <module>starter/butterfly-spring-boot-starter</module>
         <module>butterfly-sandbox</module>
         <module>butterfly-wechat</module>

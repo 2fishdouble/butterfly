@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.github.2fishdouble</groupId>
+        <artifactId>butterfly</artifactId>
+        <version>${revision}</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <artifactId>butterfly-spring-boot-rocketmq-autoconfigure</artifactId>
+    <name>butterfly-spring-boot-rocketmq-autoconfigure</name>
+    <description>butterfly-spring-boot-rocketmq-autoconfigure</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.2fishdouble</groupId>
+            <artifactId>butterfly-spring-boot-autoconfigure</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-v5-client-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!--
+            RocketMQ 5 的 gRPC 客户端(rocketmq-client-java)没有开放建主题的 API,只有老版 remoting 客户端有;
+            因此把它作为 optional 依赖引入,供 ClassicRocketMqTopicAdmin 在它存在时真正建主题。
+        -->
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-client</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!--
+            ACL 签名(AclClientRPCHook / SessionCredentials)在 rocketmq-acl 里;
+            同样是 optional:Broker 没开 ACL 时完全用不到,缺席时管理客户端会不带签名发请求。
+        -->
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-acl</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+</project>

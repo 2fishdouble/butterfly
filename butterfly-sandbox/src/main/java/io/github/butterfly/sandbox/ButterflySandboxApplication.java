@@ -19,6 +19,7 @@ package io.github.butterfly.sandbox;
 import io.github.butterfly.kafka.autoconfigure.EnableKafkaTemplates;
 import io.github.butterfly.rabbitmq.autoconfigure.EnableRabbitMqTemplates;
 import io.github.butterfly.redis.autoconfigure.EnableRedisTemplates;
+import io.github.butterfly.rocketmq.autoconfigure.EnableRocketMqTemplates;
 import io.github.butterfly.sandbox.model.Computer;
 import io.github.butterfly.sandbox.model.TimeModuleBean;
 import org.springframework.boot.SpringApplication;
@@ -28,6 +29,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableRedisTemplates(Computer.class)
 @EnableKafkaTemplates({ Computer.class, TimeModuleBean.class })
 @EnableRabbitMqTemplates({ Computer.class, TimeModuleBean.class })
+@EnableRocketMqTemplates(Computer.class)
 public class ButterflySandboxApplication {
 
 	public static void main(String[] args) {

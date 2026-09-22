@@ -53,6 +53,26 @@
         </dependency>
 
         <dependency>
+            <groupId>io.github.2fishdouble</groupId>
+            <artifactId>butterfly-spring-boot-rocketmq-autoconfigure</artifactId>
+        </dependency>
+
+        <!--
+            老版 remoting 客户端与 ACL 签名:本模块对这两者是 optional 依赖,沙箱要真正建主题就得自己引进来。
+            引入后 ButterflyRocketMqAutoConfiguration 会判定"有 DefaultMQProducer",从而用 ClassicRocketMqTopicAdmin
+            直连 NameServer 建主题(而不是只记日志)。
+        -->
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-acl</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>

@@ -72,6 +72,19 @@ spring:
           starttls:
             enable: true
             required: true
+# RocketMQ 的两套地址各司其职:name-server 给老版 remoting 客户端建主题用,proxy 端点给 v5 gRPC 客户端收发用。
+# ACL 凭据只配在 rocketmq.producer 下:管理客户端会复用同一对,不必配第二遍。
+rocketmq:
+  name-server: 192.168.12.29:9876
+  producer:
+    # RocketMQ 5 代理(proxy)的 gRPC 端口,默认 8081
+    endpoints: 192.168.12.29:8081
+    access-key: super_admin
+    secret-key: Aa123456
+    # proxy 是明文 gRPC,而 starter 默认按 TLS 连接,必须显式关掉
+    ssl-enabled: false
+    # 预取路由:发送前先把该主题的路由拿到本地
+    topic: butterfly-sandbox-computer
 butterfly:
   security:
     permission:
@@ -110,3 +123,9 @@ butterfly:
         exchange: butterfly-sandbox-computer
         queue: butterfly-sandbox-computer-queue
         routing-key: butterfly-sandbox.computer
+  rocketmq:
+    # 一个实体对应一个主题:computer → butterfly-sandbox-computer;
+    # 消费组默认取实体类简单名首字母小写(computer),死信与重试主题按 RocketMQ 规则派生成 %DLQ%computer / %RETRY%computer
+    entities:
+      computer:
+        topic: butterfly-sandbox-computer
