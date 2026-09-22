@@ -218,16 +218,12 @@ public class RabbitMqRegistrar implements ImportBeanDefinitionRegistrar, BeanFac
 	 * @return 绑定
 	 */
 	private Binding bind(Queue queue, Exchange exchange, String routingKey) {
-		if (exchange instanceof TopicExchange topicExchange) {
-			return BindingBuilder.bind(queue).to(topicExchange).with(routingKey);
-		}
-		if (exchange instanceof DirectExchange directExchange) {
-			return BindingBuilder.bind(queue).to(directExchange).with(routingKey);
-		}
-		if (exchange instanceof FanoutExchange fanoutExchange) {
-			return BindingBuilder.bind(queue).to(fanoutExchange);
-		}
-		throw new IllegalStateException("Unsupported exchange type: " + exchange.getClass().getName());
+		return switch (exchange) {
+			case TopicExchange topicExchange -> BindingBuilder.bind(queue).to(topicExchange).with(routingKey);
+			case DirectExchange directExchange -> BindingBuilder.bind(queue).to(directExchange).with(routingKey);
+			case FanoutExchange fanoutExchange -> BindingBuilder.bind(queue).to(fanoutExchange);
+			default -> throw new IllegalStateException("Unsupported exchange type: " + exchange.getClass().getName());
+		};
 	}
 
 	/**
