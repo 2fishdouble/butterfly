@@ -28,7 +28,7 @@
         <mybatis-plus.version>3.5.17</mybatis-plus.version>
         <pagehelper.version>4.1.1</pagehelper.version>
         <rocketmq.v5.client.spring.boot.starter.version>2.3.6</rocketmq.v5.client.spring.boot.starter.version>
-        <rocketmq.client.version>5.3.1</rocketmq.client.version>
+        <rocketmq.spring.boot.starter.version>2.3.6</rocketmq.spring.boot.starter.version>
     </properties>
 
     <dependencyManagement>
@@ -193,26 +193,11 @@
 
             <dependency>
                 <groupId>org.apache.rocketmq</groupId>
-                <artifactId>rocketmq-v5-client-spring-boot-starter</artifactId>
-                <version>${rocketmq.v5.client.spring.boot.starter.version}</version>
+                <artifactId>rocketmq-spring-boot-starter</artifactId>
+                <version>${rocketmq.spring.boot.starter.version}</version>
             </dependency>
 
-            <!--
-                老版 remoting 客户端:只在类路径上已经有它、并且配置了 rocketmq.name-server 时,
-                才被用来真正创建主题(RocketMQ 5 的 gRPC 客户端没有管理 API)。本模块对它是 optional 依赖。
-            -->
-            <dependency>
-                <groupId>org.apache.rocketmq</groupId>
-                <artifactId>rocketmq-client</artifactId>
-                <version>${rocketmq.client.version}</version>
-            </dependency>
 
-            <!-- ACL 签名钩子;与 rocketmq-client 同版本,同样是 optional 依赖 -->
-            <dependency>
-                <groupId>org.apache.rocketmq</groupId>
-                <artifactId>rocketmq-acl</artifactId>
-                <version>${rocketmq.client.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
