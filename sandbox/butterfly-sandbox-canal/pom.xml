@@ -21,6 +21,7 @@
             <version>${revision}</version>
         </dependency>
 
+        <!--suppress VulnerableLibrariesLocal -->
         <dependency>
             <groupId>io.github.2fishdouble</groupId>
             <artifactId>butterfly-spring-boot-canal-autoconfigure</artifactId>
