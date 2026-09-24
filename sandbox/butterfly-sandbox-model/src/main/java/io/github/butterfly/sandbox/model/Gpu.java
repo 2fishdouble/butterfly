@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
 public class Gpu {
@@ -43,5 +44,7 @@ public class Gpu {
 	private LocalTime releaseTime;
 
 	private WeekType weekType;
+
+	private List<WeekType> weekTypes;
 
 }

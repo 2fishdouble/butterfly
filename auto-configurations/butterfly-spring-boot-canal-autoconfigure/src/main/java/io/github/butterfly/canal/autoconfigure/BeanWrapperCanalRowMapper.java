@@ -23,14 +23,19 @@ import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.boot.convert.ApplicationConversionService;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 默认的行数据映射器:用 Spring 的 {@link org.springframework.beans.PropertyAccessor} 把列值绑定到实体属性上.
@@ -43,7 +48,9 @@ import java.util.Map;
  * 数字、枚举、布尔、日期时间都能直接转换;日期时间额外兼容 MySQL 常见的空格分隔写法 {@code yyyy-MM-dd HH:mm:ss[.SSS]},而不只是 ISO
  * 的 {@code T} 分隔写法;</li>
  * <li>实现 {@link BaseEnum} 的枚举属性按 code、title、枚举名的顺序匹配(与 JSON 反序列化同一条规则),因此库里存的是 code
- * 也能映射过来;未实现 {@link BaseEnum} 的普通枚举仍按 Spring 的默认规则只认枚举名;</li>
+ * 也能映射过来;属性是集合或数组时({@code List<WeekType>}、{@code WeekType[]}),列值按 {@code [0,1]} 或
+ * {@code 0,1} 逐项匹配,因此 {@code [0,6]} 能映射成 {@code [MONDAY, SUNDAY]};未实现 {@link BaseEnum}
+ * 的普通枚举仍只认枚举名;</li>
  * <li>实体必须有默认构造方法与 setter,不支持不可变类型与 record;</li>
  * <li>列本身为 {@code NULL} 时不会进入映射(见 {@link CanalEvent} 的说明),属性保持默认值;</li>
  * <li>类型转换失败会抛出 Spring 的绑定异常,由消费端按处理失败回滚,不会被静默忽略。</li>
@@ -101,9 +108,14 @@ public class BeanWrapperCanalRowMapper implements CanalRowMapper {
 	/**
 	 * 把 {@link BaseEnum} 属性的列值先还原成枚举名.
 	 * <p>
-	 * canal 给出的列值都是字符串,而 Spring 的字符串转枚举只认枚举名;本项目的枚举约定是 {@link BaseEnum} (库里存的是
-	 * {@link BaseEnum#getCode()}),所以这里先按 {@link BaseEnum#resolve} 匹配出常量,再把枚举名交给
-	 * 转换器,这样每种枚举都不需要单独写一份转换器。匹配不到时保留原值,由转换器按原有方式报错。
+	 * canal 给出的列值都是字符串,而 Spring 的字符串转枚举只认枚举名;本项目的枚举约定是 {@link BaseEnum}(库里存的是
+	 * {@link BaseEnum#getCode()}),所以这里先按 {@link BaseEnum#resolve} 匹配出常量,再把枚举名交给转换器,
+	 * 这样每种枚举都不需要单独写一份转换器。
+	 * <p>
+	 * 集合与数组({@code List<WeekType>}、{@code WeekType[]})的列值支持两种写法:{@code [0,1]}(JSON
+	 * 数组,项目默认写法, 元素写成 {@code ["MONDAY","SUNDAY"]} 这样的字符串也可以)与 {@code 0,1}(MySQL 的
+	 * {@code SET} 列、Spring 自己的字符串转集合都是这个形式)。这里统一摊平成逗号分隔并逐项换名,剩下的切分与元素转换继续交给 Spring。
+	 * 匹配不到时保留原值,由转换器按原有方式报错。
 	 * @param row 已转成驼峰的列名到列值映射
 	 * @param accessor 目标实体的属性访问器,用于取属性类型
 	 * @return 可交给 Spring 绑定的列值映射
@@ -111,17 +123,91 @@ public class BeanWrapperCanalRowMapper implements CanalRowMapper {
 	private static Map<String, String> resolveBaseEnums(Map<String, String> row, BeanWrapper accessor) {
 		Map<String, String> resolved = new LinkedHashMap<>(row.size());
 		row.forEach((name, value) -> {
-			Class<?> propertyType = accessor.getPropertyType(name);
-			BaseEnum candidate = (propertyType != null && BaseEnum.class.isAssignableFrom(propertyType))
-					? resolveBaseEnum(propertyType, value) : null;
-			resolved.put(name, (candidate != null) ? ((Enum<?>) candidate).name() : value);
+			TypeDescriptor propertyType = accessor.getPropertyTypeDescriptor(name);
+			resolved.put(name, (propertyType != null) ? resolveBaseEnumNames(propertyType, value) : value);
 		});
 		return resolved;
 	}
 
+	/**
+	 * 把一个列值里的 {@link BaseEnum} code 换成枚举名;集合与数组还会把 JSON 数组写法摊平成逗号分隔.
+	 * @param propertyType 目标属性的类型描述
+	 * @param value 列值
+	 * @return 可交给 Spring 转换的值
+	 */
+	private static String resolveBaseEnumNames(TypeDescriptor propertyType, String value) {
+		if (!propertyType.isArray() && !propertyType.isCollection()) {
+			Class<?> propertyClass = propertyType.getType();
+			return (BaseEnum.class.isAssignableFrom(propertyClass)) ? resolveBaseEnumName(propertyClass, value) : value;
+		}
+
+		Class<?> elementType = baseEnumElementType(propertyType);
+		return elementsOf(value).stream()
+			.map((element) -> (elementType != null) ? resolveBaseEnumName(elementType, element) : element)
+			.collect(Collectors.joining(","));
+	}
+
+	/**
+	 * 把单个值还原成枚举名;匹配不到时原样返回,由转换器按原有方式报错.
+	 * @param enumType 枚举类型
+	 * @param value 单个值
+	 * @return 枚举名,或匹配不到时的原值
+	 */
+	private static String resolveBaseEnumName(Class<?> enumType, String value) {
+		BaseEnum resolved = resolveBaseEnum(enumType, value);
+		return (resolved != null) ? ((Enum<?>) resolved).name() : value;
+	}
+
+	/**
+	 * 把一个列表列值切成元素:去掉 JSON 数组的方括号与元素两侧的引号,再按逗号切分.
+	 * @param value 列值,形如 {@code [0,1]}、{@code ["MONDAY","SUNDAY"]} 或 {@code 0,1}
+	 * @return 元素列表;空值或 {@code []} 返回空列表
+	 */
+	private static List<String> elementsOf(String value) {
+		String text = value.trim();
+		if (text.startsWith("[") && text.endsWith("]")) {
+			text = text.substring(1, text.length() - 1);
+		}
+		if (text.isBlank()) {
+			return List.of();
+		}
+
+		return Arrays.stream(StringUtils.commaDelimitedListToStringArray(text))
+			.map(BeanWrapperCanalRowMapper::unquote)
+			.toList();
+	}
+
+	/**
+	 * 去掉 JSON 字符串元素两侧的引号.
+	 * @param element 元素原文
+	 * @return 去掉引号与首尾空白后的元素
+	 */
+	private static String unquote(String element) {
+		String text = element.trim();
+		boolean quoted = (text.length() >= 2) && (text.charAt(0) == text.charAt(text.length() - 1))
+				&& (text.charAt(0) == '"' || text.charAt(0) == '\'');
+		return (quoted) ? text.substring(1, text.length() - 1) : text;
+	}
+
+	/**
+	 * 取属性上承载 {@link BaseEnum} 的类型:属性是集合或数组时取元素类型,属性本身是枚举时取它,其余返回 {@code null}.
+	 * @param propertyType 目标属性的类型描述
+	 * @return 承载 BaseEnum 的类型,或 {@code null}
+	 */
+	private static @Nullable Class<?> baseEnumElementType(TypeDescriptor propertyType) {
+		if (propertyType.isArray() || propertyType.isCollection()) {
+			TypeDescriptor elementType = propertyType.getElementTypeDescriptor();
+			Class<?> elementClass = (elementType != null) ? elementType.getType() : null;
+			return (elementClass != null && BaseEnum.class.isAssignableFrom(elementClass)) ? elementClass : null;
+		}
+
+		Class<?> propertyClass = propertyType.getType();
+		return (BaseEnum.class.isAssignableFrom(propertyClass)) ? propertyClass : null;
+	}
+
 	@SuppressWarnings("unchecked")
-	private static @Nullable BaseEnum resolveBaseEnum(Class<?> propertyType, String value) {
-		return BaseEnum.resolve((Class<? extends BaseEnum>) propertyType, value);
+	private static @Nullable BaseEnum resolveBaseEnum(Class<?> enumType, String value) {
+		return BaseEnum.resolve((Class<? extends BaseEnum>) enumType, value);
 	}
 
 	private static ConversionService createDefaultConversionService() {

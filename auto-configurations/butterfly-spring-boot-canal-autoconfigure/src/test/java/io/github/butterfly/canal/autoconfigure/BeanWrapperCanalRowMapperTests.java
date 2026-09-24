@@ -23,14 +23,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeansException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 校验 {@link BeanWrapperCanalRowMapper} 的属性绑定:实现 {@link BaseEnum} 的枚举按 code、title、枚举名匹配,
- * 普通枚举仍按枚举名匹配,MySQL 常见的空格分隔日期时间与数字列也能转换。
+ * 校验 {@link BeanWrapperCanalRowMapper} 的属性绑定:实现 {@link BaseEnum} 的枚举(含集合与数组)按
+ * code、title、枚举名匹配,普通枚举仍按枚举名匹配,MySQL 常见的空格分隔日期时间与数字列也能转换。
  */
 class BeanWrapperCanalRowMapperTests {
 
@@ -63,12 +64,46 @@ class BeanWrapperCanalRowMapperTests {
 		assertThat(row.getCudaCores()).isEqualTo(5120);
 	}
 
+	@Test
+	void mapsBaseEnumCollectionsAndArraysByCode() {
+		Row row = this.mapper.map(Map.of("coded_weeks", "[0,6]", "coded_week_array", "[0, 6]"), Row.class);
+
+		assertThat(row.getCodedWeeks()).containsExactly(CodedWeek.MONDAY, CodedWeek.SUNDAY);
+		assertThat(row.getCodedWeekArray()).containsExactly(CodedWeek.MONDAY, CodedWeek.SUNDAY);
+	}
+
+	@Test
+	void mapsBaseEnumCollectionWrittenAsCommaSeparated() {
+		assertThat(map("coded_weeks", "0,6").getCodedWeeks()).containsExactly(CodedWeek.MONDAY, CodedWeek.SUNDAY);
+	}
+
+	@Test
+	void mapsPlainEnumCollectionByName() {
+		assertThat(map("plain_weeks", "[\"MONDAY\",\"SUNDAY\"]").getPlainWeeks()).containsExactly(PlainWeek.MONDAY,
+				PlainWeek.SUNDAY);
+	}
+
+	@Test
+	void mapsNonEnumCollectionFromJsonArray() {
+		assertThat(map("ids", "[1,2,3]").getIds()).containsExactly(1L, 2L, 3L);
+	}
+
+	@Test
+	void mapsEmptyJsonArrayToEmptyCollection() {
+		assertThat(map("coded_weeks", "[]").getCodedWeeks()).isEmpty();
+	}
+
+	@Test
+	void failsWhenACollectionElementMatchesNoConstant() {
+		assertThatThrownBy(() -> map("coded_weeks", "[0,9]")).isInstanceOf(BeansException.class);
+	}
+
 	private Row map(String property, String value) {
 		return this.mapper.map(Map.of(property, value), Row.class);
 	}
 
 	/**
-	 * 行数据实体:同时包含编码枚举、普通枚举与其它基础类型.
+	 * 行数据实体:同时包含单个枚举、枚举集合/数组、普通枚举集合与其它基础类型.
 	 */
 	@Data
 	static class Row {
@@ -76,6 +111,14 @@ class BeanWrapperCanalRowMapperTests {
 		private CodedWeek coded;
 
 		private PlainWeek plain;
+
+		private List<CodedWeek> codedWeeks;
+
+		private CodedWeek[] codedWeekArray;
+
+		private List<PlainWeek> plainWeeks;
+
+		private List<Long> ids;
 
 		private LocalDateTime createTime;
 
