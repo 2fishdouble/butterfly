@@ -89,19 +89,21 @@ public class MethodCanalEventHandler implements CanalEventHandler {
 
 	@Override
 	public void handle(CanalEvent event) {
-		ReflectionUtils.invokeMethod(this.method, this.bean, resolveArguments(event));
-	}
+		if (this.parameterTypes.length == 0) {
+			ReflectionUtils.invokeMethod(this.method, this.bean);
+			return;
+		}
 
-	private Object[] resolveArguments(CanalEvent event) {
-		Object[] arguments = new Object[this.parameterTypes.length];
-		if (this.parameterTypes.length > 0) {
-			arguments[0] = resolveArgument(event, this.parameterTypes[0], event.row());
+		Object row = resolveArgument(event, this.parameterTypes[0], event.row());
+		if (this.parameterTypes.length == 1) {
+			ReflectionUtils.invokeMethod(this.method, this.bean, row);
+			return;
 		}
-		if (this.parameterTypes.length > 1) {
-			boolean update = event.eventType() == CanalEventType.UPDATE;
-			arguments[1] = (update) ? resolveArgument(event, this.parameterTypes[1], event.before()) : null;
-		}
-		return arguments;
+
+		// 第二个参数只在 UPDATE 事件上注入旧值,其它事件注入 null
+		boolean update = event.eventType() == CanalEventType.UPDATE;
+		ReflectionUtils.invokeMethod(this.method, this.bean, row,
+				(update) ? resolveArgument(event, this.parameterTypes[1], event.before()) : null);
 	}
 
 	private @Nullable Object resolveArgument(CanalEvent event, Class<?> parameterType,

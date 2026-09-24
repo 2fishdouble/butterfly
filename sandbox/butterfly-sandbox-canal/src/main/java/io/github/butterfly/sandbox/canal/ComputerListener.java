@@ -21,6 +21,7 @@ import io.github.butterfly.canal.autoconfigure.CanalEventType;
 import io.github.butterfly.canal.autoconfigure.CanalListener;
 import io.github.butterfly.sandbox.model.Computer;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.BlockingQueue;
@@ -54,10 +55,10 @@ public class ComputerListener {
 	/**
 	 * 更新:需要旧值时声明第二个实体类参数(canal 的旧值默认只包含被修改的列).
 	 * @param computer 更新后的行数据
-	 * @param before 更新前的旧值
+	 * @param before 更新前的旧值,可能是 {@code null}
 	 */
 	@CanalListener(table = "computer", events = CanalEventType.UPDATE)
-	public void onUpdate(Computer computer, Computer before) {
+	public void onUpdate(Computer computer, @Nullable Computer before) {
 		log.info("canal listener update: {} -> {}", before, computer);
 		RECEIVED.add("update:" + computer.getId() + ":" + computer.getName());
 	}

@@ -16,6 +16,7 @@
 
 package io.github.butterfly.canal.autoconfigure;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
@@ -51,11 +52,6 @@ public abstract class AbstractCanalEventConsumer implements CanalEventConsumer, 
 	private static final Logger log = LoggerFactory.getLogger(AbstractCanalEventConsumer.class);
 
 	/**
-	 * 拉取超时未配置时的兜底值.
-	 */
-	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(1);
-
-	/**
 	 * 等待后台线程退出的最长时间.
 	 */
 	private static final Duration STOP_TIMEOUT = Duration.ofSeconds(30);
@@ -70,7 +66,7 @@ public abstract class AbstractCanalEventConsumer implements CanalEventConsumer, 
 
 	private volatile boolean connected;
 
-	private volatile Thread worker;
+	private volatile @Nullable Thread worker;
 
 	/**
 	 * 创建消费端.
@@ -288,8 +284,7 @@ public abstract class AbstractCanalEventConsumer implements CanalEventConsumer, 
 	}
 
 	private Duration timeout() {
-		Duration timeout = this.properties.getTimeout();
-		return (timeout != null) ? timeout : DEFAULT_TIMEOUT;
+		return this.properties.getTimeout();
 	}
 
 	private void join(Thread thread) {

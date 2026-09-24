@@ -117,8 +117,14 @@ public class CanalHandlerRegistrar implements SmartInitializingSingleton {
 					+ beanType.getName() + "); implement CanalRowHandler with a concrete type argument");
 		}
 
-		String table = (rowHandler.table() != null) ? rowHandler.table() : CanalTableResolver.resolveTable(rowType);
-		String schema = (rowHandler.schema() != null) ? rowHandler.schema() : CanalTableResolver.resolveSchema(rowType);
+		String table = rowHandler.table();
+		if (table == null) {
+			table = CanalTableResolver.resolveTable(rowType);
+		}
+		String schema = rowHandler.schema();
+		if (schema == null) {
+			schema = CanalTableResolver.resolveSchema(rowType);
+		}
 
 		for (CanalEventType eventType : CanalEventType.values()) {
 			this.dispatcher.register(createRowEventHandler(rowHandler, rowType, table, schema, eventType));

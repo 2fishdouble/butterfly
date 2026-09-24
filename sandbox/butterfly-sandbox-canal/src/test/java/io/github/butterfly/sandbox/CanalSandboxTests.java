@@ -25,6 +25,7 @@ import io.github.butterfly.canal.autoconfigure.CanalMessageSource;
 import io.github.butterfly.canal.autoconfigure.CanalProperties;
 import io.github.butterfly.sandbox.canal.ComputerListener;
 import io.github.butterfly.sandbox.canal.ComputerRowHandler;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +116,8 @@ class CanalSandboxTests {
 		return event(CanalEventType.DELETE, Map.of("id", "1", "name", "pc"), null);
 	}
 
-	private static CanalEvent event(CanalEventType eventType, Map<String, String> row, Map<String, String> before) {
+	private static CanalEvent event(CanalEventType eventType, Map<String, String> row,
+			@Nullable Map<String, String> before) {
 		return new CanalEvent("example", "butterfly", "computer", eventType, row, before, null, Instant.EPOCH);
 	}
 

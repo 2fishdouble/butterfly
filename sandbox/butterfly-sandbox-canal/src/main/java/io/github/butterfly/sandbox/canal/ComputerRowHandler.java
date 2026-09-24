@@ -19,6 +19,7 @@ package io.github.butterfly.sandbox.canal;
 import io.github.butterfly.canal.autoconfigure.CanalRowHandler;
 import io.github.butterfly.sandbox.model.Computer;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.BlockingQueue;
@@ -47,8 +48,13 @@ public class ComputerRowHandler implements CanalRowHandler<Computer> {
 		RECEIVED.add("insert:" + row.getId());
 	}
 
+	/**
+	 * 更新:需要旧值时声明第二个参数.
+	 * @param row 更新后的行数据
+	 * @param before 更新前的旧值;canal 默认只包含被修改的列,可能是 {@code null}
+	 */
 	@Override
-	public void update(Computer row, Computer before) {
+	public void update(Computer row, @Nullable Computer before) {
 		log.info("canal update: {} -> {}", before, row);
 		RECEIVED.add("update:" + row.getId() + ":" + row.getName());
 	}

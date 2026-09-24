@@ -36,6 +36,11 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+        </dependency>
+
         <!-- 仅测试用:构造随机 id -->
         <dependency>
             <groupId>cn.hutool</groupId>

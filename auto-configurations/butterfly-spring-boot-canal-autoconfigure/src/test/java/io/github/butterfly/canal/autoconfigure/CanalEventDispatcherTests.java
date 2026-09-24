@@ -191,8 +191,7 @@ class CanalEventDispatcherTests {
 
 		@Override
 		public void insert(Computer row) {
-			this.handled.add("insert:" + row.getId() + ":" + row.getName() + ":"
-					+ row.getCreateTime());
+			this.handled.add("insert:" + row.getId() + ":" + row.getName() + ":" + row.getCreateTime());
 		}
 
 		@Override
@@ -236,8 +235,9 @@ class CanalEventDispatcherTests {
 		}
 
 		@CanalListener(table = "computer", events = CanalEventType.UPDATE)
-		public void onUpdate(Computer computer, Computer before) {
-			this.handled.add("listener-update:" + computer.getName() + ":" + before.getName());
+		public void onUpdate(Computer computer, @Nullable Computer before) {
+			this.handled
+				.add("listener-update:" + computer.getName() + ":" + ((before != null) ? before.getName() : "null"));
 		}
 
 		@CanalListener(table = "computer", events = CanalEventType.DELETE)
