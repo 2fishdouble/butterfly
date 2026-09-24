@@ -107,7 +107,7 @@ class CanalEventDispatcherTests {
 
 	@Test
 	void rejectsHandlersWhoseGenericTypeCannotBeResolved() {
-		assertThatThrownBy(() -> register(new RawRowHandler())).isInstanceOf(IllegalStateException.class)
+		assertThatThrownBy(() -> register(new UnresolvableRowHandler<>())).isInstanceOf(IllegalStateException.class)
 			.hasMessageContaining("Cannot resolve the row type");
 	}
 
@@ -248,13 +248,9 @@ class CanalEventDispatcherTests {
 	}
 
 	/**
-	 * 泛型参数没写具体类型的处理器.
+	 * 泛型参数解析不出具体类型的处理器:等价于用了裸类型 {@code CanalRowHandler};插入、更新、删除都是接口默认的空实现, 所以这里不重写任何方法.
 	 */
-	static class RawRowHandler implements CanalRowHandler {
-
-		@Override
-		public void insert(Object row) {
-		}
+	static class UnresolvableRowHandler<T> implements CanalRowHandler<T> {
 
 	}
 
