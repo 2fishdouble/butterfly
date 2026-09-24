@@ -68,7 +68,7 @@ class CanalSandboxTests {
 	@Test
 	void bindsCanalConfigurationFromApplicationYaml() {
 		assertThat(this.properties.getDestination()).isEqualTo("example");
-		assertThat(this.properties.getHost()).isEqualTo("127.0.0.1");
+		assertThat(this.properties.getHost()).isEqualTo("192.168.12.29");
 		assertThat(this.properties.getPort()).isEqualTo(11111);
 		assertThat(this.properties.getFilter()).isEqualTo(".*\\..*");
 		assertThat(this.properties.getConsumerType()).isEqualTo(CanalConsumerType.SYNC);

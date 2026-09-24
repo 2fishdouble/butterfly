@@ -214,11 +214,8 @@ class CanalEventConsumerTests {
 	}
 
 	private static void awaitCall(TestCanalMessageSource source, String call) throws InterruptedException {
-		long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
-		while (!source.calls().contains(call) && System.nanoTime() < deadline) {
-			Thread.sleep(5);
-		}
-		assertThat(source.calls()).contains(call);
+		boolean awaited = source.awaitCall(call, Duration.ofSeconds(5));
+		assertThat(awaited).as("应当在 5 秒内等到 %s 调用,实际记录 %s", call, source.calls()).isTrue();
 	}
 
 	private static ThreadPoolTaskExecutor executor() {

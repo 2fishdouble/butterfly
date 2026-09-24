@@ -19,8 +19,11 @@ package io.github.butterfly.canal.autoconfigure;
 import java.time.Duration;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -34,6 +37,11 @@ class TestCanalMessageSource implements CanalMessageSource {
 	private final Queue<List<CanalEvent>> batches = new ConcurrentLinkedQueue<>();
 
 	private final List<String> calls = new CopyOnWriteArrayList<>();
+
+	/**
+	 * 与 {@link #calls} 同步的调用信号:测试线程阻塞等待它,而不是反复查询 {@link #calls}.
+	 */
+	private final BlockingQueue<String> signals = new LinkedBlockingQueue<>();
 
 	private final AtomicInteger polls = new AtomicInteger();
 
@@ -54,6 +62,29 @@ class TestCanalMessageSource implements CanalMessageSource {
 	}
 
 	/**
+	 * 阻塞等待某次调用发生.
+	 * <p>
+	 * 等待期间线程挂起,不做轮询;已经发生过的调用会留在队列里,因此调用之后再等待也能立刻返回。
+	 * @param call 期望的调用名,取值同 {@link #calls()}
+	 * @param timeout 最长等待时间
+	 * @return 等到该调用时返回 {@code true},超时返回 {@code false}
+	 * @throws InterruptedException 等待期间线程被中断时抛出
+	 */
+	boolean awaitCall(String call, Duration timeout) throws InterruptedException {
+		long deadline = System.nanoTime() + timeout.toNanos();
+		while (true) {
+			long remaining = deadline - System.nanoTime();
+			String signalled = this.signals.poll(remaining, TimeUnit.NANOSECONDS);
+			if (signalled == null) {
+				return false;
+			}
+			if (call.equals(signalled)) {
+				return true;
+			}
+		}
+	}
+
+	/**
 	 * 已发起的拉取次数.
 	 * @return 拉取次数
 	 */
@@ -63,7 +94,7 @@ class TestCanalMessageSource implements CanalMessageSource {
 
 	@Override
 	public void connect() {
-		this.calls.add("connect");
+		record("connect");
 	}
 
 	@Override
@@ -80,17 +111,26 @@ class TestCanalMessageSource implements CanalMessageSource {
 
 	@Override
 	public void ack() {
-		this.calls.add("ack");
+		record("ack");
 	}
 
 	@Override
 	public void rollback() {
-		this.calls.add("rollback");
+		record("rollback");
 	}
 
 	@Override
 	public void close() {
-		this.calls.add("close");
+		record("close");
+	}
+
+	/**
+	 * 记录一次调用:既进 {@link #calls} 供断言,也进 {@link #signals} 唤醒等待中的测试线程.
+	 * @param call 调用名
+	 */
+	private void record(String call) {
+		this.calls.add(call);
+		this.signals.add(call);
 	}
 
 	private static void sleep(Duration timeout) {
