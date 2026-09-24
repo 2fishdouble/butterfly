@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: sandbox-canal
+
+butterfly:
+  canal:
+    # canal server 侧配置的实例名(canal.destinations),canal 自带示例为 example
+    destination: example
+    host: 192.168.12.29
+    port: 11111
+    # 库名.表名;.*\\..* 表示订阅所有库的所有表
+    filter: ".*\\..*"
+    # sync:在拉取线程内顺序处理;async:整批提交线程池并发处理,全部完成后才 ack
+    consumer-type: sync
+    batch-size: 1000
+    timeout: 1s

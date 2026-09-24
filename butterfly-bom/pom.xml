@@ -29,6 +29,9 @@
         <pagehelper.version>4.1.1</pagehelper.version>
         <rocketmq.v5.client.spring.boot.starter.version>2.3.6</rocketmq.v5.client.spring.boot.starter.version>
         <rocketmq.spring.boot.starter.version>2.3.6</rocketmq.spring.boot.starter.version>
+        <canal.client.version>1.1.8</canal.client.version>
+        <canal.common.version>1.1.8</canal.common.version>
+        <canal.protocol.version>1.1.8</canal.protocol.version>
     </properties>
 
     <dependencyManagement>
@@ -104,6 +107,12 @@
             <dependency>
                 <groupId>io.github.2fishdouble</groupId>
                 <artifactId>butterfly-spring-boot-rocketmq-autoconfigure</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.2fishdouble</groupId>
+                <artifactId>butterfly-spring-boot-canal-autoconfigure</artifactId>
                 <version>${revision}</version>
             </dependency>
 
@@ -197,6 +206,23 @@
                 <version>${rocketmq.spring.boot.starter.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.alibaba.otter</groupId>
+                <artifactId>canal.client</artifactId>
+                <version>${canal.client.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.otter</groupId>
+                <artifactId>canal.common</artifactId>
+                <version>${canal.common.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.otter</groupId>
+                <artifactId>canal.protocol</artifactId>
+                <version>${canal.protocol.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>

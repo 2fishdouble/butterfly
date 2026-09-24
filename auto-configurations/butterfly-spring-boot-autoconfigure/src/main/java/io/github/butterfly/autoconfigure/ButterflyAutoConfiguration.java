@@ -26,6 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import tools.jackson.databind.ext.javatime.deser.LocalDateDeserializer;
 import tools.jackson.databind.ext.javatime.deser.LocalDateTimeDeserializer;
 import tools.jackson.databind.ext.javatime.deser.LocalTimeDeserializer;
@@ -51,9 +52,8 @@ import java.time.format.DateTimeFormatter;
  * {@link BaseEnum} 枚举序列化/反序列化、{@code Long}/{@code long} 转字符串(避免前端 JavaScript 精度丢失)以及基于
  * {@link PatternConstant} 中格式的 {@code LocalDateTime}/{@code LocalDate}/ {@code LocalTime}
  * 读写模块。</li>
- * <li>{@link TraceIdFilter}:TraceId 过滤器,仅在 butterfly-web 配置中 traceId.enabled 为 true
- * 时注册。</li>
  * </ul>
+ * Web 相关的 {@link TraceIdFilter} 放在嵌套的 {@link WebConfiguration} 里,原因见该类说明。
  */
 @AutoConfiguration
 @EnableConfigurationProperties(WebProperties.class)
@@ -127,16 +127,32 @@ public class ButterflyAutoConfiguration {
 	}
 
 	/**
-	 * 装配 TraceId 过滤器.
-	 * @param properties butterfly-web 配置
-	 * @return traceId 过滤器
+	 * Web 相关 Bean:classpath 上有 spring-web(Servlet 过滤器基类可用)时才注册.
+	 * <p>
+	 * 之所以把 {@code traceIdFilter} 放进嵌套配置类,而不是直接写在 {@link ButterflyAutoConfiguration}
+	 * 上:Spring 在评估 {@link ConditionalOnMissingBean} 时会反射读取 配置类全部方法的签名,只要有一个方法返回 Web
+	 * 类型({@link TraceIdFilter} 继承 Servlet 的 {@code OncePerRequestFilter}),classpath 上没有
+	 * spring-web 的应用(例如只跑 MQ 的沙箱)就会在启动阶段抛
+	 * {@code NoClassDefFoundError}。嵌套配置类的条件只读注解元数据(ASM),不需要加载 Web 类型,因此缺少 spring-web
+	 * 时这个类整体被跳过。
 	 */
-	@Bean
-	@ConditionalOnMissingBean
-	@ConditionalOnProperty(prefix = "butterfly.web.trace-id", name = "enabled", havingValue = "true",
-			matchIfMissing = true)
-	TraceIdFilter traceIdFilter(WebProperties properties) {
-		return new TraceIdFilter(properties.getTraceId().getHeader());
+	@Configuration(proxyBeanMethods = false)
+	@ConditionalOnClass(name = "org.springframework.web.filter.OncePerRequestFilter")
+	static class WebConfiguration {
+
+		/**
+		 * 装配 TraceId 过滤器.
+		 * @param properties butterfly-web 配置
+		 * @return traceId 过滤器
+		 */
+		@Bean
+		@ConditionalOnMissingBean
+		@ConditionalOnProperty(prefix = "butterfly.web.trace-id", name = "enabled", havingValue = "true",
+				matchIfMissing = true)
+		TraceIdFilter traceIdFilter(WebProperties properties) {
+			return new TraceIdFilter(properties.getTraceId().getHeader());
+		}
+
 	}
 
 }

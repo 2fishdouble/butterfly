@@ -31,8 +31,14 @@
         <module>auto-configurations/butterfly-spring-boot-netty-autoconfigure</module>
         <module>auto-configurations/butterfly-spring-boot-kafka-autoconfigure</module>
         <module>auto-configurations/butterfly-spring-boot-rocketmq-autoconfigure</module>
+        <module>auto-configurations/butterfly-spring-boot-canal-autoconfigure</module>
         <module>starter/butterfly-spring-boot-starter</module>
-        <module>butterfly-sandbox</module>
+        <module>sandbox/butterfly-sandbox-model</module>
+        <module>sandbox/butterfly-sandbox</module>
+        <module>sandbox/butterfly-sandbox-kafka</module>
+        <module>sandbox/butterfly-sandbox-rabbitmq</module>
+        <module>sandbox/butterfly-sandbox-rocketmq</module>
+        <module>sandbox/butterfly-sandbox-canal</module>
         <module>butterfly-wechat</module>
     </modules>
 
