@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: sandbox-curator
+
+butterfly:
+  curator:
+    # ZooKeeper 地址;集群用逗号分隔多个地址,例如 host1:2181,host2:2181
+    connect-string: 192.168.12.29:2181
+    # 命名空间:curator 会把它拼成 /sandbox-curator 作为所有节点的公共前缀,写进 ZK 的完整路径是
+    # /sandbox-curator/butterfly/sandbox/curator/...;留空表示不加前缀
+    namespace: sandbox-curator
+    session-timeout: 60s
+    connection-timeout: 15s
+    # 演示节点根路径
+    base-path: /butterfly/sandbox/curator
+    # 启动时建连;设为 false 时只注册配置,不建连(沙箱测试用)
+    auto-startup: true

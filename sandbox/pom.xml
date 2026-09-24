@@ -23,6 +23,7 @@
         <module>butterfly-sandbox-rabbitmq</module>
         <module>butterfly-sandbox-rocketmq</module>
         <module>butterfly-sandbox-canal</module>
+        <module>butterfly-sandbox-curator</module>
     </modules>
 
     <dependencies>

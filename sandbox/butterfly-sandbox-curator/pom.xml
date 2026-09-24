@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.2fishdouble</groupId>
+        <artifactId>butterfly-sandbox-parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>butterfly-sandbox-curator</artifactId>
+    <name>butterfly-sandbox-curator</name>
+    <description>Butterfly Curator Sandbox</description>
+
+    <properties>
+        <curator.version>5.9.0</curator.version>
+        <zookeeper.version>3.9.6</zookeeper.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>${curator.version}</version>
+        </dependency>
+
+        <!--
+            curator-framework 只用到 zookeeper 客户端的会话与数据模型,重连、重试、watcher 都由 curator 自己实现,
+            因此这里不需要 curator-recipes(分布式锁、leader 选举等配方);需要时再按需引入。
+        -->
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>${zookeeper.version}</version>
+            <exclusions>
+                <!--
+                    zookeeper 3.9.x 的客户端默认仍用 NIO(ClientCnxnSocketNIO),但它的字节码里引用了 netty 的
+                    SslContext 等类,类加载时缺了会直接 NoClassDefFoundError,所以 netty-handler 保留;
+                    各平台的 epoll 本地库(netty-transport-native-epoll)只在使用 netty 传输时才需要,排除掉。
+                -->
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-transport-native-epoll</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- repackage(可执行 jar)与"不发布"的配置在 butterfly-sandbox-parent 的 pluginManagement 里,
+         这里只声明插件并给出本模块的启动类 -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>io.github.butterfly.sandbox.ButterflySandboxCuratorApplication</mainClass>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
