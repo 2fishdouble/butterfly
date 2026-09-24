@@ -26,11 +26,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * {@code butterfly.curator.connect-string}。 客户端 bean 由
  * {@code io.github.butterfly.sandbox.curator.CuratorClientConfiguration} 建出来并异步建连, 读写入口是
  * {@code io.github.butterfly.sandbox.curator.CuratorController}: <pre>
- * curl http://localhost:8080/curator/status
- * curl -X PUT -d hello http://localhost:8080/curator/nodes/computer-1
- * curl http://localhost:8080/curator/nodes/computer-1
- * curl http://localhost:8080/curator/nodes
- * curl -X DELETE http://localhost:8080/curator/nodes/computer-1
+ * {@code curl http://localhost:8080/curator/status}
+ * {@code curl -X PUT -d hello http://localhost:8080/curator/nodes/computer-1}
+ * {@code curl http://localhost:8080/curator/nodes/computer-1}
+ * {@code curl http://localhost:8080/curator/nodes}
+ * {@code curl -X DELETE http://localhost:8080/curator/nodes/computer-1}
  * </pre> 想直接看 ZK 上的结果,可用
  * {@code zkCli.sh -server 192.168.12.29:2181 get /butterfly/sandbox/curator/computer-1}。
  */
