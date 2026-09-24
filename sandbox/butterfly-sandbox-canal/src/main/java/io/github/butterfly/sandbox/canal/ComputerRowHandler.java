@@ -17,7 +17,7 @@
 package io.github.butterfly.sandbox.canal;
 
 import io.github.butterfly.canal.autoconfigure.CanalRowHandler;
-import io.github.butterfly.sandbox.model.Computer;
+import io.github.butterfly.sandbox.model.Gpu;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -28,14 +28,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * 泛型驱动的处理器示例:泛型参数就是行数据映射的目标类型.
  * <p>
- * 没有标注 {@code @CanalTable} 时表名取实体类简单名首字母小写(这里是 {@code computer}),库名不限;需要限定库名或 换个表名时,重写
+ * 没有标注 {@code @CanalTable} 时表名取实体类简单名首字母小写(这里是 {@code gpu}),库名不限;需要限定库名或 换个表名时,重写
  * {@code table()} / {@code schema()},或者改用下面的注解写法。
  * <p>
  * 三个方法都只处理自己关心的事件,这里是全部都打印并记录,供沙箱测试断言。
  */
 @Slf4j
 @Component
-public class ComputerRowHandler implements CanalRowHandler<Computer> {
+public class ComputerRowHandler implements CanalRowHandler<Gpu> {
 
 	/**
 	 * 收到的事件描述,供测试断言(消费线程与断言线程不是同一个).
@@ -43,7 +43,7 @@ public class ComputerRowHandler implements CanalRowHandler<Computer> {
 	public static final BlockingQueue<String> RECEIVED = new LinkedBlockingQueue<>();
 
 	@Override
-	public void insert(Computer row) {
+	public void insert(Gpu row) {
 		log.info("canal insert: {}", row);
 		RECEIVED.add("insert:" + row.getId());
 	}
@@ -54,13 +54,13 @@ public class ComputerRowHandler implements CanalRowHandler<Computer> {
 	 * @param before 更新前的旧值;canal 默认只包含被修改的列,可能是 {@code null}
 	 */
 	@Override
-	public void update(Computer row, @Nullable Computer before) {
+	public void update(Gpu row, @Nullable Gpu before) {
 		log.info("canal update: {} -> {}", before, row);
 		RECEIVED.add("update:" + row.getId() + ":" + row.getName());
 	}
 
 	@Override
-	public void delete(Computer row) {
+	public void delete(Gpu row) {
 		log.info("canal delete: {}", row);
 		RECEIVED.add("delete:" + row.getId());
 	}

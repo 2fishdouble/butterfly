@@ -18,10 +18,11 @@
  * 枚举示例包.
  * <p>
  * 存放沙箱示例使用的枚举:{@link io.github.butterfly.sandbox.enums.HumidityType} 实现
- * {@link io.github.butterfly.core.BaseEnum},演示与 MyBatis-Plus 配合的编码枚举;
- * {@link io.github.butterfly.sandbox.enums.WeekType} 则是普通枚举的写法.
+ * {@link io.github.butterfly.core.BaseEnum},演示与 MyBatis-Plus 配合的编码枚举; {@link WeekType}
+ * 也实现了 {@link io.github.butterfly.core.BaseEnum},定义在模型模块,供 GPU 示例使用.
  */
 @NullMarked
 package io.github.butterfly.sandbox.enums;
 
+import io.github.butterfly.sandbox.model.WeekType;
 import org.jspecify.annotations.NullMarked;

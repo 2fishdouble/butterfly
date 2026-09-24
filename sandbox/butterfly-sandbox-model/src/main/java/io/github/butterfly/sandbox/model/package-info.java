@@ -17,7 +17,11 @@
 /**
  * 示例数据模型包.
  * <p>
- * 存放沙箱示例接口使用的数据结构,如商品信息(含嵌套的商品明细)与时间信息.
+ * 存放沙箱示例使用的数据结构:商品信息 {@link io.github.butterfly.sandbox.model.Computer}(含嵌套的商品明细)、 时间信息
+ * {@link io.github.butterfly.sandbox.model.TimeModuleBean},以及 canal 示例的显卡信息
+ * {@link io.github.butterfly.sandbox.model.Gpu};枚举
+ * {@link io.github.butterfly.sandbox.model.WeekType} 是编码枚举 (实现
+ * {@link io.github.butterfly.core.BaseEnum}),库中按 code 存放.
  */
 @NullMarked
 package io.github.butterfly.sandbox.model;

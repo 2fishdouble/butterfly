@@ -16,6 +16,8 @@
 
 package io.github.butterfly.canal.autoconfigure;
 
+import io.github.butterfly.core.BaseEnum;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyAccessorFactory;
@@ -40,6 +42,8 @@ import java.util.Map;
  * <li>属性类型转换交给 {@link ApplicationConversionService}(Boot 绑定配置属性用的同一套转换器),因此字符串到
  * 数字、枚举、布尔、日期时间都能直接转换;日期时间额外兼容 MySQL 常见的空格分隔写法 {@code yyyy-MM-dd HH:mm:ss[.SSS]},而不只是 ISO
  * 的 {@code T} 分隔写法;</li>
+ * <li>实现 {@link BaseEnum} 的枚举属性按 code、title、枚举名的顺序匹配(与 JSON 反序列化同一条规则),因此库里存的是 code
+ * 也能映射过来;未实现 {@link BaseEnum} 的普通枚举仍按 Spring 的默认规则只认枚举名;</li>
  * <li>实体必须有默认构造方法与 setter,不支持不可变类型与 record;</li>
  * <li>列本身为 {@code NULL} 时不会进入映射(见 {@link CanalEvent} 的说明),属性保持默认值;</li>
  * <li>类型转换失败会抛出 Spring 的绑定异常,由消费端按处理失败回滚,不会被静默忽略。</li>
@@ -90,8 +94,34 @@ public class BeanWrapperCanalRowMapper implements CanalRowMapper {
 		T bean = instantiate(type);
 		BeanWrapper accessor = PropertyAccessorFactory.forBeanPropertyAccess(bean);
 		accessor.setConversionService(this.conversionService);
-		accessor.setPropertyValues(new MutablePropertyValues(camelCaseNames(row)), true);
+		accessor.setPropertyValues(new MutablePropertyValues(resolveBaseEnums(camelCaseNames(row), accessor)), true);
 		return bean;
+	}
+
+	/**
+	 * 把 {@link BaseEnum} 属性的列值先还原成枚举名.
+	 * <p>
+	 * canal 给出的列值都是字符串,而 Spring 的字符串转枚举只认枚举名;本项目的枚举约定是 {@link BaseEnum} (库里存的是
+	 * {@link BaseEnum#getCode()}),所以这里先按 {@link BaseEnum#resolve} 匹配出常量,再把枚举名交给
+	 * 转换器,这样每种枚举都不需要单独写一份转换器。匹配不到时保留原值,由转换器按原有方式报错。
+	 * @param row 已转成驼峰的列名到列值映射
+	 * @param accessor 目标实体的属性访问器,用于取属性类型
+	 * @return 可交给 Spring 绑定的列值映射
+	 */
+	private static Map<String, String> resolveBaseEnums(Map<String, String> row, BeanWrapper accessor) {
+		Map<String, String> resolved = new LinkedHashMap<>(row.size());
+		row.forEach((name, value) -> {
+			Class<?> propertyType = accessor.getPropertyType(name);
+			BaseEnum candidate = (propertyType != null && BaseEnum.class.isAssignableFrom(propertyType))
+					? resolveBaseEnum(propertyType, value) : null;
+			resolved.put(name, (candidate != null) ? ((Enum<?>) candidate).name() : value);
+		});
+		return resolved;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static @Nullable BaseEnum resolveBaseEnum(Class<?> propertyType, String value) {
+		return BaseEnum.resolve((Class<? extends BaseEnum>) propertyType, value);
 	}
 
 	private static ConversionService createDefaultConversionService() {

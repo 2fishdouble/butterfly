@@ -104,21 +104,26 @@ class CanalSandboxTests {
 		assertThat(ComputerListener.RECEIVED).isEmpty();
 	}
 
+	/**
+	 * 行数据里带上 {@code week_type} 列,取值是枚举 code(与库中一致),用于覆盖 {@code BaseEnum} 的按码映射:
+	 * 映射失败会直接让本用例失败,而不是静默拿到默认值。
+	 */
 	private static CanalEvent insert() {
-		return event(CanalEventType.INSERT, Map.of("id", "1", "name", "pc"), null);
+		return event(CanalEventType.INSERT, Map.of("id", "1", "name", "pc", "week_type", "0"), null);
 	}
 
 	private static CanalEvent update() {
-		return event(CanalEventType.UPDATE, Map.of("id", "1", "name", "pc-pro"), Map.of("name", "pc"));
+		return event(CanalEventType.UPDATE, Map.of("id", "1", "name", "pc-pro", "week_type", "1"),
+				Map.of("name", "pc"));
 	}
 
 	private static CanalEvent delete() {
-		return event(CanalEventType.DELETE, Map.of("id", "1", "name", "pc"), null);
+		return event(CanalEventType.DELETE, Map.of("id", "1", "name", "pc", "week_type", "0"), null);
 	}
 
 	private static CanalEvent event(CanalEventType eventType, Map<String, String> row,
 			@Nullable Map<String, String> before) {
-		return new CanalEvent("example", "butterfly", "computer", eventType, row, before, null, Instant.EPOCH);
+		return new CanalEvent("example", "butterfly", "gpu", eventType, row, before, null, Instant.EPOCH);
 	}
 
 }

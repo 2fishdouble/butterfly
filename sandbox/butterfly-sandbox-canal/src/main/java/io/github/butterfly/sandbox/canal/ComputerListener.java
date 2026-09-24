@@ -19,7 +19,7 @@ package io.github.butterfly.sandbox.canal;
 import io.github.butterfly.canal.autoconfigure.CanalEvent;
 import io.github.butterfly.canal.autoconfigure.CanalEventType;
 import io.github.butterfly.canal.autoconfigure.CanalListener;
-import io.github.butterfly.sandbox.model.Computer;
+import io.github.butterfly.sandbox.model.Gpu;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -44,30 +44,30 @@ public class ComputerListener {
 
 	/**
 	 * 新增:只需要行数据时直接声明实体类参数.
-	 * @param computer 新增后的整行数据
+	 * @param gpu 新增后的整行数据
 	 */
-	@CanalListener(table = "computer", events = CanalEventType.INSERT)
-	public void onInsert(Computer computer) {
-		log.info("canal listener insert: {}", computer);
-		RECEIVED.add("insert:" + computer.getId());
+	@CanalListener(table = "gpu", events = CanalEventType.INSERT)
+	public void onInsert(Gpu gpu) {
+		log.info("canal listener insert: {}", gpu);
+		RECEIVED.add("insert:" + gpu.getId());
 	}
 
 	/**
 	 * 更新:需要旧值时声明第二个实体类参数(canal 的旧值默认只包含被修改的列).
-	 * @param computer 更新后的行数据
+	 * @param gpu 更新后的行数据
 	 * @param before 更新前的旧值,可能是 {@code null}
 	 */
-	@CanalListener(table = "computer", events = CanalEventType.UPDATE)
-	public void onUpdate(Computer computer, @Nullable Computer before) {
-		log.info("canal listener update: {} -> {}", before, computer);
-		RECEIVED.add("update:" + computer.getId() + ":" + computer.getName());
+	@CanalListener(table = "gpu", events = CanalEventType.UPDATE)
+	public void onUpdate(Gpu gpu, @Nullable Gpu before) {
+		log.info("canal listener update: {} -> {}", before, gpu);
+		RECEIVED.add("update:" + gpu.getId() + ":" + gpu.getName());
 	}
 
 	/**
 	 * 删除:只关心主键时可以直接用 {@link CanalEvent} 取列值,不必映射实体.
 	 * @param event 完整事件
 	 */
-	@CanalListener(table = "computer", events = CanalEventType.DELETE)
+	@CanalListener(table = "gpu", events = CanalEventType.DELETE)
 	public void onDelete(CanalEvent event) {
 		log.info("canal listener delete: {}", event.row());
 		RECEIVED.add("delete:" + event.row().get("id"));

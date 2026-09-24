@@ -14,40 +14,34 @@
  * limitations under the License.
  */
 
-package io.github.butterfly.sandbox.enums;
+package io.github.butterfly.sandbox.model;
 
-/**
- * 周类型.
- */
-public enum WeekType {
+import lombok.Data;
 
-	/**
-	 * 周一.
-	 */
-	MONDAY,
-	/**
-	 * 周二.
-	 */
-	TUESDAY,
-	/**
-	 * 周三.
-	 */
-	WEDNESDAY,
-	/**
-	 * 周四.
-	 */
-	THURSDAY,
-	/**
-	 * 周五.
-	 */
-	FRIDAY,
-	/**
-	 * 周六.
-	 */
-	SATURDAY,
-	/**
-	 * 周日.
-	 */
-	SUNDAY
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+@Data
+public class Gpu {
+
+	private Long id;
+
+	private String name;
+
+	private Integer cudaCores;
+
+	private BigDecimal processNode;
+
+	private Boolean vulkanSupport;
+
+	private LocalDate releaseDate;
+
+	private LocalDateTime createTime;
+
+	private LocalTime releaseTime;
+
+	private WeekType weekType;
 
 }

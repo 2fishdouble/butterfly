@@ -62,14 +62,12 @@ public final class BaseEnumJsonFactory {
 			throw new IllegalArgumentException("类型 %s 不是枚举".formatted(enumType.getName()));
 		}
 
-		for (T item : (T[]) enumType.getEnumConstants()) {
-			if (value.equals(String.valueOf(item.getCode())) || value.equalsIgnoreCase(item.getTitle())
-					|| value.equalsIgnoreCase(((Enum<?>) item).name())) {
-				return item;
-			}
+		T parsed = (T) BaseEnum.resolve(enumType, value);
+		if (parsed == null) {
+			throw new IllegalArgumentException("无法将值 [%s] 解析为枚举 %s".formatted(value, enumType.getSimpleName()));
 		}
 
-		throw new IllegalArgumentException("无法将值 [%s] 解析为枚举 %s".formatted(value, enumType.getSimpleName()));
+		return parsed;
 	}
 
 }
