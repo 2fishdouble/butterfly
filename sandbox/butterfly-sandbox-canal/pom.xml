@@ -55,6 +55,13 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>io.github.butterfly.sandbox.ButterflySandboxCanalApplication</mainClass>
+                    <!--
+                        canal 1.1.8 的 CanalEntry 是 3.21.7 之前的 protoc 生成的("poison gencode"),新的
+                        protobuf 运行时(这里是 4.35.1)一碰到这些类就逐个告警(GHSA-h4h5-3hr4-j3g2)。该属性
+                        "存在即生效",这里在 spring-boot:run 的子进程上静音告警;将来 protobuf 把这类 gencode
+                        改成直接抛异常时,它也是必需的兜底。
+                    -->
+                    <jvmArguments>-Dcom.google.protobuf.use_unsafe_pre22_gencode=true</jvmArguments>
                 </configuration>
                 <executions>
                     <execution>
