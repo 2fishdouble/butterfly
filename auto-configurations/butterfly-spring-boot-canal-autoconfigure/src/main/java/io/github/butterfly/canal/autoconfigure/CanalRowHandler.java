@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
  * 例如 {@code class ComputerRowHandler implements CanalRowHandler<Computer>} 会收到
  * {@code butterfly.computer} 表(或 {@code Computer} 上 {@link CanalTable} 指定的表)的
  * INSERT、UPDATE、 DELETE 事件,行数据已由 {@link CanalRowMapper} 转换成
- * {@link Computer}。三个方法都有空实现,只重写关心的 事件即可: <pre>{@code
+ * {@code Computer}。三个方法都有空实现,只重写关心的 事件即可: <pre>{@code
  * &#64;Component
  * class ComputerRowHandler implements CanalRowHandler<Computer> {
  *

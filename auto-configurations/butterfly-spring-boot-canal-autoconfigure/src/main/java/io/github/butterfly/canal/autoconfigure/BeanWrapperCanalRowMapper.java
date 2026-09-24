@@ -31,7 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * 默认的行数据映射器:用 Spring 的 {@link PropertyAccessor} 把列值绑定到实体属性上.
+ * 默认的行数据映射器:用 Spring 的 {@link org.springframework.beans.PropertyAccessor} 把列值绑定到实体属性上.
  * <p>
  * 转换规则:
  * <ul>
@@ -73,9 +73,6 @@ public class BeanWrapperCanalRowMapper implements CanalRowMapper {
 	 * @param conversionService 属性类型转换器,不能为空
 	 */
 	public BeanWrapperCanalRowMapper(ConversionService conversionService) {
-		if (conversionService == null) {
-			throw new IllegalArgumentException("ConversionService must not be null");
-		}
 		this.conversionService = conversionService;
 	}
 

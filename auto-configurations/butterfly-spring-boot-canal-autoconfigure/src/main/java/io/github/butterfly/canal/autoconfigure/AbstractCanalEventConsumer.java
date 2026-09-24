@@ -266,7 +266,7 @@ public abstract class AbstractCanalEventConsumer implements CanalEventConsumer, 
 
 	private void backOff() {
 		Duration errorBackOff = this.properties.getErrorBackOff();
-		if (errorBackOff == null || errorBackOff.isZero() || errorBackOff.isNegative()) {
+		if (errorBackOff.isZero() || errorBackOff.isNegative()) {
 			return;
 		}
 

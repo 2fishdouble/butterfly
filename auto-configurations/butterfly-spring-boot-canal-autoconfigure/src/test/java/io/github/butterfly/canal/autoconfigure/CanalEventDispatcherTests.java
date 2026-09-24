@@ -192,7 +192,7 @@ class CanalEventDispatcherTests {
 		@Override
 		public void insert(Computer row) {
 			this.handled.add("insert:" + row.getId() + ":" + row.getName() + ":"
-					+ ((row.getCreateTime() != null) ? row.getCreateTime() : "null"));
+					+ row.getCreateTime());
 		}
 
 		@Override

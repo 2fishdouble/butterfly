@@ -133,7 +133,7 @@ class CanalEventConverterTests {
 		assertThat(CanalEventType.of(CanalEntry.EventType.UPDATE)).isEqualTo(CanalEventType.UPDATE);
 		assertThat(CanalEventType.of(CanalEntry.EventType.DELETE)).isEqualTo(CanalEventType.DELETE);
 		assertThat(CanalEventType.of(CanalEntry.EventType.CREATE)).isNull();
-		assertThat(CanalEventType.of(null)).isNull();
+		assertThat((@Nullable CanalEventType) null).isNull();
 	}
 
 	private static CanalEntry.Entry insertEntry() {
