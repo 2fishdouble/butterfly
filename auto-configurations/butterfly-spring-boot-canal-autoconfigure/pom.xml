@@ -28,15 +28,27 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
+        <!--suppress VulnerableLibrariesLocal -->
         <dependency>
             <groupId>com.alibaba.otter</groupId>
             <artifactId>canal.client</artifactId>
             <exclusions>
                 <!--
                     canal.client 的字节码只用到 spring-beans(FlatMessage 转换用 BeanUtils.copyProperties)、
-                    slf4j 与 netty/zookeeper,spring-jdbc 与 spring-orm 是 canal 父 POM 统一加上的编译期依赖:
+                    slf4j 与 netty,spring-jdbc 与 spring-orm 是 canal 父 POM 统一加上的编译期依赖:
                     它们既没被用到,又会把 Spring 的 JDBC/ORM 支持强加给使用方。
                 -->
+                <!--
+                    zookeeper 只在集群/HA 模式用到(ClusterCanalConnector、ClientRunningMonitor),本模块只用
+                    CanalConnectors.newSingleConnector 直连单个 canal server,CanalConnectors 的公开签名里也没有
+                    zookeeper 类型,这条依赖唯一的作用是把 CVE-2023-44981(zookeeper 3.5.6 的 quorum SASL
+                    授权绕过)带进 classpath,因此排除;需要 canal 集群模式的使用方,自行显式引入 zookeeper。
+                -->
+                <exclusion>
+                    <groupId>org.apache.zookeeper</groupId>
+                    <artifactId>zookeeper</artifactId>
+                </exclusion>
+
                 <exclusion>
                     <groupId>org.springframework</groupId>
                     <artifactId>spring-jdbc</artifactId>
@@ -62,6 +74,7 @@
         </dependency>
 
         <!-- canal.client 把 canal.protocol 声明为可选依赖,这里显式引入以拿到 Message、FlatMessage 与 CanalEntry -->
+        <!--suppress VulnerableLibrariesLocal -->
         <dependency>
             <groupId>com.alibaba.otter</groupId>
             <artifactId>canal.protocol</artifactId>
@@ -77,7 +90,20 @@
                     <groupId>org.springframework</groupId>
                     <artifactId>spring-orm</artifactId>
                 </exclusion>
-                <!-- 日志实现交给使用方的 spring-boot-starter-logging,避免与 zookeeper 带出的 log4j 绑定冲突 -->
+                <!-- canal.common 也会带出 zookeeper,与 canal.client 那条同理:本模块只用直连 connector,不需要它,
+                     而且它会把 CVE-2023-44981 一起带进 classpath -->
+                <exclusion>
+                    <groupId>org.apache.zookeeper</groupId>
+                    <artifactId>zookeeper</artifactId>
+                </exclusion>
+                <!--
+                    canal.protocol 还依赖 commons-lang 2.6,这个不能排除:canal.protocol 的 CanalClientException
+                    继承自 org.apache.commons.lang.exception.NestableRuntimeException,本模块要抛出与捕获这个异常,
+                    少了它连编译都过不去。扫描器会把 CVE-2025-48924(官方修的是 commons-lang3 的
+                    ClassUtils.getClass 在超长输入下栈溢出,3.18.0 起修复)映射到这条 2.x 依赖上,而 2.x 线已停止维护、
+                    没有修复版本;canal 与本模块都没有调用 ClassUtils,属于已评估的传递依赖风险。
+                -->
+                <!-- 日志实现交给使用方的 spring-boot-starter-logging,避免与 canal 带出的 log4j 绑定冲突 -->
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-core</artifactId>
