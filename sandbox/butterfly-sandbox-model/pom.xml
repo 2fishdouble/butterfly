@@ -5,9 +5,9 @@
 
     <parent>
         <groupId>io.github.2fishdouble</groupId>
-        <artifactId>butterfly</artifactId>
+        <artifactId>butterfly-sandbox-parent</artifactId>
         <version>${revision}</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>butterfly-sandbox-model</artifactId>
@@ -20,17 +20,6 @@
             <artifactId>butterfly-core</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.jspecify</groupId>
-            <artifactId>jspecify</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
     </dependencies>
 
 </project>

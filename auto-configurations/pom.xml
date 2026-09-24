@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.2fishdouble</groupId>
+        <artifactId>butterfly</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>butterfly-auto-configurations-parent</artifactId>
+    <packaging>pom</packaging>
+
+    <name>butterfly-auto-configurations-parent</name>
+    <description>Butterfly auto-configuration modules (aggregation and shared dependencies)</description>
+
+    <modules>
+        <module>butterfly-spring-boot-autoconfigure</module>
+        <module>butterfly-spring-boot-redis-autoconfigure</module>
+        <module>butterfly-spring-boot-excel-autoconfigure</module>
+        <module>butterfly-spring-boot-security-autoconfigure</module>
+        <module>butterfly-spring-boot-mybatis-plus-autoconfigure</module>
+        <module>butterfly-spring-boot-mail-autoconfigure</module>
+        <module>butterfly-spring-boot-rabbitmq-autoconfigure</module>
+        <module>butterfly-spring-boot-netty-autoconfigure</module>
+        <module>butterfly-spring-boot-kafka-autoconfigure</module>
+        <module>butterfly-spring-boot-rocketmq-autoconfigure</module>
+        <module>butterfly-spring-boot-canal-autoconfigure</module>
+    </modules>
+
+    <dependencies>
+        <!--
+            各 autoconfigure 模块共用的依赖:
+            - jspecify 提供包级 @NullMarked, lombok 与 configuration-processor 只在编译期起作用,
+              三者都声明为 optional,不传递给使用方;
+            - spring-boot-starter-test 是所有模块的测试基础。
+            各模块自己的依赖(spring-boot-starter、具体中间件客户端等)仍写在各自的 pom 里。
+        -->
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>

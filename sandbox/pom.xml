@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.2fishdouble</groupId>
+        <artifactId>butterfly</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>butterfly-sandbox-parent</artifactId>
+    <packaging>pom</packaging>
+
+    <name>butterfly-sandbox-parent</name>
+    <description>Butterfly sandbox modules (aggregation and shared build configuration)</description>
+
+    <modules>
+        <module>butterfly-sandbox-model</module>
+        <module>butterfly-sandbox</module>
+        <module>butterfly-sandbox-kafka</module>
+        <module>butterfly-sandbox-rabbitmq</module>
+        <module>butterfly-sandbox-rocketmq</module>
+        <module>butterfly-sandbox-canal</module>
+    </modules>
+
+    <dependencies>
+        <!--
+            沙箱各模块共用的编译期依赖:jspecify 提供包级 @NullMarked, lombok 由 @Data/@Slf4j 等使用;
+            两者都声明为 optional,不传递给使用方(对可直接启动的沙箱应用没有运行期影响)。
+            其余依赖(spring-boot-starter-*、butterfly-sandbox-model、各 autoconfigure 等)各模块不同,写在各自的 pom 里。
+        -->
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!--
+                    可直接启动的沙箱应用共用的打包配置:
+                    - repackage 打可执行 jar,启动类由各应用模块自己的 <configuration><mainClass> 给出;
+                    - 沙箱应用不发布到仓库,因此跳过 deploy。
+                    model 模块是库、不是可启动应用,不声明这两个插件,所以不会走 repackage/deploy 跳过。
+                -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>repackage</id>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>

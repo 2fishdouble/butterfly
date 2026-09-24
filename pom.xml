@@ -21,24 +21,9 @@
         <module>butterfly-parent</module>
         <module>butterfly-bom</module>
         <module>butterfly-core</module>
-        <module>auto-configurations/butterfly-spring-boot-autoconfigure</module>
-        <module>auto-configurations/butterfly-spring-boot-redis-autoconfigure</module>
-        <module>auto-configurations/butterfly-spring-boot-excel-autoconfigure</module>
-        <module>auto-configurations/butterfly-spring-boot-security-autoconfigure</module>
-        <module>auto-configurations/butterfly-spring-boot-mybatis-plus-autoconfigure</module>
-        <module>auto-configurations/butterfly-spring-boot-mail-autoconfigure</module>
-        <module>auto-configurations/butterfly-spring-boot-rabbitmq-autoconfigure</module>
-        <module>auto-configurations/butterfly-spring-boot-netty-autoconfigure</module>
-        <module>auto-configurations/butterfly-spring-boot-kafka-autoconfigure</module>
-        <module>auto-configurations/butterfly-spring-boot-rocketmq-autoconfigure</module>
-        <module>auto-configurations/butterfly-spring-boot-canal-autoconfigure</module>
+        <module>auto-configurations</module>
         <module>starter/butterfly-spring-boot-starter</module>
-        <module>sandbox/butterfly-sandbox-model</module>
-        <module>sandbox/butterfly-sandbox</module>
-        <module>sandbox/butterfly-sandbox-kafka</module>
-        <module>sandbox/butterfly-sandbox-rabbitmq</module>
-        <module>sandbox/butterfly-sandbox-rocketmq</module>
-        <module>sandbox/butterfly-sandbox-canal</module>
+        <module>sandbox</module>
         <module>butterfly-wechat</module>
     </modules>
 

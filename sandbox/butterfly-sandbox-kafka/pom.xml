@@ -5,9 +5,9 @@
 
     <parent>
         <groupId>io.github.2fishdouble</groupId>
-        <artifactId>butterfly</artifactId>
+        <artifactId>butterfly-sandbox-parent</artifactId>
         <version>${revision}</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>butterfly-sandbox-kafka</artifactId>
@@ -31,16 +31,6 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jspecify</groupId>
-            <artifactId>jspecify</artifactId>
-        </dependency>
-
         <!-- 仅测试用:构造随机 id -->
         <dependency>
             <groupId>cn.hutool</groupId>
@@ -55,6 +45,8 @@
         </dependency>
     </dependencies>
 
+    <!-- repackage(可执行 jar)与"不发布"的配置在 butterfly-sandbox-parent 的 pluginManagement 里,
+         这里只声明插件并给出本模块的启动类 -->
     <build>
         <plugins>
             <plugin>
@@ -63,22 +55,11 @@
                 <configuration>
                     <mainClass>io.github.butterfly.sandbox.ButterflySandboxKafkaApplication</mainClass>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>repackage</id>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -5,9 +5,9 @@
 
     <parent>
         <groupId>io.github.2fishdouble</groupId>
-        <artifactId>butterfly</artifactId>
+        <artifactId>butterfly-sandbox-parent</artifactId>
         <version>${revision}</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>butterfly-sandbox-canal</artifactId>
@@ -32,22 +32,14 @@
         </dependency>
 
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jspecify</groupId>
-            <artifactId>jspecify</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
+    <!-- repackage(可执行 jar)与"不发布"的配置在 butterfly-sandbox-parent 的 pluginManagement 里,这里只声明插件、
+         给出本模块的启动类并保留本模块特有的 JVM 参数 -->
     <build>
         <plugins>
             <plugin>
@@ -63,22 +55,11 @@
                     -->
                     <jvmArguments>-Dcom.google.protobuf.use_unsafe_pre22_gencode=true</jvmArguments>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>repackage</id>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
             </plugin>
         </plugins>
     </build>
