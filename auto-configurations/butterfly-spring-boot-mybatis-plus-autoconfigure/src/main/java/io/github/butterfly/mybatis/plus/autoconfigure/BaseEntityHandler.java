@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import org.apache.ibatis.reflection.MetaObject;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Objects;
 
 /**
@@ -37,7 +38,8 @@ public class BaseEntityHandler implements MetaObjectHandler {
 	 */
 	@Override
 	public void insertFill(MetaObject metaObject) {
-		LocalDateTime now = LocalDateTime.now();
+		// 审计时间跟随 JVM 默认时区;写成显式取值,避免"隐式依赖系统时区"被 Error Prone 拦下
+		LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
 
 		if (findField(metaObject, "create_time") && getFieldValByName("createTime", metaObject) == null) {
 			this.setFieldValByName("createTime", now, metaObject);
@@ -55,7 +57,7 @@ public class BaseEntityHandler implements MetaObjectHandler {
 	 */
 	@Override
 	public void updateFill(MetaObject metaObject) {
-		this.setFieldValByName("editTime", LocalDateTime.now(), metaObject);
+		this.setFieldValByName("editTime", LocalDateTime.now(ZoneId.systemDefault()), metaObject);
 	}
 
 	private boolean findField(MetaObject metaObject, String fieldName) {

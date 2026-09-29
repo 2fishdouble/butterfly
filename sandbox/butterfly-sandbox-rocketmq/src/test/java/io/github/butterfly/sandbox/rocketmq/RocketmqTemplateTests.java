@@ -26,6 +26,7 @@ import org.springframework.messaging.support.MessageBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @SpringBootTest
@@ -56,7 +57,7 @@ public class RocketmqTemplateTests {
 		Computer computer = new Computer();
 		computer.setId(IdUtil.getSnowflakeNextId());
 		computer.setName("butterfly-sandbox");
-		computer.setCreateTime(LocalDateTime.now());
+		computer.setCreateTime(LocalDateTime.now(ZoneId.systemDefault()));
 		computer.setProducts(List.of(product));
 		return computer;
 	}

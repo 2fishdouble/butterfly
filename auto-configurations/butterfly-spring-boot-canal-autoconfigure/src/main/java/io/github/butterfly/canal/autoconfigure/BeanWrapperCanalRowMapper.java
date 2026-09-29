@@ -138,7 +138,7 @@ public class BeanWrapperCanalRowMapper implements CanalRowMapper {
 	private static String resolveBaseEnumNames(TypeDescriptor propertyType, String value) {
 		if (!propertyType.isArray() && !propertyType.isCollection()) {
 			Class<?> propertyClass = propertyType.getType();
-			return (BaseEnum.class.isAssignableFrom(propertyClass)) ? resolveBaseEnumName(propertyClass, value) : value;
+			return BaseEnum.class.isAssignableFrom(propertyClass) ? resolveBaseEnumName(propertyClass, value) : value;
 		}
 
 		Class<?> elementType = baseEnumElementType(propertyType);
@@ -186,7 +186,7 @@ public class BeanWrapperCanalRowMapper implements CanalRowMapper {
 		String text = element.trim();
 		boolean quoted = (text.length() >= 2) && (text.charAt(0) == text.charAt(text.length() - 1))
 				&& (text.charAt(0) == '"' || text.charAt(0) == '\'');
-		return (quoted) ? text.substring(1, text.length() - 1) : text;
+		return quoted ? text.substring(1, text.length() - 1) : text;
 	}
 
 	/**
@@ -202,7 +202,7 @@ public class BeanWrapperCanalRowMapper implements CanalRowMapper {
 		}
 
 		Class<?> propertyClass = propertyType.getType();
-		return (BaseEnum.class.isAssignableFrom(propertyClass)) ? propertyClass : null;
+		return BaseEnum.class.isAssignableFrom(propertyClass) ? propertyClass : null;
 	}
 
 	@SuppressWarnings("unchecked")

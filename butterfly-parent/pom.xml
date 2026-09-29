@@ -47,6 +47,9 @@
         <spring-boot.version>4.1.1</spring-boot.version>
 
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
+        <error-prone.version>2.50.0</error-prone.version>
+        <!-- 追加给 Error Prone 的插件参数,例如 mvn -Derror-prone.flags=-XepAllErrorsAsWarnings 可把检查降级为警告。 -->
+        <error-prone.flags/>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
@@ -60,7 +63,8 @@
         <spring-javaformat.version>0.0.48</spring-javaformat.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <checkstyle.version>14.1.0</checkstyle.version>
-        <checkstyle.config.location>${maven.multiModuleProjectDirectory}/src/checkstyle/checkstyle.xml</checkstyle.config.location>
+        <checkstyle.config.location>${maven.multiModuleProjectDirectory}/src/checkstyle/checkstyle.xml
+        </checkstyle.config.location>
         <license-maven-plugin.version>5.1.2</license-maven-plugin.version>
     </properties>
 
@@ -74,6 +78,54 @@
                     <configuration>
                         <release>${java.version}</release>
                         <parameters>true</parameters>
+                        <!--
+                            Error Prone 以 javac 插件(-Xplugin)的方式接入:
+                            - -XDcompilePolicy=simple 是 Error Prone 要求的编译策略;
+                            - should-stop=ifError=FLOW(长选项,前缀为两个连字符)让编译出错后仍跑完数据流分析,报错更完整;
+                            - -XDaddTypeAnnotationsToSymbol=true 是 JDK 21 上的要求(见 error-prone#5426);
+                            - 额外开关走 ${error-prone.flags},例如 -Derror-prone.flags=-XepAllErrorsAsWarnings
+                              可临时把 Error Prone 的报错降级为警告。
+                            另外 Error Prone 需要 JVM 提供 javac 内部包的 add-exports/add-opens,
+                            这些参数放在 .mvn/jvm.config(Maven 进程内编译,不能用 javac 的 -J 参数)。
+
+                            默认关闭 UnrecognisedJavadocTag:lombok 改写 AST 后,被它处理过的类里字段的
+                            javadoc 解析树会丢掉内联标签,导致这些字段上所有 {@code}/{@link} 都被误判为无法识别
+                            (普通类不受影响)。若要去掉这个关闭项、恢复该检查,删掉下面这个 -Xep 参数即可。
+# 把某条检查提升为错误（构建失败）
+mvn compile -Derror-prone.flags=-Xep:ReferenceEquality:ERROR
+
+# 临时把 Error Prone 的报错全部降级为警告，救急发版
+mvn package -Derror-prone.flags=-XepAllErrorsAsWarnings
+
+# 关掉某条/排除生成代码目录
+mvn compile "-Derror-prone.flags=-Xep:UnusedVariable:OFF"
+                        -->
+                        <compilerArgs>
+                            <arg>-XDcompilePolicy=simple</arg>
+                            <arg>--should-stop=ifError=FLOW</arg>
+                            <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
+                            <arg>-Xplugin:ErrorProne -Xep:UnrecognisedJavadocTag:OFF ${error-prone.flags}</arg>
+                        </compilerArgs>
+                        <!--
+                            一旦设置 annotationProcessorPaths,javac 就不再从 classpath 上发现注解处理器,
+                            所以 lombok 与 spring-boot-configuration-processor 必须在这里显式列出,
+                            否则 @Data/@Slf4j 和配置元数据生成会静默失效(版本仍由 butterfly-bom 统一管理)。
+                        -->
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>com.google.errorprone</groupId>
+                                <artifactId>error_prone_core</artifactId>
+                                <version>${error-prone.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                            </path>
+                            <path>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-configuration-processor</artifactId>
+                            </path>
+                        </annotationProcessorPaths>
                     </configuration>
                 </plugin>
 
@@ -201,7 +253,8 @@
                     <version>${git-commit-id-maven-plugin.version}</version>
                     <configuration>
                         <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                        <generateGitPropertiesFilename>${project.build.outputDirectory}/git.</generateGitPropertiesFilename>
+                        <generateGitPropertiesFilename>${project.build.outputDirectory}/git.
+                        </generateGitPropertiesFilename>
                         <includeOnlyProperties>
                             <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
                             <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>

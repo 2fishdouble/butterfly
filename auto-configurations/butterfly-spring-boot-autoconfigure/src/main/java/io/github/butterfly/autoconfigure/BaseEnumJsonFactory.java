@@ -47,8 +47,7 @@ public final class BaseEnumJsonFactory {
 	 * @throws IllegalArgumentException {@code enumType} 不是枚举类,或没有任何常量的 code、title、
 	 * 常量名与给定值匹配
 	 */
-	@SuppressWarnings("unchecked")
-	@Nullable public static <T extends BaseEnum> T parse(Class<? extends BaseEnum> enumType, @Nullable Object rawValue) {
+	public static <T extends BaseEnum> @Nullable T parse(Class<T> enumType, @Nullable Object rawValue) {
 		if (rawValue == null) {
 			return null;
 		}
@@ -62,7 +61,7 @@ public final class BaseEnumJsonFactory {
 			throw new IllegalArgumentException("类型 %s 不是枚举".formatted(enumType.getName()));
 		}
 
-		T parsed = (T) BaseEnum.resolve(enumType, value);
+		T parsed = BaseEnum.resolve(enumType, value);
 		if (parsed == null) {
 			throw new IllegalArgumentException("无法将值 [%s] 解析为枚举 %s".formatted(value, enumType.getSimpleName()));
 		}

@@ -89,7 +89,10 @@ class RedisTemplateRegistrarTests {
 	/**
 	 * 连接工厂只作为占位 Bean,除 {@code equals/hashCode/toString} 外一律返回 {@code null}; 这三个 Object
 	 * 方法必须自行代理,否则代理对象放进 Set/Map 或打印时会出问题.
+	 * <p>
+	 * {@code equals} 按代理对象身份实现:直接比较引用,而不是委托回代理自身(那会无限递归),因此这里需要 ReferenceEquality 豁免。
 	 */
+	@SuppressWarnings("ReferenceEquality")
 	private static RedisConnectionFactory connectionFactory() {
 		return (RedisConnectionFactory) Proxy.newProxyInstance(RedisConnectionFactory.class.getClassLoader(),
 				new Class<?>[] { RedisConnectionFactory.class }, (proxy, method, args) -> switch (method.getName()) {

@@ -103,7 +103,7 @@ public class MethodCanalEventHandler implements CanalEventHandler {
 		// 第二个参数只在 UPDATE 事件上注入旧值,其它事件注入 null
 		boolean update = event.eventType() == CanalEventType.UPDATE;
 		ReflectionUtils.invokeMethod(this.method, this.bean, row,
-				(update) ? resolveArgument(event, this.parameterTypes[1], event.before()) : null);
+				update ? resolveArgument(event, this.parameterTypes[1], event.before()) : null);
 	}
 
 	private @Nullable Object resolveArgument(CanalEvent event, Class<?> parameterType,

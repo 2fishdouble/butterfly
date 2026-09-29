@@ -24,9 +24,9 @@ import org.jspecify.annotations.Nullable;
  * 例如 {@code class ComputerRowHandler implements CanalRowHandler<Computer>} 会收到
  * {@code butterfly.computer} 表(或 {@code Computer} 上 {@link CanalTable} 指定的表)的
  * INSERT、UPDATE、 DELETE 事件,行数据已由 {@link CanalRowMapper} 转换成
- * {@code Computer}。三个方法都有空实现,只重写关心的 事件即可: <pre>{@code
+ * {@code Computer}。三个方法都有空实现,只重写关心的 事件即可: <pre>
  * &#64;Component
- * class ComputerRowHandler implements CanalRowHandler<Computer> {
+ * class ComputerRowHandler implements CanalRowHandler&lt;Computer&gt; {
  *
 
  *     &#64;Override
@@ -40,7 +40,7 @@ import org.jspecify.annotations.Nullable;
  *         // 处理删除,row 是删除前的整行
  *     }
  * }
- * }</pre>
+ * </pre>
  * <p>
  * 表名与库名默认取泛型参数上 {@link CanalTable} 的声明,未标注时表名为实体类简单名首字母小写、库名不限; 实体类来自第三方无法标注时重写
  * {@link #table()} 与 {@link #schema()} 覆盖。

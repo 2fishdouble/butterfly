@@ -16,6 +16,7 @@
 
 package io.github.butterfly.netty.autoconfigure;
 
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -61,7 +62,7 @@ class NettyServerHandler extends SimpleChannelInboundHandler<String> {
 	public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
 		if (evt instanceof IdleStateEvent) {
 			log.debug("Closing idle Netty connection: {}", ctx.channel().remoteAddress());
-			ctx.close();
+			close(ctx);
 			return;
 		}
 		super.userEventTriggered(ctx, evt);
@@ -76,7 +77,20 @@ class NettyServerHandler extends SimpleChannelInboundHandler<String> {
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 		log.warn("Closing Netty connection {} because of an error: {}", ctx.channel().remoteAddress(),
 				cause.getMessage());
-		ctx.close();
+		close(ctx);
+	}
+
+	/**
+	 * 关闭连接并记录关闭失败的原因:close 返回的 ChannelFuture 必须消费,否则关闭异常会被静默丢弃.
+	 * @param ctx 当前连接的处理上下文
+	 */
+	private static void close(ChannelHandlerContext ctx) {
+		ctx.close().addListener((ChannelFutureListener) (future) -> {
+			if (!future.isSuccess()) {
+				log.warn("Failed to close Netty connection {}: {}", ctx.channel().remoteAddress(),
+						future.cause().getMessage());
+			}
+		});
 	}
 
 }

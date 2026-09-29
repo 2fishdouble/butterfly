@@ -123,8 +123,9 @@ public abstract class AbstractCanalEventConsumer implements CanalEventConsumer, 
 	/**
 	 * 停止消费:置停止标志、唤醒阻塞中的拉取,并等待后台线程退出.
 	 * <p>
-	 * 后台线程正是当前线程时(例如处理器里关闭了容器)不等待自己,避免自锁。
+	 * 后台线程正是当前线程时(例如处理器里关闭了容器)不等待自己,避免自锁;此处比较的是线程身份, 而不是 {@link Thread#equals(Object)}。
 	 */
+	@SuppressWarnings("ReferenceEquality")
 	@Override
 	public final void stop() {
 		if (!this.running.compareAndSet(true, false)) {

@@ -16,6 +16,7 @@
 
 package io.github.butterfly.netty.autoconfigure;
 
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
@@ -31,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -38,6 +40,11 @@ import java.nio.charset.StandardCharsets;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NettyServerTests {
+
+	/**
+	 * 服务端绑定与客户端连接共用的回环地址:两边取同一个值,避免地址族不一致导致连不上.
+	 */
+	private static final InetAddress LOOPBACK = InetAddress.getLoopbackAddress();
 
 	private @Nullable NettyServer server;
 
@@ -88,7 +95,7 @@ class NettyServerTests {
 		this.server.start();
 
 		try (Socket socket = new Socket()) {
-			socket.connect(new InetSocketAddress("127.0.0.1", this.server.getPort()), 5000);
+			socket.connect(new InetSocketAddress(LOOPBACK, this.server.getPort()), 5000);
 			socket.setSoTimeout(5000);
 			PrintWriter writer = new PrintWriter(
 					new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
@@ -104,14 +111,14 @@ class NettyServerTests {
 
 	private NettyServer createServer(NettyChannelInitializer channelInitializer) {
 		NettyServerProperties properties = new NettyServerProperties();
-		properties.setHost("127.0.0.1");
+		properties.setHost(LOOPBACK.getHostAddress());
 		properties.setPort(0);
 		return new NettyServer(properties, channelInitializer, new NioNettyTransportFactory());
 	}
 
 	private String roundTrip(int port, String message) throws Exception {
 		try (Socket socket = new Socket()) {
-			socket.connect(new InetSocketAddress("127.0.0.1", port), 5000);
+			socket.connect(new InetSocketAddress(LOOPBACK, port), 5000);
 			socket.setSoTimeout(5000);
 			PrintWriter writer = new PrintWriter(
 					new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
@@ -138,7 +145,7 @@ class NettyServerTests {
 
 					@Override
 					protected void channelRead0(ChannelHandlerContext context, String message) {
-						context.writeAndFlush(message);
+						context.writeAndFlush(message).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
 					}
 
 				});

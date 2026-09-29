@@ -131,24 +131,17 @@ class IdempotentAspectTests {
 						: defaultValue(invoked.getReturnType()));
 
 		return (ProceedingJoinPoint) Proxy.newProxyInstance(IdempotentAspectTests.class.getClassLoader(),
-				new Class<?>[] { ProceedingJoinPoint.class }, (proxy, invoked, invokedArgs) -> {
-					switch (invoked.getName()) {
-						case "getSignature" -> {
-							return signature;
+				new Class<?>[] { ProceedingJoinPoint.class },
+				(proxy, invoked, invokedArgs) -> switch (invoked.getName()) {
+					case "getSignature" -> signature;
+					case "getArgs" -> args;
+					case "proceed" -> {
+						if (failure != null) {
+							throw failure;
 						}
-						case "getArgs" -> {
-							return args;
-						}
-						case "proceed" -> {
-							if (failure != null) {
-								throw failure;
-							}
-							return result;
-						}
-						default -> {
-							return defaultValue(invoked.getReturnType());
-						}
+						yield result;
 					}
+					default -> defaultValue(invoked.getReturnType());
 				});
 	}
 
@@ -157,7 +150,7 @@ class IdempotentAspectTests {
 			return null;
 		}
 		if (type == boolean.class) {
-			return Boolean.FALSE;
+			return false;
 		}
 		if (type == char.class) {
 			return (char) 0;
@@ -218,22 +211,14 @@ class IdempotentAspectTests {
 
 		private RLock rlock() {
 			return (RLock) Proxy.newProxyInstance(RLock.class.getClassLoader(), new Class<?>[] { RLock.class },
-					(proxy, invoked, args) -> {
-						switch (invoked.getName()) {
-							case "tryLock" -> {
-								return this.acquired;
-							}
-							case "isHeldByCurrentThread" -> {
-								return this.heldByCurrentThread;
-							}
-							case "unlock" -> {
-								this.unlocked.set(true);
-								return null;
-							}
-							default -> {
-								return defaultValue(invoked.getReturnType());
-							}
+					(proxy, invoked, args) -> switch (invoked.getName()) {
+						case "tryLock" -> this.acquired;
+						case "isHeldByCurrentThread" -> this.heldByCurrentThread;
+						case "unlock" -> {
+							this.unlocked.set(true);
+							yield null;
 						}
+						default -> defaultValue(invoked.getReturnType());
 					});
 		}
 

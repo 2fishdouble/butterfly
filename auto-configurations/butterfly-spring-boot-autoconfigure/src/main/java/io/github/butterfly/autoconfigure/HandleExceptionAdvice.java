@@ -30,7 +30,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * <p>
  * 仅在 Servlet Web 应用中生效,且要求 classpath 上存在 {@link RestControllerAdvice} (spring-web
  * 为可选依赖,缺失时本类不会被注册)。
+ * <p>
+ * 类上的 {@code @SuppressWarnings("BadImport")} 用于放行 {@code Type.SERVLET} 这种写法:checkstyle 的
+ * SpringAnnotationAttributeConciseValue 要求注解属性用导入后的简名(Error Prone 的 BadImport 则建议写成
+ * {@code ConditionalOnWebApplication.Type.SERVLET}),这里按 Spring 的约定取简名。
  */
+@SuppressWarnings("BadImport")
 @RestControllerAdvice
 @ConditionalOnClass(RestControllerAdvice.class)
 @ConditionalOnWebApplication(type = Type.SERVLET)

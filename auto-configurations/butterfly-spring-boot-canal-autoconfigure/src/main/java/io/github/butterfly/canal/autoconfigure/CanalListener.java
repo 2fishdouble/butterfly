@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 /**
  * 注解驱动的行变更处理器:标注在 Bean 的方法上,按库名、表名与事件类型接收行变更事件.
  * <p>
- * 例如只处理新增与删除: <pre>{@code
+ * 例如只处理新增与删除: <pre>
  * &#64;Component
  * class ComputerListener {
  *
@@ -41,7 +41,7 @@ import java.lang.annotation.Target;
  *         // 需要库名、SQL、执行时间等元数据时直接声明 CanalEvent 参数
  *     }
  * }
- * }</pre>
+ * </pre>
  * <p>
  * <b>表名</b>取 {@link #table()};未指定时取方法第一个参数类型的 {@link CanalTable} 声明,或在参数类型简单名首字母
  * 小写。方法没有参数却又不指定 {@link #table()} 时启动直接报错,因为这时的目标表无从推断。

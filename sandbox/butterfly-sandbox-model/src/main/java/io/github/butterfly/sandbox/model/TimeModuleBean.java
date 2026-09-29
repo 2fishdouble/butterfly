@@ -21,14 +21,15 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 
 @Data
 public class TimeModuleBean {
 
-	private LocalDateTime now = LocalDateTime.now();
+	private LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
 
-	private LocalDate today = LocalDate.now();
+	private LocalDate today = LocalDate.now(ZoneId.systemDefault());
 
-	private LocalTime time = LocalTime.now();
+	private LocalTime time = LocalTime.now(ZoneId.systemDefault());
 
 }

@@ -42,6 +42,7 @@ import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -221,7 +222,7 @@ class KafkaSandboxTests {
 		Computer computer = new Computer();
 		computer.setId(IdUtil.getSnowflakeNextId());
 		computer.setName("butterfly-sandbox");
-		computer.setCreateTime(LocalDateTime.now());
+		computer.setCreateTime(LocalDateTime.now(ZoneId.systemDefault()));
 		computer.setProducts(List.of(product));
 		return computer;
 	}
