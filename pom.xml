@@ -24,7 +24,6 @@
         <module>auto-configurations</module>
         <module>starter/butterfly-spring-boot-starter</module>
         <module>sandbox</module>
-        <module>butterfly-wechat</module>
     </modules>
 
     <!--
