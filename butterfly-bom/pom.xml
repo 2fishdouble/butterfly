@@ -33,6 +33,9 @@
         <canal.common.version>1.1.8</canal.common.version>
         <canal.protocol.version>1.1.8</canal.protocol.version>
         <testcontainers.version>2.0.5</testcontainers.version>
+        <jodd-util.version>6.3.0</jodd-util.version>
+        <vavr.version>1.0.1</vavr.version>
+        <eclipse-collections.version>13.0.0</eclipse-collections.version>
     </properties>
 
     <dependencyManagement>
@@ -231,6 +234,24 @@
                 <groupId>com.alibaba.otter</groupId>
                 <artifactId>canal.protocol</artifactId>
                 <version>${canal.protocol.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jodd</groupId>
+                <artifactId>jodd-util</artifactId>
+                <version>${jodd-util.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.vavr</groupId>
+                <artifactId>vavr</artifactId>
+                <version>${vavr.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.collections</groupId>
+                <artifactId>eclipse-collections</artifactId>
+                <version>${eclipse-collections.version}</version>
             </dependency>
 
         </dependencies>
