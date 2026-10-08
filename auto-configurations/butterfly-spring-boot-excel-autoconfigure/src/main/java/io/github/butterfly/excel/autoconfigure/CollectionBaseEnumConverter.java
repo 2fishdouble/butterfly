@@ -44,7 +44,7 @@ public class CollectionBaseEnumConverter implements Converter<Collection<? exten
 	 * @return {@link Collection},即元素为实现 {@link BaseEnum} 的枚举的集合类型
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Class<Collection<? extends BaseEnum>> supportJavaTypeKey() {
 		return (Class) Collection.class;
 	}

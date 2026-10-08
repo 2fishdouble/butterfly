@@ -56,7 +56,7 @@ class ExcelUtilTests {
 	private final List<SampleRow> rows = List.of(SampleRow.of("butterfly", 3), SampleRow.of("dsh", 7));
 
 	@Test
-	void writeThenReadBackKeepsEveryConvertedField() throws IOException {
+	void writeThenReadBackKeepsEveryConvertedField() {
 		byte[] bytes = ExcelUtil.write("sample", this.rows, SampleRow.class);
 
 		assertThat(bytes).isNotEmpty();
@@ -77,7 +77,7 @@ class ExcelUtilTests {
 	}
 
 	@Test
-	void readFromByteArrayInvokesVerifyCallbackForEveryRow() throws IOException {
+	void readFromByteArrayInvokesVerifyCallbackForEveryRow() {
 		byte[] bytes = ExcelUtil.write("sample", this.rows, SampleRow.class);
 		AtomicInteger verified = new AtomicInteger();
 
@@ -132,7 +132,7 @@ class ExcelUtilTests {
 	}
 
 	@Test
-	void writeWithTemplateWritesRowsWithoutHead() throws IOException {
+	void writeWithTemplateWritesRowsWithoutHead() {
 		byte[] template = ExcelUtil.write("template", List.of(), SampleRow.class);
 
 		byte[] filled = ExcelUtil.write(new ByteArrayInputStream(template), this.rows, SampleRow.class, "sheet1");
@@ -195,7 +195,7 @@ class ExcelUtilTests {
 		return new MockMultipartFile("file", "sample.xlsx", XLSX_CONTENT_TYPE, bytes);
 	}
 
-	private List<SampleRow> readAll(byte[] bytes, int headRowNumber) throws IOException {
+	private List<SampleRow> readAll(byte[] bytes, int headRowNumber) {
 		List<SampleRow> read = new ArrayList<>();
 		ExcelUtil.read(bytes, SampleRow.class, (row, context) -> {
 		}, read::addAll, headRowNumber, "sheet1");

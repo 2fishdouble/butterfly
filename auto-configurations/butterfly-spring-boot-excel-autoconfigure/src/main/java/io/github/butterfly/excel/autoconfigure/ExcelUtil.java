@@ -98,11 +98,9 @@ public final class ExcelUtil {
 	 * @param callback 全部解析完成后的整批回调,参数为按读取顺序排列的行列表
 	 * @param headRowNumber 表头所在行号,从 1 开始,其后各行按数据行解析
 	 * @param sheet 工作表名称
-	 * @throws IOException 方法签名声明的受检异常,用于与其它 {@code read} 重载保持一致;本实现基于 内存中的
-	 * {@link ByteArrayInputStream},通常不会真正抛出
 	 */
 	public static <T> void read(byte[] bytes, Class<T> clazz, BiConsumer<T, AnalysisContext> verifyCallback,
-			Consumer<List<T>> callback, int headRowNumber, String sheet) throws IOException {
+			Consumer<List<T>> callback, int headRowNumber, String sheet) {
 		FastExcelFactory.read(new ByteArrayInputStream(bytes), clazz, new ExcelDataListener<>(verifyCallback, callback))
 			.sheet(sheet)
 			.headRowNumber(headRowNumber)
