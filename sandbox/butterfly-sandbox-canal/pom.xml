@@ -57,11 +57,6 @@
                     <jvmArguments>-Dcom.google.protobuf.use_unsafe_pre22_gencode=true</jvmArguments>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-            </plugin>
         </plugins>
     </build>
 

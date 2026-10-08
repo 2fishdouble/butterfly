@@ -28,7 +28,7 @@ import java.time.Duration;
 /**
  * 消息来源工厂:创建直连 canal server 的 {@link CanalMessageSource}.
  * <p>
- * 这里统一做默认值收敛：{@link CanalProperties#getDestination()} 为空时取
+ * 这里统一做默认值收敛：{@link CanalProperties} 的 {@code destination} 属性为空时取
  * {@code spring.application.name},再兜底为 {@code example}(canal 的默认实例名)。
  * <p>
  * 本类只负责"造对象",不建立网络连接:连接器由 {@link CanalConnectorMessageSource#connect()} 在消费端启动时才创建,
@@ -82,7 +82,7 @@ public class CanalMessageSourceFactory {
 
 	/**
 	 * 解析生效的 canal 实例名.
-	 * @return {@link CanalProperties#getDestination()} 非空时的取值,否则为
+	 * @return {@link CanalProperties} 的 {@code destination} 属性非空时的取值,否则为
 	 * {@code spring.application.name},再兜底为 {@code example}
 	 */
 	public String destination() {

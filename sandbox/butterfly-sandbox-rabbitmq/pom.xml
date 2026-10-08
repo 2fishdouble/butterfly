@@ -49,11 +49,6 @@
                     <mainClass>io.github.butterfly.sandbox.ButterflySandboxRabbitMqApplication</mainClass>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-            </plugin>
         </plugins>
     </build>
 

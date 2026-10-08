@@ -26,7 +26,6 @@
         <module>butterfly-spring-boot-rabbitmq-autoconfigure</module>
         <module>butterfly-spring-boot-netty-autoconfigure</module>
         <module>butterfly-spring-boot-kafka-autoconfigure</module>
-        <module>butterfly-spring-boot-rocketmq-autoconfigure</module>
         <module>butterfly-spring-boot-canal-autoconfigure</module>
     </modules>
 
