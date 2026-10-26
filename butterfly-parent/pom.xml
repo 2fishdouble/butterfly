@@ -47,7 +47,7 @@
         <spring-boot.version>4.1.1</spring-boot.version>
 
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
-        <error-prone.version>2.50.0</error-prone.version>
+        <error-prone.version>2.51.0</error-prone.version>
         <!-- 追加给 Error Prone 的插件参数,例如 mvn -Derror-prone.flags=-XepAllErrorsAsWarnings 可把检查降级为警告。 -->
         <error-prone.flags/>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
