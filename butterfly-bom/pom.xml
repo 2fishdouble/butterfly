@@ -27,7 +27,7 @@
         <commons-collections4.version>4.6.0</commons-collections4.version>
         <commons-io.version>2.22.0</commons-io.version>
         <commons-lang3.verison>3.20.0</commons-lang3.verison>
-        <mybatis-plus.version>3.5.17</mybatis-plus.version>
+        <mybatis-plus.version>3.5.18.1</mybatis-plus.version>
         <pagehelper.version>4.1.1</pagehelper.version>
         <rocketmq.v5.client.spring.boot.starter.version>2.3.6</rocketmq.v5.client.spring.boot.starter.version>
         <rocketmq.spring.boot.starter.version>2.3.6</rocketmq.spring.boot.starter.version>
