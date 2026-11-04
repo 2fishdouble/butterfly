@@ -36,7 +36,7 @@
         <canal.protocol.version>1.1.8</canal.protocol.version>
         <testcontainers.version>2.0.5</testcontainers.version>
         <jodd-util.version>6.3.0</jodd-util.version>
-        <vavr.version>1.0.1</vavr.version>
+        <vavr.version>1.1.0</vavr.version>
         <eclipse-collections.version>13.0.0</eclipse-collections.version>
     </properties>
 
