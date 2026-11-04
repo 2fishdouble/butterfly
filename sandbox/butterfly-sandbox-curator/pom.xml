@@ -16,7 +16,7 @@
 
     <properties>
         <curator.version>5.9.0</curator.version>
-        <zookeeper.version>3.9.6</zookeeper.version>
+        <zookeeper.version>3.9.7</zookeeper.version>
     </properties>
 
     <dependencies>
