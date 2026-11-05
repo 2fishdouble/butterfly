@@ -1,5 +1,7 @@
 # Butterfly
 
+**简体中文** | [English](README.en.md)
+
 面向 **Spring Boot 4 / Java 21** 的一套通用能力封装：BOM 统一版本 + 一组自动配置模块 + starter，另有可运行的沙箱示例。
 
 设计原则只有两条：
