@@ -123,7 +123,9 @@ public class PermissionCollector implements ApplicationListener<ContextRefreshed
 					type = ClassUtils.forName(className, this.context.getClassLoader());
 				}
 				catch (ClassNotFoundException ex) {
-					log.debug("Unable to load candidate class {}, skipping.", className);
+					if (log.isDebugEnabled()) {
+						log.debug("Unable to load candidate class {}, skipping.", className);
+					}
 					continue;
 				}
 				if (!type.isEnum()) {

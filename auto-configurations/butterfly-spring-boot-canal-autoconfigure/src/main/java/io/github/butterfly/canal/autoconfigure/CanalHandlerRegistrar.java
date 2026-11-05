@@ -128,7 +128,9 @@ public class CanalHandlerRegistrar implements SmartInitializingSingleton {
 
 		for (CanalEventType eventType : CanalEventType.values()) {
 			this.dispatcher.register(createRowEventHandler(rowHandler, rowType, table, schema, eventType));
-			log.debug("Registered canal row handler '{}' for {} on {}.{}", beanName, eventType, schema, table);
+			if (log.isDebugEnabled()) {
+				log.debug("Registered canal row handler '{}' for {} on {}.{}", beanName, eventType, schema, table);
+			}
 		}
 	}
 
@@ -167,8 +169,10 @@ public class CanalHandlerRegistrar implements SmartInitializingSingleton {
 		for (CanalEventType eventType : listener.events()) {
 			this.dispatcher
 				.register(new MethodCanalEventHandler(bean, method, table, schema, eventType, this.rowMapper));
-			log.debug("Registered canal listener method '{}#{}' for {} on {}.{}", beanName, method.getName(), eventType,
-					schema, table);
+			if (log.isDebugEnabled()) {
+				log.debug("Registered canal listener method '{}#{}' for {} on {}.{}", beanName, method.getName(),
+						eventType, schema, table);
+			}
 		}
 	}
 

@@ -50,8 +50,10 @@ public class CanalEventDispatcher {
 	public void register(CanalEventHandler handler) {
 		HandlerKey key = new HandlerKey(handler.schema(), handler.table(), handler.eventType());
 		this.handlers.computeIfAbsent(key, (unused) -> new CopyOnWriteArrayList<>()).add(handler);
-		log.debug("Registered canal handler [{}] on table {}.{}", handler.getClass().getSimpleName(), handler.schema(),
-				handler.table());
+		if (log.isDebugEnabled()) {
+			log.debug("Registered canal handler [{}] on table {}.{}", handler.getClass().getSimpleName(),
+					handler.schema(), handler.table());
+		}
 	}
 
 	/**
@@ -62,8 +64,10 @@ public class CanalEventDispatcher {
 	public void dispatch(CanalEvent event) {
 		List<CanalEventHandler> matched = findHandlers(event);
 		if (matched.isEmpty()) {
-			log.debug("No canal handler registered for {} on table {}.{}", event.eventType(), event.schema(),
-					event.table());
+			if (log.isDebugEnabled()) {
+				log.debug("No canal handler registered for {} on table {}.{}", event.eventType(), event.schema(),
+						event.table());
+			}
 			return;
 		}
 

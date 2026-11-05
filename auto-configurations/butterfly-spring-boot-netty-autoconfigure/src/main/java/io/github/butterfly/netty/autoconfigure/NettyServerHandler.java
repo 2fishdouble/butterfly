@@ -39,7 +39,9 @@ class NettyServerHandler extends SimpleChannelInboundHandler<String> {
 	 */
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) {
-		log.debug("Netty connection established: {}", ctx.channel().remoteAddress());
+		if (log.isDebugEnabled()) {
+			log.debug("Netty connection established: {}", ctx.channel().remoteAddress());
+		}
 	}
 
 	/**
@@ -61,7 +63,9 @@ class NettyServerHandler extends SimpleChannelInboundHandler<String> {
 	@Override
 	public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
 		if (evt instanceof IdleStateEvent) {
-			log.debug("Closing idle Netty connection: {}", ctx.channel().remoteAddress());
+			if (log.isDebugEnabled()) {
+				log.debug("Closing idle Netty connection: {}", ctx.channel().remoteAddress());
+			}
 			close(ctx);
 			return;
 		}

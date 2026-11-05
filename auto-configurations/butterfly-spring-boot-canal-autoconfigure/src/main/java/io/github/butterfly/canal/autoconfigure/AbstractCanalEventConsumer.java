@@ -109,7 +109,9 @@ public abstract class AbstractCanalEventConsumer implements CanalEventConsumer, 
 	@Override
 	public final void start() {
 		if (!this.running.compareAndSet(false, true)) {
-			log.debug("Canal {} consumer is already running", consumerType());
+			if (log.isDebugEnabled()) {
+				log.debug("Canal {} consumer is already running", consumerType());
+			}
 			return;
 		}
 
@@ -253,7 +255,9 @@ public abstract class AbstractCanalEventConsumer implements CanalEventConsumer, 
 	 */
 	private void onFailure(String action, RuntimeException ex) {
 		if (!this.running.get()) {
-			log.debug("Failed to {} while stopping: {}", action, describe(ex));
+			if (log.isDebugEnabled()) {
+				log.debug("Failed to {} while stopping: {}", action, describe(ex));
+			}
 			return;
 		}
 

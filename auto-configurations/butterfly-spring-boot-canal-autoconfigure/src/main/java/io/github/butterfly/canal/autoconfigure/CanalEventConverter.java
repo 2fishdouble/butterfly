@@ -76,13 +76,17 @@ public final class CanalEventConverter {
 
 		CanalEntry.RowChange rowChange = parseRowChange(entry);
 		if (rowChange.getIsDdl()) {
-			log.debug("Skip DDL entry on table {}", entry.getHeader().getTableName());
+			if (log.isDebugEnabled()) {
+				log.debug("Skip DDL entry on table {}", entry.getHeader().getTableName());
+			}
 			return;
 		}
 
 		CanalEventType eventType = CanalEventType.of(rowChange.getEventType());
 		if (eventType == null) {
-			log.debug("Skip canal entry of unsupported event type {}", rowChange.getEventType());
+			if (log.isDebugEnabled()) {
+				log.debug("Skip canal entry of unsupported event type {}", rowChange.getEventType());
+			}
 			return;
 		}
 
