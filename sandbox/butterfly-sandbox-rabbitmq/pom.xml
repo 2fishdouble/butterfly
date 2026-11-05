@@ -36,6 +36,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>io.github.2fishdouble</groupId>
+            <artifactId>butterfly-spring-boot-log-autoconfigure</artifactId>
+        </dependency>
     </dependencies>
 
     <!-- repackage(可执行 jar)与"不发布"的配置在 butterfly-sandbox-parent 的 pluginManagement 里,
