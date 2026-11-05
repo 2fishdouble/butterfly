@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Butterfly 默认日志配置(Logback)。
+
+    引用本模块的服务不需要再写任何 logback 配置文件:classpath 根目录下的这个文件会被
+    Spring Boot 自动加载。它只负责 include 公共片段,真正的配置都在
+    butterfly/logback/ 下,以便服务按需复用。
+
+    覆盖与继承:
+    - 服务自己写了 logback-spring.xml,或配置了 logging.config,则本文件不生效,
+      服务可以在自己的配置里 include 公共片段来继承:
+          <include resource="butterfly/logback/butterfly-logback-base.xml"/>
+    - 服务自己写了同名的 logback.xml,同样优先于本文件(classpath 中服务自己的
+      classes 目录排在依赖 jar 之前),继承方式同上。
+    - 只想要公共的 appender/降噪级别、自己定义 root 时,include 不带 root 的片段:
+          <include resource="butterfly/logback/butterfly-logback-defaults.xml"/>
+-->
+<configuration>
+    <include resource="butterfly/logback/butterfly-logback-base.xml"/>
+</configuration>

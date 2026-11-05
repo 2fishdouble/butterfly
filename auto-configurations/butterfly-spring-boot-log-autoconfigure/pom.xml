@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.github.2fishdouble</groupId>
+        <artifactId>butterfly-auto-configurations-parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>butterfly-spring-boot-log-autoconfigure</artifactId>
+    <name>butterfly-spring-boot-log-autoconfigure</name>
+    <description>butterfly-spring-boot-log-autoconfigure</description>
+
+    <!--
+        本模块只提供日志配置资源(logback 的 XML),没有 Java 源码:
+        引用它即生效靠的是 classpath 根目录下的 logback.xml,而不是自动配置类。
+        因此这里没有 dependencies —— 配置里 include 的 Spring Boot 片段和转换器
+        由使用方自己的 spring-boot 依赖提供,本模块不额外引入任何依赖。
+    -->
+
+    <build>
+        <plugins>
+            <!--
+                没有 src/main/java,跳过 javadoc 生成;但 Maven Central 要求发布物带
+                -javadoc.jar,所以下面改为打包一个空的 javadoc jar(与 starter 模块一致)。
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>empty-javadoc-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>javadoc</classifier>
+                            <archive>
+                                <addMavenDescriptor>false</addMavenDescriptor>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

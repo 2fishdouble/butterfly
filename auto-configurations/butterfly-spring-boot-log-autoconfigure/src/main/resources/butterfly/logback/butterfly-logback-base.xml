@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    公共日志片段(完整版):公共 appender + 默认 root。
+
+    等同于"什么都不配置时的日志行为":root 为 INFO,控制台 + 异步滚动文件。
+    服务的配置里 include 它就等于继承默认配置,之后还可以追加自己的 appender 或 logger:
+
+        <configuration>
+            <include resource="butterfly/logback/butterfly-logback-base.xml"/>
+            <logger name="com.example" level="DEBUG"/>
+        </configuration>
+
+    若想自己定义 root(改级别或换 appender),请改为 include butterfly-logback-defaults.xml,
+    因为同一个配置里出现多个 <root> 时最终生效的是哪一个并不直观。
+-->
+<included>
+
+    <include resource="butterfly/logback/butterfly-logback-defaults.xml"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="DefaultAppender"/>
+    </root>
+
+</included>

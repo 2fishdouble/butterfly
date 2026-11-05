@@ -18,6 +18,7 @@
 
     <modules>
         <module>butterfly-spring-boot-autoconfigure</module>
+        <module>butterfly-spring-boot-log-autoconfigure</module>
         <module>butterfly-spring-boot-redis-autoconfigure</module>
         <module>butterfly-spring-boot-excel-autoconfigure</module>
         <module>butterfly-spring-boot-security-autoconfigure</module>

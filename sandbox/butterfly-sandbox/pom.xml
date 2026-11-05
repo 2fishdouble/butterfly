@@ -84,6 +84,17 @@
             <groupId>org.eclipse.collections</groupId>
             <artifactId>eclipse-collections</artifactId>
         </dependency>
+
+
+        <!--
+            统一日志配置:引入后服务无需再写 logback.xml。
+            不需要的服务可以用 <exclusions> 排除掉,或自己写 logback.xml / logback-spring.xml 覆盖。
+        -->
+        <dependency>
+            <groupId>io.github.2fishdouble</groupId>
+            <artifactId>butterfly-spring-boot-log-autoconfigure</artifactId>
+        </dependency>
+
     </dependencies>
 
     <!-- repackage(可执行 jar)与"不发布"的配置在 butterfly-sandbox-parent 的 pluginManagement 里,

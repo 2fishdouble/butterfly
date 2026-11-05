@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    模块自身的测试用配置:优先于 src/main/resources 里的 logback.xml 被 logback 加载,
+    避免跑测试时在模块目录下创建 logs/ 目录。它的内容不影响被测的两个片段。
+-->
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

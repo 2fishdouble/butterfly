@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    公共日志片段:日志格式、appender、降噪级别。
+
+    默认 appender:
+    - STDOUT                控制台;
+    - DefaultAppender       异步包装(AsyncAppender),真正的文件名是 DefaultAppender_inner;
+    - DefaultAppender_inner 按天 + 按大小滚动的文件,落在 ${LOG_HOME}/${应用名}/${应用名}.log。
+
+    特意不定义 <root>,这样服务可以自己决定 root 的级别和要挂哪些 appender:
+
+        <configuration>
+            <include resource="butterfly/logback/butterfly-logback-defaults.xml"/>
+            <root level="WARN">
+                <appender-ref ref="STDOUT"/>
+            </root>
+        </configuration>
+
+    想要"和默认配置完全一致"的 root,改用 butterfly-logback-base.xml 即可。
+-->
+<included>
+
+    <!--
+        复用 Spring Boot 自己的转换器与默认日志格式(含 %clr 颜色、%wex 异常格式),
+        这样下面这些配置项对使用方依然有效:
+        - logging.pattern.console / logging.pattern.file
+        - logging.pattern.level、logging.pattern.dateformat、logging.pattern.correlation
+        - logging.charset.*、logging.threshold.*
+        Spring Boot 会在加载本文件之前把它们以系统属性(LOG_LEVEL_PATTERN 等)的形式准备好,
+        下面两个 appender 的 ${CONSOLE_LOG_PATTERN} / ${FILE_LOG_PATTERN} 就来自这里。
+    -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!--
+        日志目录,优先级:
+        1. logging.file.path  -> Spring Boot 设置 LOG_PATH;
+        2. 都没有时默认 logs(相对工作目录)。
+    -->
+    <property name="LOG_HOME" value="${LOG_HOME:-${LOG_PATH:-logs}}"/>
+
+    <!-- 应用名:Spring Boot 会把 spring.application.name 写成 APPLICATION_NAME 系统属性 -->
+    <property name="APP_NAME" value="${APP_NAME:-${APPLICATION_NAME:-application}}"/>
+
+    <!--
+        日志文件,优先级:
+        1. logging.file.name -> Spring Boot 已把 LOG_FILE 设成解析后的绝对路径;
+        2. 默认 ${LOG_HOME}/${APP_NAME}/${APP_NAME}.log,即每个服务一个目录,便于同机部署时区分
+           (多个服务共用一个 logs 目录也不会互相覆盖)。
+        想换布局时,直接配 logging.file.name 即可,例如 logging.file.name=logs/order/app.log。
+        注意 LOG_FILE 必须先于 DefaultAppender_inner 定义,后者直接引用它。
+    -->
+    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_HOME}/${APP_NAME}/${APP_NAME}.log}"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 真正的文件 appender:按天 + 单文件 50MB 滚动,保留 30 天,总量上限 512MB -->
+    <appender name="DefaultAppender_inner" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>512MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 异步写文件,避免磁盘抖动直接阻塞业务线程 -->
+    <appender name="DefaultAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="DefaultAppender_inner"/>
+    </appender>
+
+    <!--
+        降噪:Netty 内部的 DEBUG 日志量很大且对排查业务无益。
+        这只是一个默认值,application.yml 里的 logging.level.io.netty 会覆盖它。
+        其余组件的级别请在各自服务里按需声明,不在公共配置里一刀切。
+    -->
+    <logger name="io.netty" level="WARN"/>
+
+</included>
