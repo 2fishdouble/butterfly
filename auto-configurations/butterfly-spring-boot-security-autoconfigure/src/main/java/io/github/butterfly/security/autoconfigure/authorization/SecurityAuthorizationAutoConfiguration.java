@@ -124,7 +124,7 @@ public class SecurityAuthorizationAutoConfiguration {
 	@ConditionalOnClass(EnableMethodSecurity.class)
 	@ConditionalOnProperty(prefix = "butterfly.security.authorization", name = "method-security-enabled",
 			havingValue = "true", matchIfMissing = true)
-	@EnableMethodSecurity
+	@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true, proxyTargetClass = true)
 	static class MethodSecurityConfiguration {
 
 	}
