@@ -1,0 +1,59 @@
+// Butterfly 沙箱的认证/授权接口示例。
+//
+// 用法（JetBrains HTTP Client，IDEA/WebStorm 直接点行号旁的 ▶ 运行）：
+//   1. 先跑「登录」这一节，它会用响应处理器把 data.token 存进全局变量 token；
+//   2. 再跑下面的请求，Authorization 里的 {{token}} 会被自动替换。
+//
+// 演示账号：admin/admin（全部权限）、guest/guest（只有商品列表权限）。
+// 如果你用的是 VS Code 的 REST Client 插件，写法略有不同：
+//   # @name login  →  之后用 {{login.response.body.$.data.token}} 引用。
+
+### 1. 登录并保存 token（admin，全部权限）
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+> {%
+    client.global.set("token", response.body.data.token);
+    client.log("token = " + response.body.data.token);
+%}
+
+### 2. 当前用户（登录即可访问）
+GET http://localhost:8080/api/me
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### 3. 商品列表：需要权限 1010100（admin 有，guest 也有）
+GET http://localhost:8080/api/products
+Authorization: Bearer {{token}}
+
+### 4. 新增商品：需要权限 1010101（admin 返回 200，guest 返回 403）
+POST http://localhost:8080/api/products
+Authorization: Bearer {{token}}
+
+### 5. 登录并保存 token（guest，只有商品列表权限，用来验证 403）
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "username": "guest",
+  "password": "guest"
+}
+
+> {%
+    client.global.set("guestToken", response.body.data.token);
+%}
+
+### 6. guest 调新增商品：应返回 403 + 统一响应
+POST http://localhost:8080/api/products
+Authorization: Bearer {{guestToken}}
+
+### 7. 不带 token：应返回 401 + 统一响应
+GET http://localhost:8080/api/products
+
+### 8. 免登录路径（配置在 butterfly.security.authentication.permit-paths 里）
+GET http://localhost:8080/time

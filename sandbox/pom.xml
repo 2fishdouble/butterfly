@@ -28,14 +28,16 @@
 
     <dependencies>
         <!--
-            沙箱各模块共用的编译期依赖:jspecify 提供包级 @NullMarked, lombok 由 @Data/@Slf4j 等使用;
-            两者都声明为 optional,不传递给使用方(对可直接启动的沙箱应用没有运行期影响)。
-            其余依赖(spring-boot-starter-*、butterfly-sandbox-model、各 autoconfigure 等)各模块不同,写在各自的 pom 里。
+            沙箱各模块共用的编译期依赖:jspecify 提供包级 @NullMarked,lombok 由 @Data/@Slf4j 等使用。
+            注意 jspecify 不能声明成 optional:Spring Framework 7 的运行期会直接读
+            org.jspecify.annotations.Nullable(org.springframework.core.Nullness),
+            而 optional 的直接声明会「遮蔽」spring-core 带进来的同名传递依赖,
+            导致 repackage 出来的 fat jar 里没有 jspecify,启动时报
+            NoClassDefFoundError: org/jspecify/annotations/Nullable。
         -->
         <dependency>
             <groupId>org.jspecify</groupId>
             <artifactId>jspecify</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <dependency>

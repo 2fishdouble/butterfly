@@ -37,7 +37,7 @@
 | `butterfly-spring-boot-mybatis-plus-autoconfigure` | 分页 + 乐观锁插件、`BaseEntity` 审计字段自动填充 |
 | `butterfly-spring-boot-excel-autoconfigure` | FastExcel 静态工具 `ExcelUtil`（读/写/下载） |
 | `butterfly-spring-boot-mail-autoconfigure` | 邮件发送门面 `MailTemplate` |
-| `butterfly-spring-boot-security-autoconfigure` | 权限枚举自动收集与存储（内存或数据库） |
+| `butterfly-spring-boot-security-autoconfigure` | 权限枚举收集、JWT 认证与 `@RequirePermission` 方法级授权 |
 | `butterfly-spring-boot-rabbitmq-autoconfigure` | 按实体声明拓扑（死信/延时/重试）+ 监听容器工厂 |
 | `butterfly-spring-boot-kafka-autoconfigure` | 按实体注册 `KafkaTemplate`、建主题、非阻塞重试与死信 |
 | `butterfly-spring-boot-netty-autoconfigure` | 内嵌 Netty TCP 服务端（NIO/Epoll/KQueue） |
@@ -328,21 +328,172 @@ mailTemplate.sendAttachment(List.of("a@example.com"), "主题", "正文",
 
 ---
 
-## 权限：`butterfly-spring-boot-security-autoconfigure`
+## 安全：`butterfly-spring-boot-security-autoconfigure`
 
-业务定义权限枚举实现 `IPermission`（分组枚举实现 `IPermissionGroup`），启动时自动扫描并入库。
+本模块做三件事，各自有独立开关，可以只取其中一件：
+
+| 能力 | 开关前缀 | 说明 |
+| --- | --- | --- |
+| 权限字典收集 | `butterfly.security.permission` | 启动时扫描权限枚举，入库或入内存 |
+| 认证 | `butterfly.security.authentication` | 登录接口、JWT 签发与校验、无状态过滤链 |
+| 授权 | `butterfly.security.authorization` | 用户→权限 id 查询、`@PreAuthorize`、`@RequirePermission` |
+
+**边界**：框架只管机制，不管业务数据。`user`、角色、用户-角色关系这些表不建、不写，
+字段怎么设计、数据存在哪（自己的库、LDAP、外部单点登录）都交给业务，框架只要求两个接口。
+
+### 依赖
+
+Spring Security 相关依赖全部是 `optional`：只要权限收集就什么都不用加；要认证授权，自己引：
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-oauth2-resource-server</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-oauth2-jose</artifactId>
+</dependency>
+```
+
+缺这些依赖时，认证/授权相关自动配置整体静默跳过，权限收集照常工作。
+
+### 一、权限字典
+
+业务定义权限枚举实现 `IPermission`（分组枚举实现 `IPermissionGroup`），启动时自动扫描并入库：
 
 ```yaml
 butterfly:
   security:
     permission:
       enabled: true
-      db: false                  # true 且有 DataSource 时建表入库,否则内存存储
+      db: false                  # true 且有 DataSource 时建表入库，否则内存存储
       scan-packages: [ com.example.permission ]   # 为空则扫描主类所在包
 ```
 
-有 `DataSource` 且 `db=true` → `DbPermissionStorage`（自动建表 + Upsert）；否则 `InMemoryPermissionStorage`。
-自定义 `PermissionStorage` Bean 可直接接管。
+有 `DataSource` 且 `db=true` → `DbPermissionStorage`（自动建 `authority` / `authority_group` 表 + Upsert）；
+否则 `InMemoryPermissionStorage`。自定义 `PermissionStorage` Bean 可直接接管。
+
+### 二、认证：账号从哪来
+
+实现 `UserAccountRepository` 即可，框架只要求「按登录名查到一个能校验密码的账号」：
+
+```java
+@Component
+public class MyUserAccountRepository implements UserAccountRepository {
+
+    @Override
+    public Optional<UserAccount> findByUsername(String username) {
+        // SELECT id, username, password, nickname, enabled FROM sys_user WHERE username = ?
+        return Optional.ofNullable(...);
+    }
+}
+```
+
+`UserAccount.password()` 必须是 **BCrypt 散列**（框架注册的 `PasswordEncoder` 就是 BCrypt）。
+没有提供实现时退回内存实现，并在启动时创建 `admin/admin`、打印告警——只为本地跑通，生产别用。
+
+登录：
+
+```bash
+curl -X POST http://localhost:8080/login -H 'Content-Type: application/json' \
+  -d '{"username":"admin","password":"admin"}'
+
+# {"code":200,"isSuccess":true,"data":{"token":"eyJ...","tokenType":"Bearer","expiresIn":7200,"username":"admin"}}
+
+curl http://localhost:8080/api/profile -H 'Authorization: Bearer eyJ...'
+```
+
+除登录路径与 `permit-paths` 外，其余请求都要求合法 JWT；未登录返回 401、权限不足返回 403，
+响应体仍是统一结构 `R`（`{"code":100000,"isSuccess":false,"msg":"未登录或登录已过期"}`）。
+
+### 三、授权：权限从哪来
+
+实现 `PermissionRepository`，返回该用户拥有的权限 id：
+
+```java
+@Component
+public class MyPermissionRepository implements PermissionRepository {
+
+    @Override
+    public List<Long> findPermissionIdsByUserId(long userId) {
+        // SELECT ra.authority_id FROM sys_role_authority ra
+        //   JOIN sys_user_role ur ON ur.role_id = ra.role_id WHERE ur.user_id = ?
+        return ...;
+    }
+}
+```
+
+权限 id 会原样变成 `GrantedAuthority`，所以两种写法都可用：
+
+```java
+@RequirePermission(101L)                     // 需要 101，全部满足
+@RequirePermission({ 101L, 102L })           // 两个都要有
+@PreAuthorize("hasAuthority('101')")         // 直接写表达式
+```
+
+权限在**登录时**查出来写进 JWT 的 `authorities` 声明（默认 2 小时），所以给用户改权限后需要重新登录才生效。
+没有提供实现时退回内存实现，只有默认管理员拥有全部已收集的权限。
+
+### 在沙箱里跑一遍
+
+沙箱已经接好了这套能力（`sandbox/butterfly-sandbox`），两个演示账号：`admin/admin` 拥有全部权限，
+`guest/guest` 只有商品列表权限。
+
+```bash
+./mvnw -pl sandbox/butterfly-sandbox -am spring-boot:run
+# 或者：java -jar sandbox/butterfly-sandbox/target/butterfly-sandbox-0.1.7.jar
+```
+
+```bash
+# 1) 未登录访问受保护接口：401 + 统一响应
+curl -i http://localhost:8080/api/products
+
+# 2) 登录拿 token
+curl -s -X POST http://localhost:8080/login -H 'Content-Type: application/json' \
+  -d '{"username":"guest","password":"guest"}'
+
+# 3) 有权限的接口：200（guest 有商品列表权限）
+curl -i http://localhost:8080/api/products -H "Authorization: Bearer $TOKEN"
+
+# 4) 权限不足的接口：403（guest 没有新增权限）
+curl -i -X POST http://localhost:8080/api/products -H "Authorization: Bearer $TOKEN"
+
+# 5) 免登录接口照旧可用（配置在 permit-paths 里）
+curl http://localhost:8080/time
+```
+
+对应的实现只有三个类：`DemoUserAccountRepository`（账号）、`DemoPermissionRepository`（用户→权限 id）、
+`SecurityDemoController`（`@RequirePermission` 与 `@PreAuthorize` 两种写法），都在
+`sandbox/butterfly-sandbox` 里，可以直接照抄到业务工程。
+
+### 配置
+
+```yaml
+butterfly:
+  security:
+    authentication:
+      enabled: true
+      login-path: /login          # 自动放行，只接受 POST + JSON
+      permit-paths: [ /error ]    # 其它免认证路径
+      init-default-admin: false   # 账号都由业务提供时关掉
+      default-admin-username: admin
+      default-admin-password: admin
+      jwt:
+        secret: "至少 32 字节的随机密钥"   # 不配则随机生成：重启失效、多实例互不认可
+        issuer: butterfly
+        expiration: 2h
+    authorization:
+      enabled: true
+      method-security-enabled: true   # 已自己标 @EnableMethodSecurity 时可设为 false
+```
+
+注意：自己声明 `SecurityFilterChain` 时，框架那条不生效（`@ConditionalOnMissingBean`），
+登录接口、JWT 组件与授权组件仍然可用。
 
 ---
 
@@ -453,7 +604,7 @@ public void onInsert(Computer computer) { ... }
 | 模块 | 内容 |
 | --- | --- |
 | `butterfly-sandbox-model` | 示例实体，供各沙箱共用 |
-| `butterfly-sandbox` | 基础 Web 示例（8080） |
+| `butterfly-sandbox` | 基础 Web 示例（8080），含 JWT 认证与 `@RequirePermission` 授权示例 |
 | `butterfly-sandbox-kafka` / `-rabbitmq` / `-rocketmq` | 各 MQ 的收发示例 |
 | `butterfly-sandbox-canal` | Canal 消费示例 |
 | `butterfly-sandbox-curator` | ZooKeeper/Curator 示例 |

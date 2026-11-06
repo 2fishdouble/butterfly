@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.core.Ordered;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
 
@@ -34,8 +35,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * 在容器刷新完成后,扫描指定包下实现了 {@link IPermission} / {@link IPermissionGroup} 的枚举, 取其常量并交给
  * {@link PermissionStorage} 落库(有 DataSource)或入内存.
+ * <p>
+ * 以最高优先级监听刷新事件,保证默认管理员等「需要权限字典」的后续步骤拿到的是完整结果。
  */
-public class PermissionCollector implements ApplicationListener<ContextRefreshedEvent> {
+public class PermissionCollector implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
 	private static final Logger log = LoggerFactory.getLogger(PermissionCollector.class);
 
@@ -58,6 +61,15 @@ public class PermissionCollector implements ApplicationListener<ContextRefreshed
 		this.storage = storage;
 		this.properties = properties;
 		this.context = context;
+	}
+
+	/**
+	 * 收集动作排在所有普通监听器之前.
+	 * @return 最高优先级
+	 */
+	@Override
+	public int getOrder() {
+		return Ordered.HIGHEST_PRECEDENCE;
 	}
 
 	/**

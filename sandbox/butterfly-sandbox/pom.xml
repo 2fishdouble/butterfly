@@ -42,6 +42,25 @@
             <artifactId>butterfly-spring-boot-security-autoconfigure</artifactId>
         </dependency>
 
+        <!--
+            认证/授权用到的 Spring Security 依赖在 security-autoconfigure 里都是 optional,
+            使用方要自己引;这里演示「引这三个 + 实现两个 SPI」即可完成 JWT 认证与方法级授权。
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-resource-server</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.github.2fishdouble</groupId>
             <artifactId>butterfly-spring-boot-mail-autoconfigure</artifactId>

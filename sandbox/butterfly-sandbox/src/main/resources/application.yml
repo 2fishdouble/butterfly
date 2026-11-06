@@ -65,5 +65,19 @@ butterfly:
     permission:
       enabled: true
       db: true
+    authentication:
+      # 演示账号由 DemoUserAccountRepository 提供(admin/admin、guest/guest),不用框架的默认管理员
+      init-default-admin: false
+      # 生产环境务必换成自己的密钥;这里是为了让沙箱重启后旧 token 仍可用才写死
+      jwt:
+        secret: sandbox-demo-jwt-secret-0123456789abcdef
+        expiration: 2h
+      # 原来的示例接口保持免登录,新加的 /api/** 一律要求认证
+      permit-paths:
+        - /error
+        - /
+        - /time
+    authorization:
+      enabled: true
   mail:
     default-from: 2737224577@qq.com

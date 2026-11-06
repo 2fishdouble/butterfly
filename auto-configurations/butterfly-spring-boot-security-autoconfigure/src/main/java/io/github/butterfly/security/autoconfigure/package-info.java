@@ -26,6 +26,10 @@
  * ({@link io.github.butterfly.security.autoconfigure.DbPermissionStorage})或存入内存
  * ({@link io.github.butterfly.security.autoconfigure.InMemoryPermissionStorage})。
  * <p>
+ * 收集到的权限 id 是认证与授权的共同语言:认证侧(见
+ * {@code io.github.butterfly.security.autoconfigure.authentication})把它写进 JWT, 授权侧(见
+ * {@code io.github.butterfly.security.autoconfigure.authorization})用它做方法级判定。
+ * <p>
  * 装配入口为
  * {@link io.github.butterfly.security.autoconfigure.SecurityPermissionAutoConfiguration},
  * 配置项见 {@link io.github.butterfly.security.autoconfigure.SecurityPermissionProperties}。

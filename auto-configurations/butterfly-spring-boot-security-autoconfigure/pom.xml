@@ -18,6 +18,57 @@
             <artifactId>butterfly-spring-boot-autoconfigure</artifactId>
         </dependency>
 
+        <!--
+            认证/授权是可选能力:
+            - Spring Security 相关依赖全部 optional,不引 spring-boot-starter-security 的使用方只得到权限收集;
+            - 使用方自己引 starter 后,本模块的两个自动配置类通过 @ConditionalOnClass 生效。
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-resource-server</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!--
+            登录接口需要 @RestController / @RequestBody;spring-web 为可选依赖,
+            与 butterfly-spring-boot-autoconfigure 的处理方式保持一致。
+        -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- 测试:登录接口端到端验证需要 MVC,过滤器与 @RequirePermission 验证需要 spring-security-test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

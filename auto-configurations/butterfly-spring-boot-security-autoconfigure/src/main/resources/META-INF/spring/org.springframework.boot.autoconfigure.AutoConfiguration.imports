@@ -1,1 +1,3 @@
 io.github.butterfly.security.autoconfigure.SecurityPermissionAutoConfiguration
+io.github.butterfly.security.autoconfigure.authorization.SecurityAuthorizationAutoConfiguration
+io.github.butterfly.security.autoconfigure.authentication.SecurityAuthenticationAutoConfiguration

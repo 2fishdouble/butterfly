@@ -39,7 +39,7 @@ Two design rules drive everything here:
 | `butterfly-spring-boot-mybatis-plus-autoconfigure` | Pagination + optimistic locking, audit-field filling for `BaseEntity` |
 | `butterfly-spring-boot-excel-autoconfigure` | FastExcel helper `ExcelUtil` (read / write / download) |
 | `butterfly-spring-boot-mail-autoconfigure` | `MailTemplate` mail-sending facade |
-| `butterfly-spring-boot-security-autoconfigure` | Permission enum collection and storage (in-memory or database) |
+| `butterfly-spring-boot-security-autoconfigure` | Permission enum collection, JWT authentication and `@RequirePermission` method authorization |
 | `butterfly-spring-boot-rabbitmq-autoconfigure` | Per-entity topology (dead letter / delay / retry) + listener container factories |
 | `butterfly-spring-boot-kafka-autoconfigure` | Per-entity `KafkaTemplate`, topic creation, non-blocking retry and DLT |
 | `butterfly-spring-boot-netty-autoconfigure` | Embedded Netty TCP server (NIO / Epoll / KQueue) |
@@ -344,10 +344,46 @@ finally to the underlying SMTP/JNDI session. An empty recipient list throws `Ill
 
 ---
 
-## Permissions: `butterfly-spring-boot-security-autoconfigure`
+## Security: `butterfly-spring-boot-security-autoconfigure`
 
-Define permission enums implementing `IPermission` (group enums implement `IPermissionGroup`); they are scanned
-at startup and persisted.
+Three capabilities, each with its own switch, usable independently:
+
+| Capability | Property prefix | What it does |
+| --- | --- | --- |
+| Permission catalogue | `butterfly.security.permission` | Scans permission enums at startup, persists them (DB or memory) |
+| Authentication | `butterfly.security.authentication` | Login endpoint, JWT issuing/validation, stateless filter chain |
+| Authorization | `butterfly.security.authorization` | User→permission-id lookup, `@PreAuthorize`, `@RequirePermission` |
+
+**Scope**: the framework owns the mechanism, not your business data. It never creates or writes `user`,
+role or user-role tables — the schema, the storage (your own DB, LDAP, external SSO) are yours. Only two
+interfaces are required.
+
+### Dependencies
+
+All Spring Security dependencies are `optional`: permission collection alone needs nothing extra. For
+authentication and authorization add:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-oauth2-resource-server</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-oauth2-jose</artifactId>
+</dependency>
+```
+
+Without them the authentication/authorization auto-configuration is skipped silently and permission
+collection still works.
+
+### 1. Permission catalogue
+
+Define permission enums implementing `IPermission` (groups implement `IPermissionGroup`):
 
 ```yaml
 butterfly:
@@ -358,8 +394,128 @@ butterfly:
       scan-packages: [ com.example.permission ]   # empty means the main class package
 ```
 
-With a `DataSource` and `db=true` you get `DbPermissionStorage` (auto-created table + upsert); otherwise
-`InMemoryPermissionStorage`. Providing your own `PermissionStorage` bean takes over completely.
+With a `DataSource` and `db=true` you get `DbPermissionStorage` (auto-created `authority` /
+`authority_group` tables + upsert); otherwise `InMemoryPermissionStorage`. A custom `PermissionStorage`
+bean takes over completely.
+
+### 2. Authentication: where accounts come from
+
+Implement `UserAccountRepository`; the framework only needs "find an account by login name":
+
+```java
+@Component
+public class MyUserAccountRepository implements UserAccountRepository {
+
+    @Override
+    public Optional<UserAccount> findByUsername(String username) {
+        // SELECT id, username, password, nickname, enabled FROM sys_user WHERE username = ?
+        return Optional.ofNullable(...);
+    }
+}
+```
+
+`UserAccount.password()` must be a **BCrypt hash** (the registered `PasswordEncoder` is BCrypt). Without
+an implementation the framework falls back to an in-memory store, creates `admin/admin` at startup and
+logs a warning — development only.
+
+```bash
+curl -X POST http://localhost:8080/login -H 'Content-Type: application/json' \
+  -d '{"username":"admin","password":"admin"}'
+
+# {"code":200,"isSuccess":true,"data":{"token":"eyJ...","tokenType":"Bearer","expiresIn":7200,"username":"admin"}}
+
+curl http://localhost:8080/api/profile -H 'Authorization: Bearer eyJ...'
+```
+
+Everything except the login path and `permit-paths` requires a valid JWT. Unauthenticated requests get
+401, insufficient permissions 403, both with the usual `R` body
+(`{"code":100000,"isSuccess":false,"msg":"未登录或登录已过期"}`).
+
+### 3. Authorization: where permissions come from
+
+Implement `PermissionRepository` returning the permission ids of a user:
+
+```java
+@Component
+public class MyPermissionRepository implements PermissionRepository {
+
+    @Override
+    public List<Long> findPermissionIdsByUserId(long userId) {
+        // SELECT ra.authority_id FROM sys_role_authority ra
+        //   JOIN sys_user_role ur ON ur.role_id = ra.role_id WHERE ur.user_id = ?
+        return ...;
+    }
+}
+```
+
+Permission ids become the `GrantedAuthority` values verbatim, so both styles work:
+
+```java
+@RequirePermission(101L)                     // requires 101
+@RequirePermission({ 101L, 102L })           // requires both
+@PreAuthorize("hasAuthority('101')")         // plain expression
+```
+
+Permissions are resolved **at login time** and embedded in the JWT `authorities` claim (2 hours by
+default), so permission changes take effect after the next login. Without an implementation the
+in-memory store is used and only the default administrator owns every collected permission.
+
+### Try it in the sandbox
+
+`sandbox/butterfly-sandbox` is already wired up with two demo accounts: `admin/admin` owns every
+permission, `guest/guest` only the product list.
+
+```bash
+./mvnw -pl sandbox/butterfly-sandbox -am spring-boot:run
+# or: java -jar sandbox/butterfly-sandbox/target/butterfly-sandbox-0.1.7.jar
+```
+
+```bash
+# 1) protected endpoint without a token: 401 + unified body
+curl -i http://localhost:8080/api/products
+
+# 2) log in to get a token
+curl -s -X POST http://localhost:8080/login -H 'Content-Type: application/json' \
+  -d '{"username":"guest","password":"guest"}'
+
+# 3) allowed permission: 200
+curl -i http://localhost:8080/api/products -H "Authorization: Bearer $TOKEN"
+
+# 4) missing permission: 403
+curl -i -X POST http://localhost:8080/api/products -H "Authorization: Bearer $TOKEN"
+
+# 5) permit-path stays open
+curl http://localhost:8080/time
+```
+
+Only three classes make it work: `DemoUserAccountRepository` (accounts), `DemoPermissionRepository`
+(user → permission ids) and `SecurityDemoController` (`@RequirePermission` and `@PreAuthorize` side by
+side) — all under `sandbox/butterfly-sandbox`, ready to copy into a real service.
+
+### Configuration
+
+```yaml
+butterfly:
+  security:
+    authentication:
+      enabled: true
+      login-path: /login          # permitted automatically, POST + JSON only
+      permit-paths: [ /error ]    # additional unauthenticated paths
+      init-default-admin: false   # turn off when accounts come from your own store
+      default-admin-username: admin
+      default-admin-password: admin
+      jwt:
+        secret: "a random secret of at least 32 bytes"   # unset means random: tokens die on restart
+        issuer: butterfly
+        expiration: 2h
+    authorization:
+      enabled: true
+      method-security-enabled: true   # set false if you already use @EnableMethodSecurity
+```
+
+Note: if you declare your own `SecurityFilterChain`, the framework one backs off
+(`@ConditionalOnMissingBean`); the login endpoint, JWT components and authorization components remain
+available.
 
 ---
 
@@ -476,7 +632,7 @@ asynchronous mode the whole batch is redelivered.
 | Module | Contents |
 | --- | --- |
 | `butterfly-sandbox-model` | Shared sample entities |
-| `butterfly-sandbox` | Basic web app (port 8080) |
+| `butterfly-sandbox` | Basic web app (port 8080) with JWT authentication and `@RequirePermission` authorization |
 | `butterfly-sandbox-kafka` / `-rabbitmq` / `-rocketmq` | Send/receive demos per messaging system |
 | `butterfly-sandbox-canal` | Canal consumption demo |
 | `butterfly-sandbox-curator` | ZooKeeper/Curator demo |
