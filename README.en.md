@@ -16,11 +16,11 @@ Two design rules drive everything here:
 <dependency>
     <groupId>io.github.2fishdouble</groupId>
     <artifactId>butterfly-spring-boot-starter</artifactId>
-    <version>0.1.7</version>
+    <version>0.1.8</version>
 </dependency>
 ```
 
-- Version: `0.1.7`, driven by the `revision` property in `butterfly-parent`
+- Version: `0.1.8`, driven by the `revision` property in `butterfly-parent`
 - Java 21, Spring Boot 4.1.2
 - Package root: `io.github.butterfly.*`
 
@@ -66,7 +66,7 @@ backs off when you define your own bean.
         <dependency>
             <groupId>io.github.2fishdouble</groupId>
             <artifactId>butterfly-bom</artifactId>
-            <version>0.1.7</version>
+            <version>0.1.8</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
