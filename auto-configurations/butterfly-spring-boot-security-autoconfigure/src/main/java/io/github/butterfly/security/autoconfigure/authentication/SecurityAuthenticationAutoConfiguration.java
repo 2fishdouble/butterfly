@@ -20,9 +20,8 @@ import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import io.github.butterfly.security.autoconfigure.authorization.PermissionRepository;
 import io.github.butterfly.security.autoconfigure.authorization.RequirePermission;
 import io.github.butterfly.security.autoconfigure.authorization.SecurityAuthorizationAutoConfiguration;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -85,14 +84,13 @@ import java.util.Set;
 @ConditionalOnClass({ SecurityFilterChain.class, JwtDecoder.class, JwtAuthenticationConverter.class })
 @ConditionalOnProperty(prefix = "butterfly.security.authentication", name = "enabled", havingValue = "true",
 		matchIfMissing = true)
+@Slf4j
 public class SecurityAuthenticationAutoConfiguration {
 
 	/**
 	 * HS256 密钥的最小长度(字节).
 	 */
 	private static final int MIN_SECRET_LENGTH = 32;
-
-	private static final Logger log = LoggerFactory.getLogger(SecurityAuthenticationAutoConfiguration.class);
 
 	/**
 	 * 注册账号读取实现,默认内存实现.

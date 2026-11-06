@@ -16,9 +16,8 @@
 
 package io.github.butterfly.canal.autoconfigure;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +34,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 无匹配处理器的事件会被静默丢弃(只打 debug 日志),因为 canal 会推送整库整表的变更,而使用方通常只关心其中 少数表。注册与分发都是线程安全的:处理器存放在
  * {@link CopyOnWriteArrayList} 中,因此异步消费时并发分发不会 抛并发修改异常。
  */
+@Slf4j
 public class CanalEventDispatcher {
-
-	private static final Logger log = LoggerFactory.getLogger(CanalEventDispatcher.class);
 
 	private final Map<HandlerKey, List<CanalEventHandler>> handlers = new ConcurrentHashMap<>();
 

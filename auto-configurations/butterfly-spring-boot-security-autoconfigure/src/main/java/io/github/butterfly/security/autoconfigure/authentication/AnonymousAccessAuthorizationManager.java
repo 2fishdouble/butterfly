@@ -17,9 +17,8 @@
 package io.github.butterfly.security.autoconfigure.authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -44,9 +43,8 @@ import java.util.function.Supplier;
  * 判定顺序刻意把便宜的分支放前面:先看当前是否已认证(绝大多数带 token 的请求走这里,不碰 MVC), 只有匿名请求才会去问
  * {@link RequestMappingHandlerMapping} 「这个请求会落到哪个方法」。
  */
+@Slf4j
 public final class AnonymousAccessAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
-
-	private static final Logger log = LoggerFactory.getLogger(AnonymousAccessAuthorizationManager.class);
 
 	private final List<RequestMappingHandlerMapping> handlerMappings;
 

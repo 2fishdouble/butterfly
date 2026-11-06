@@ -16,9 +16,8 @@
 
 package io.github.butterfly.canal.autoconfigure;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
 
 import java.time.Duration;
@@ -47,9 +46,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>
  * 拉取与处理阶段的失败都会被记录并退避重试,消费线程本身不会因为业务异常而退出;连接、拉取、处理、确认各自失败时 都会走同一条退避路径。
  */
+@Slf4j
 public abstract class AbstractCanalEventConsumer implements CanalEventConsumer, SmartLifecycle {
-
-	private static final Logger log = LoggerFactory.getLogger(AbstractCanalEventConsumer.class);
 
 	/**
 	 * 等待后台线程退出的最长时间.

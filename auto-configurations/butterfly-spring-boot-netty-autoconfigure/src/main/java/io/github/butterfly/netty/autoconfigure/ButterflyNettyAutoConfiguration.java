@@ -17,8 +17,7 @@
 package io.github.butterfly.netty.autoconfigure;
 
 import io.netty.bootstrap.ServerBootstrap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -39,9 +38,8 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(NettyServerProperties.class)
 @ConditionalOnClass({ ServerBootstrap.class, NettyChannelInitializer.class })
 @ConditionalOnProperty(prefix = "butterfly.netty", name = "enabled", havingValue = "true", matchIfMissing = true)
+@Slf4j
 public class ButterflyNettyAutoConfiguration {
-
-	private static final Logger log = LoggerFactory.getLogger(ButterflyNettyAutoConfiguration.class);
 
 	/**
 	 * 默认的 pipeline 装配器:按换行符分帧的文本协议.

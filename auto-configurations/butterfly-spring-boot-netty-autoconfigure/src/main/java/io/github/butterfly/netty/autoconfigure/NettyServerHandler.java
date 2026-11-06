@@ -20,8 +20,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 默认的入站处理器:仅记录收到的文本报文,并在连接空闲或异常时关闭连接.
@@ -29,9 +28,8 @@ import org.slf4j.LoggerFactory;
  * 它由 {@link TextLineChannelInitializer} 装配,只作为「服务器已启动且能收包」的兜底实现; 真正的业务处理请在
  * {@link NettyChannelInitializer} 中自行装配处理器。
  */
+@Slf4j
 class NettyServerHandler extends SimpleChannelInboundHandler<String> {
-
-	private static final Logger log = LoggerFactory.getLogger(NettyServerHandler.class);
 
 	/**
 	 * 连接建立时记录远端地址.

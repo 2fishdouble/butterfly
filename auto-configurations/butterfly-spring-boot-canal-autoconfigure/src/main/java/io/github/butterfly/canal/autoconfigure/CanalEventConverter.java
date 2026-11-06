@@ -21,9 +21,8 @@ import com.alibaba.otter.canal.protocol.Message;
 import com.alibaba.otter.canal.protocol.exception.CanalClientException;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -40,9 +39,8 @@ import java.util.Map;
  * 行数据的归属规则见 {@link CanalEvent}:INSERT 取 after 列、UPDATE 取 after 列并以 before 列作为旧值、DELETE 取
  * before 列;值为 {@code NULL} 的列会被跳过。
  */
+@Slf4j
 public final class CanalEventConverter {
-
-	private static final Logger log = LoggerFactory.getLogger(CanalEventConverter.class);
 
 	private CanalEventConverter() {
 	}

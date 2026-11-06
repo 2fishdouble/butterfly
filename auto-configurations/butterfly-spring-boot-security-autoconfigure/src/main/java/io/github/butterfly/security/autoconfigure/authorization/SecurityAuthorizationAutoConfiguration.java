@@ -18,8 +18,7 @@ package io.github.butterfly.security.autoconfigure.authorization;
 
 import io.github.butterfly.security.autoconfigure.PermissionStorage;
 import io.github.butterfly.security.autoconfigure.SecurityPermissionAutoConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.ComposablePointcut;
@@ -55,9 +54,8 @@ import java.lang.reflect.Method;
 @EnableConfigurationProperties(SecurityAuthorizationProperties.class)
 @ConditionalOnProperty(prefix = "butterfly.security.authorization", name = "enabled", havingValue = "true",
 		matchIfMissing = true)
+@Slf4j
 public class SecurityAuthorizationAutoConfiguration {
-
-	private static final Logger log = LoggerFactory.getLogger(SecurityAuthorizationAutoConfiguration.class);
 
 	/**
 	 * 注册权限授予关系查询实现,默认内存实现.

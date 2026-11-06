@@ -19,9 +19,8 @@ package io.github.butterfly.canal.autoconfigure;
 import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.client.impl.SimpleCanalConnector;
 import com.alibaba.otter.canal.protocol.Message;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
@@ -41,9 +40,8 @@ import java.util.function.Supplier;
  * <b>连接器是延迟创建的</b>:{@link #connect()} 才向 {@link Supplier} 要连接器,因此应用启动阶段不会创建 netty
  * 客户端,也不会因为 canal server 暂时不可用而失败。
  */
+@Slf4j
 public class CanalConnectorMessageSource implements CanalMessageSource {
-
-	private static final Logger log = LoggerFactory.getLogger(CanalConnectorMessageSource.class);
 
 	/**
 	 * 没有未确认批次时的 batchId,与 canal 侧表示"没有数据"的取值一致.

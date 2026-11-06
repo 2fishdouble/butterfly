@@ -16,9 +16,8 @@
 
 package io.github.butterfly.security.autoconfigure;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.context.ApplicationContext;
@@ -39,9 +38,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>
  * 以最高优先级监听刷新事件,保证默认管理员等「需要权限字典」的后续步骤拿到的是完整结果。
  */
+@Slf4j
 public class PermissionCollector implements ApplicationListener<ContextRefreshedEvent>, Ordered {
-
-	private static final Logger log = LoggerFactory.getLogger(PermissionCollector.class);
 
 	private final PermissionStorage storage;
 

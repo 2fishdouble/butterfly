@@ -19,9 +19,8 @@ package io.github.butterfly.redis.autoconfigure;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Info;
 import com.github.dockerjava.api.model.Version;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -51,11 +50,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <p>
  * 容器由 JUnit 扩展启停(Ryuk 兜底),{@code DockerClient} 则由 {@code DockerClientFactory} 缓存复用。
  */
+@Slf4j
 @Testcontainers(disabledWithoutDocker = true)
 @SuppressWarnings("resource")
 class RedisTestcontainersTests {
-
-	private static final Logger log = LoggerFactory.getLogger(RedisTestcontainersTests.class);
 
 	private static final String REDIS_IMAGE = "redis:7.4-alpine";
 

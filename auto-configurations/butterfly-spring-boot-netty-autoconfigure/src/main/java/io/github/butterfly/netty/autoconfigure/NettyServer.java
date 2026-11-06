@@ -22,9 +22,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
 
 import java.net.InetSocketAddress;
@@ -37,9 +36,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 容器刷新时绑定 {@code butterfly.netty.host:butterfly.netty.port} 并开始接受连接,容器关闭时先关闭 server 通道
  * 再优雅关闭事件循环组。IO 模型由 {@link NettyTransportFactory} 决定,默认 NIO。
  */
+@Slf4j
 public class NettyServer implements SmartLifecycle {
-
-	private static final Logger log = LoggerFactory.getLogger(NettyServer.class);
 
 	private static final long SHUTDOWN_TIMEOUT_SECONDS = 5;
 

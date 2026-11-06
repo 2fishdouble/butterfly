@@ -20,8 +20,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -36,10 +35,8 @@ import java.util.UUID;
  * 为每次请求生成/透传 traceId，写入 MDC 供日志输出（建议在日志 pattern 中配置
  * {@code %X{traceId}}），并回写到响应头便于调用方串联链路；同时打印请求开始/结束耗时日志。
  */
+@Slf4j
 public class TraceIdFilter extends OncePerRequestFilter implements Ordered {
-
-	/** 日志对象. */
-	private static final Logger log = LoggerFactory.getLogger(TraceIdFilter.class);
 
 	/** MDC 中 traceId 的键名. */
 	private static final String TRACE_ID_MDC_KEY = "traceId";

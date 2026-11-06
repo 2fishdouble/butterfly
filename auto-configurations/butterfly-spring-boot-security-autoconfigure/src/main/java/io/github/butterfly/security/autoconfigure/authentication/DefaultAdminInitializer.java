@@ -18,9 +18,8 @@ package io.github.butterfly.security.autoconfigure.authentication;
 
 import io.github.butterfly.security.autoconfigure.authorization.InMemoryPermissionRepository;
 import io.github.butterfly.security.autoconfigure.authorization.PermissionRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
@@ -40,6 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 生产环境请修改 {@code butterfly.security.authentication.default-admin-password},或直接把
  * {@code init-default-admin} 设为 {@code false} 并自行初始化账号。
  */
+@Slf4j
 public class DefaultAdminInitializer implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
 	/**
@@ -48,8 +48,6 @@ public class DefaultAdminInitializer implements ApplicationListener<ContextRefre
 	public static final long DEFAULT_ADMIN_ID = 1L;
 
 	private static final String DEFAULT_ADMIN_NICKNAME = "超级管理员";
-
-	private static final Logger log = LoggerFactory.getLogger(DefaultAdminInitializer.class);
 
 	private final UserAccountRepository userAccounts;
 

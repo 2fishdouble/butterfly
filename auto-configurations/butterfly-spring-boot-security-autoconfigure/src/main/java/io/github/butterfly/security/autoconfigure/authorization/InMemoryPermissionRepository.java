@@ -19,9 +19,8 @@ package io.github.butterfly.security.autoconfigure.authorization;
 import io.github.butterfly.security.autoconfigure.IPermission;
 import io.github.butterfly.security.autoconfigure.InMemoryPermissionStorage;
 import io.github.butterfly.security.autoconfigure.PermissionStorage;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,9 +38,8 @@ import java.util.concurrent.ConcurrentMap;
  * <p>
  * 本实现是线程安全的:读取与授予都基于 {@link ConcurrentHashMap}。
  */
+@Slf4j
 public class InMemoryPermissionRepository implements PermissionRepository {
-
-	private static final Logger log = LoggerFactory.getLogger(InMemoryPermissionRepository.class);
 
 	private final @Nullable PermissionStorage permissionStorage;
 

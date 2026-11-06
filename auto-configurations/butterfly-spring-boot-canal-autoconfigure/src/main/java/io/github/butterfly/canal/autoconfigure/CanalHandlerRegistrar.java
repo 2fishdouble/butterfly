@@ -16,9 +16,8 @@
 
 package io.github.butterfly.canal.autoconfigure;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
@@ -49,9 +48,8 @@ import java.util.Map;
  * 表名与库名的解析规则见 {@link CanalTableResolver};泛型参数无法解析或注解方法无法推断表名等配置错误会在启动阶段 直接抛出
  * {@link IllegalStateException},而不是等到第一条数据到达。
  */
+@Slf4j
 public class CanalHandlerRegistrar implements SmartInitializingSingleton {
-
-	private static final Logger log = LoggerFactory.getLogger(CanalHandlerRegistrar.class);
 
 	private final ListableBeanFactory beanFactory;
 
