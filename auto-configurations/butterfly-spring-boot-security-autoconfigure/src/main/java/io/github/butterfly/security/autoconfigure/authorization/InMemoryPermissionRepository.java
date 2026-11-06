@@ -119,7 +119,19 @@ public class InMemoryPermissionRepository implements PermissionRepository {
 	}
 
 	private String storageType() {
-		return (this.permissionStorage != null) ? this.permissionStorage.getClass().getSimpleName() : "none";
+		return nameOf(this.permissionStorage);
+	}
+
+	/**
+	 * 取存储实现的简单类名,用于日志.
+	 * @param storage 权限字典存储,可能为 {@code null}
+	 * @return 类简单名;{@code null} 时返回 {@code none}
+	 */
+	private static String nameOf(@Nullable PermissionStorage storage) {
+		if (storage == null) {
+			return "none";
+		}
+		return storage.getClass().getSimpleName();
 	}
 
 }

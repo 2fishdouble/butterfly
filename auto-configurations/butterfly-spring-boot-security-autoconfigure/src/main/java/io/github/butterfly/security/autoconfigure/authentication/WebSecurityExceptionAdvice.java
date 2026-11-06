@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -66,7 +67,7 @@ public class WebSecurityExceptionAdvice {
 	 * @return 状态码 401 的统一失败响应
 	 */
 	@ExceptionHandler({ AuthenticationCredentialsNotFoundException.class, InsufficientAuthenticationException.class })
-	public ResponseEntity<R<Object>> handleUnauthenticated(RuntimeException exception) {
+	public ResponseEntity<R<Object>> handleUnauthenticated(AuthenticationException exception) {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(R.error("未登录或登录已过期"));
 	}
 

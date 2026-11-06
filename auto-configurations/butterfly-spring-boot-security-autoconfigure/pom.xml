@@ -44,11 +44,30 @@
         <!--
             登录接口需要 @RestController / @RequestBody;spring-web 为可选依赖,
             与 butterfly-spring-boot-autoconfigure 的处理方式保持一致。
+            spring-webmvc 只用于 @AnonymousAccess:过滤链需要 RequestMappingHandlerMapping
+            把请求解析成目标方法,没有 MVC 时相关的 Web 自动配置整体跳过。
         -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!--
+            UserContext 基于 TransmittableThreadLocal 实现,是运行期依赖,因此不能声明为 optional:
+            - 同一线程内读写与普通 ThreadLocal 一致;
+            - 跨线程传递依赖 TTL 的 Runnable/Callable 包装(本模块提供的 UserContextTaskDecorator 用的就是它)
+              或线上的 -javaagent:transmittable-thread-local jar,二者至少有其一才会真正穿透线程池。
+        -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>transmittable-thread-local</artifactId>
         </dependency>
 
         <dependency>

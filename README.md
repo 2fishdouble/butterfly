@@ -411,6 +411,81 @@ curl http://localhost:8080/api/profile -H 'Authorization: Bearer eyJ...'
 除登录路径与 `permit-paths` 外，其余请求都要求合法 JWT；未登录返回 401、权限不足返回 403，
 响应体仍是统一结构 `R`（`{"code":100000,"isSuccess":false,"msg":"未登录或登录已过期"}`）。
 
+### 匿名访问：路径放行还是方法放行
+
+| 方式 | 适用 |
+| --- | --- |
+| `butterfly.security.authentication.permit-paths` | 按**路径**放行，适合 `/error`、静态资源这类没有 Controller 方法的位置 |
+| `@AnonymousAccess` | 按**方法**放行，标在 Controller 方法或类上；路径改了注解跟着方法走，不用同步改配置 |
+
+```java
+@RestController
+@AnonymousAccess                       // 整个 Controller 允许匿名
+public class HealthController { ... }
+
+@GetMapping("/api/public/hello")
+@AnonymousAccess                       // 只放行这一个方法
+public R<String> hello() { return R.success("ok"); }
+```
+
+⚠️ `@AnonymousAccess` 只免除「必须登录」，**不会**绕过 `@PreAuthorize` / `@RequirePermission`;
+需要匿名的方法不要再标权限注解。
+
+> 实现方式：过滤链的 `anyRequest()` 换成了一个 `AuthorizationManager`——先看是否已认证（带 token 的请求
+> 不碰 MVC），只有匿名请求才会让 `RequestMappingHandlerMapping` 解析出目标方法，再看方法/类上有没有
+> `@AnonymousAccess`。所以它比 `permitAll()` 多一层 MVC 解析，但只发生在未登录请求上。
+
+### 在任意位置取当前用户
+
+登录成功后，框架把 JWT 里的用户信息解析成 `LoginUser` 放进 ThreadLocal，Service、拦截器里都能直接取，
+不用一路传 `Authentication` 参数：
+
+```java
+LoginUser user = UserContext.require();        // 没有登录用户时抛 IllegalStateException
+long userId = user.userId();
+String username = user.username();
+Set<Long> permissionIds = user.permissionIds();
+
+// 便捷写法（内部就是 require()）
+long id = UserContext.userId();
+String name = UserContext.username();
+
+// 不确定是否登录（比如匿名接口、定时任务）时先判断
+if (UserContext.isPresent()) { ... }
+LoginUser maybe = UserContext.get();           // 可能为 null
+```
+
+内容来自 token 声明：`uid` → `userId`、`sub` → `username`、`authorities` → `permissionIds`。
+
+底层是 Alibaba 的 `TransmittableThreadLocal`（已进 BOM 与模块依赖）。同线程读写和 `ThreadLocal` 一样；
+跨线程需要显式打开，三种方式任选：
+
+| 方式 | 说明 |
+| --- | --- |
+| `UserContextTaskDecorator` | **推荐**。挂到 `ThreadPoolTaskExecutor` 上即可，内部用 TTL 的 `capture/replay/restore`，不需要给 JVM 加参数 |
+| `TtlRunnable` / `TtlExecutors` | 提交任务时自己包一层 |
+| `-javaagent:transmittable-thread-local.jar` | 全局透明传播，`ThreadPoolExecutor` 自动包装 |
+
+```java
+@Configuration
+@EnableAsync
+class AsyncConfig {
+    @Bean
+    ThreadPoolTaskExecutor applicationTaskExecutor(UserContextTaskDecorator userContextTaskDecorator) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setTaskDecorator(userContextTaskDecorator);
+        executor.initialize();
+        return executor;
+    }
+}
+// 之后 @Async 方法里 UserContext.username() 拿到的就是「提交任务的那个用户」
+```
+
+两个注意点：
+- `TransmittableThreadLocal` 继承自 `InheritableThreadLocal`，**请求期间新建**的线程会继承当前用户。
+  所以线程池要随容器启动创建（那时没有请求上下文），别在处理请求里临时 `new Thread`；
+- 请求结束（含抛异常）由过滤器 `finally` 清理，装饰器执行完会 `restore` 线程原状态，线程池复用不会串号。
+
 ### 三、授权：权限从哪来
 
 实现 `PermissionRepository`，返回该用户拥有的权限 id：

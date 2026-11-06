@@ -55,5 +55,12 @@ Authorization: Bearer {{guestToken}}
 ### 7. 不带 token：应返回 401 + 统一响应
 GET http://localhost:8080/api/products
 
-### 8. 免登录路径（配置在 butterfly.security.authentication.permit-paths 里）
+### 8. 匿名接口：方法上标了 @AnonymousAccess，不带 token 也返回 200
+GET http://localhost:8080/api/public/hello
+
+### 9. 异步接口：@Async 线程里读 UserContext（执行器挂了 UserContextTaskDecorator）
+GET http://localhost:8080/api/async/me
+Authorization: Bearer {{token}}
+
+### 10. 免登录路径（配置在 butterfly.security.authentication.permit-paths 里）
 GET http://localhost:8080/time

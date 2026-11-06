@@ -108,15 +108,25 @@ public class DefaultAdminInitializer implements ApplicationListener<ContextRefre
 		UserAccount admin = new UserAccount(DEFAULT_ADMIN_ID, this.username, this.passwordEncoder.encode(this.password),
 				DEFAULT_ADMIN_NICKNAME, true);
 		inMemory.save(admin);
-		if (this.inMemoryPermissions != null) {
-			this.inMemoryPermissions.grantAll(DEFAULT_ADMIN_ID);
-		}
+		grantAllPermissions(this.inMemoryPermissions);
 		if (StringUtils.hasText(this.password)) {
 			log.warn("已创建默认管理员 [{}], 请尽快修改 butterfly.security.authentication.default-admin-password " + "并重置密码散列。",
 					this.username);
 		}
 		else {
 			log.warn("已创建默认管理员 [{}], 其密码为空, 请立即在配置中设置 default-admin-password。", this.username);
+		}
+	}
+
+	/**
+	 * 给默认管理员授予全部已收集的权限.
+	 * <p>
+	 * 只有内存授权实现能在这里直接授予;数据库实现或其他自定义实现由各自的查询逻辑负责, 因此参数可空, 可空值只作为参数进来,方法体里不需要可空的局部变量。
+	 * @param permissions 内存授权实现,可能为 {@code null}
+	 */
+	private static void grantAllPermissions(@Nullable InMemoryPermissionRepository permissions) {
+		if (permissions != null) {
+			permissions.grantAll(DEFAULT_ADMIN_ID);
 		}
 	}
 

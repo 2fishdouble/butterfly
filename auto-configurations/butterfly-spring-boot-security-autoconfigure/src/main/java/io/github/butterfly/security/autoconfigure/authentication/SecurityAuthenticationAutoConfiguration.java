@@ -51,8 +51,10 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -233,7 +235,7 @@ public class SecurityAuthenticationAutoConfiguration {
 	@SuppressWarnings("BadImport")
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnWebApplication(type = Type.SERVLET)
-	@ConditionalOnClass({ SecurityFilterChain.class, RestController.class })
+	@ConditionalOnClass({ SecurityFilterChain.class, RestController.class, RequestMappingHandlerMapping.class })
 	static class WebSecurityConfiguration {
 
 		/**
@@ -294,6 +296,44 @@ public class SecurityAuthenticationAutoConfiguration {
 		}
 
 		/**
+		 * 注册用户上下文过滤器:把 JWT 里的用户信息放进 {@link UserContext},请求结束时清理.
+		 * @return 用户上下文过滤器
+		 */
+		@Bean
+		@ConditionalOnMissingBean
+		UserContextFilter userContextFilter() {
+			return new UserContextFilter();
+		}
+
+		/**
+		 * 注册上下文传递装饰器,给异步执行器用:挂到 {@code ThreadPoolTaskExecutor} 上, {@code @Async} 方法里也能读到
+		 * {@link UserContext}.
+		 * <p>
+		 * 只是一个可用的 Bean,不会自动套到任何执行器上——是否传播到某个线程池,由业务自己决定。
+		 * @return 任务装饰器
+		 */
+		@Bean
+		@ConditionalOnMissingBean
+		UserContextTaskDecorator userContextTaskDecorator() {
+			return new UserContextTaskDecorator();
+		}
+
+		/**
+		 * 注册过滤链的授权判定:已认证放行,匿名时放行 {@link AnonymousAccess} 标注的接口.
+		 * <p>
+		 * 需要 MVC 的 {@link RequestMappingHandlerMapping} 才能把请求解析成目标方法;容器里没有时退化为
+		 * 「只认登录状态」,等价于原来的 {@code anyRequest().authenticated()}。
+		 * @param handlerMappings MVC 的请求映射器
+		 * @return 匿名访问判定器
+		 */
+		@Bean
+		@ConditionalOnMissingBean
+		AnonymousAccessAuthorizationManager anonymousAccessAuthorizationManager(
+				ObjectProvider<RequestMappingHandlerMapping> handlerMappings) {
+			return new AnonymousAccessAuthorizationManager(handlerMappings.orderedStream().toList());
+		}
+
+		/**
 		 * 注册无状态的安全过滤链:登录路径放行,其余请求要求携带合法 JWT.
 		 * <p>
 		 * 关闭 CSRF(纯 token 的无状态接口不需要)、关闭 session 与表单登录;未登录与权限不足都返回统一 JSON 响应。 使用方自己声明
@@ -302,13 +342,17 @@ public class SecurityAuthenticationAutoConfiguration {
 		 * @param properties 认证配置,提供登录路径与放行路径
 		 * @param jwtAuthenticationConverter JWT 认证转换器
 		 * @param exceptionHandler 401/403 的统一响应处理器
+		 * @param anonymousAccessAuthorizationManager 未认证请求的判定器,负责 {@link AnonymousAccess}
+		 * @param userContextFilter 用户上下文过滤器,认证完成后把用户信息放进 {@link UserContext}
 		 * @return 安全过滤链
 		 */
 		@Bean
 		@ConditionalOnMissingBean(SecurityFilterChain.class)
 		SecurityFilterChain butterflySecurityFilterChain(HttpSecurity http, SecurityAuthenticationProperties properties,
 				Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter,
-				JsonSecurityExceptionHandler exceptionHandler) {
+				JsonSecurityExceptionHandler exceptionHandler,
+				AnonymousAccessAuthorizationManager anonymousAccessAuthorizationManager,
+				UserContextFilter userContextFilter) {
 			http.csrf(AbstractHttpConfigurer::disable)
 				.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(
@@ -317,9 +361,11 @@ public class SecurityAuthenticationAutoConfiguration {
 							.requestMatchers(permitPaths(properties))
 							.permitAll()
 							.anyRequest()
-							.authenticated())
+							.access(anonymousAccessAuthorizationManager))
 				.oauth2ResourceServer((resourceServer) -> resourceServer.authenticationEntryPoint(exceptionHandler)
 					.jwt((jwt) -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
+				// 必须排在 BearerTokenAuthenticationFilter 之后,才能在认证完成后读到 JWT
+				.addFilterAfter(userContextFilter, BearerTokenAuthenticationFilter.class)
 				.exceptionHandling((exceptions) -> exceptions.authenticationEntryPoint(exceptionHandler)
 					.accessDeniedHandler(exceptionHandler))
 				.httpBasic(AbstractHttpConfigurer::disable)

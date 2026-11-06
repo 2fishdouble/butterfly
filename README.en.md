@@ -431,6 +431,82 @@ Everything except the login path and `permit-paths` requires a valid JWT. Unauth
 401, insufficient permissions 403, both with the usual `R` body
 (`{"code":100000,"isSuccess":false,"msg":"未登录或登录已过期"}`).
 
+### Anonymous access: by path or by method
+
+| Option | Use it for |
+| --- | --- |
+| `butterfly.security.authentication.permit-paths` | Path-based, for `/error`, static resources — anything without a controller method |
+| `@AnonymousAccess` | Method-based, on a controller method or class; the annotation travels with the code when paths change |
+
+```java
+@RestController
+@AnonymousAccess                       // whole controller is anonymous
+public class HealthController { ... }
+
+@GetMapping("/api/public/hello")
+@AnonymousAccess                       // only this method
+public R<String> hello() { return R.success("ok"); }
+```
+
+⚠️ `@AnonymousAccess` only lifts the "authentication required" check — it does **not** bypass
+`@PreAuthorize` / `@RequirePermission`. Do not combine them on a method that must stay anonymous.
+
+> How it works: the chain's `anyRequest()` is backed by an `AuthorizationManager` that checks
+> authentication first (token-bearing requests never touch MVC) and only lets `RequestMappingHandlerMapping`
+> resolve the target method for anonymous requests, then looks for `@AnonymousAccess` on the method/class.
+
+### Current user anywhere in the code
+
+After a successful login the framework parses the JWT into a `LoginUser` and stores it in a ThreadLocal, so
+services and interceptors can read it without threading an `Authentication` parameter through everything:
+
+```java
+LoginUser user = UserContext.require();        // throws IllegalStateException when there is no user
+long userId = user.userId();
+String username = user.username();
+Set<Long> permissionIds = user.permissionIds();
+
+// convenience delegates
+long id = UserContext.userId();
+String name = UserContext.username();
+
+// when a user may be absent (anonymous endpoints, scheduled jobs)
+if (UserContext.isPresent()) { ... }
+LoginUser maybe = UserContext.get();           // may be null
+```
+
+The values come from the token claims: `uid` → `userId`, `sub` → `username`, `authorities` → `permissionIds`.
+
+The holder is Alibaba's `TransmittableThreadLocal` (managed in the BOM and shipped with the module). Same-thread
+access behaves like a plain `ThreadLocal`; crossing threads has to be enabled explicitly — pick one:
+
+| Option | Notes |
+| --- | --- |
+| `UserContextTaskDecorator` | **Recommended**. Attach it to a `ThreadPoolTaskExecutor`; it uses TTL's `capture/replay/restore`, no JVM flag needed |
+| `TtlRunnable` / `TtlExecutors` | Wrap tasks/executors yourself at submission time |
+| `-javaagent:transmittable-thread-local.jar` | Transparent global propagation, `ThreadPoolExecutor` is instrumented |
+
+```java
+@Configuration
+@EnableAsync
+class AsyncConfig {
+    @Bean
+    ThreadPoolTaskExecutor applicationTaskExecutor(UserContextTaskDecorator userContextTaskDecorator) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setTaskDecorator(userContextTaskDecorator);
+        executor.initialize();
+        return executor;
+    }
+}
+// inside @Async methods UserContext.username() is now the user who submitted the task
+```
+
+Two caveats:
+- `TransmittableThreadLocal` extends `InheritableThreadLocal`, so threads **created during a request** inherit the
+  current user. Create pools at startup (no request context then) instead of spawning threads per request;
+- the filter clears the context in `finally` and the decorator restores the worker's previous state, so pooled
+  threads never leak another request's user.
+
 ### 3. Authorization: where permissions come from
 
 Implement `PermissionRepository` returning the permission ids of a user:

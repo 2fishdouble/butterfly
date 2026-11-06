@@ -16,6 +16,7 @@
 
 package io.github.butterfly.security.autoconfigure;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -126,30 +127,43 @@ public class PermissionCollector implements ApplicationListener<ContextRefreshed
 
 		for (String basePackage : basePackages) {
 			for (BeanDefinition candidate : scanner.findCandidateComponents(basePackage)) {
-				String className = candidate.getBeanClassName();
-				if (className == null) {
-					continue;
-				}
-				Class<?> type;
-				try {
-					type = ClassUtils.forName(className, this.context.getClassLoader());
-				}
-				catch (ClassNotFoundException ex) {
-					if (log.isDebugEnabled()) {
-						log.debug("Unable to load candidate class {}, skipping.", className);
-					}
-					continue;
-				}
-				if (!type.isEnum()) {
-					continue;
-				}
-				if (IPermission.class.isAssignableFrom(type)) {
-					collectPermissionConstants(type, permissions);
-				}
-				else if (IPermissionGroup.class.isAssignableFrom(type)) {
-					collectGroupConstants(type, groups);
-				}
+				collectCandidate(candidate.getBeanClassName(), groups, permissions);
 			}
+		}
+	}
+
+	/**
+	 * 处理单个候选类型.
+	 * <p>
+	 * 候选的类名允许为 {@code null}({@link BeanDefinition#getBeanClassName()} 本身可空),因此把它作为可空
+	 * 参数交给本方法处理,避免在方法体里出现可空局部变量。
+	 * @param className 候选类名,可能为 {@code null}
+	 * @param groups 收集到的分组
+	 * @param permissions 收集到的权限
+	 */
+	private void collectCandidate(@Nullable String className, List<IPermissionGroup> groups,
+			List<IPermission> permissions) {
+		if (className == null) {
+			return;
+		}
+		Class<?> type;
+		try {
+			type = ClassUtils.forName(className, this.context.getClassLoader());
+		}
+		catch (ClassNotFoundException ex) {
+			if (log.isDebugEnabled()) {
+				log.debug("Unable to load candidate class {}, skipping.", className);
+			}
+			return;
+		}
+		if (!type.isEnum()) {
+			return;
+		}
+		if (IPermission.class.isAssignableFrom(type)) {
+			collectPermissionConstants(type, permissions);
+		}
+		else if (IPermissionGroup.class.isAssignableFrom(type)) {
+			collectGroupConstants(type, groups);
 		}
 	}
 

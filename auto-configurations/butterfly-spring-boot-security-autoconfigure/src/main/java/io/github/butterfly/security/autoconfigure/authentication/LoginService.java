@@ -76,11 +76,25 @@ public class LoginService {
 		if (!this.passwordEncoder.matches(password, account.password())) {
 			throw new BadCredentialsException(INVALID_CREDENTIALS);
 		}
-		List<Long> permissionIds = (this.permissionRepository != null)
-				? this.permissionRepository.findPermissionIdsByUserId(account.id()) : List.of();
+		List<Long> permissionIds = permissionIdsOf(this.permissionRepository, account.id());
 		String token = this.jwtTokenService.issue(account, permissionIds);
 		return new LoginResult(token, this.jwtTokenService.getTokenType(), this.jwtTokenService.getExpiresIn(),
 				account.username());
+	}
+
+	/**
+	 * 查询用户权限;授权功能关闭时 {@code permissionRepository} 为 {@code null},按「没有任何权限」处理.
+	 * <p>
+	 * 可空值只作为参数进来,方法体里不需要可空的局部变量,检查器也能看懂这里的判空。
+	 * @param repository 权限授予关系实现,可能为 {@code null}
+	 * @param userId 用户 id
+	 * @return 权限 id 列表,没有实现时返回空列表
+	 */
+	private static List<Long> permissionIdsOf(@Nullable PermissionRepository repository, long userId) {
+		if (repository == null) {
+			return List.of();
+		}
+		return repository.findPermissionIdsByUserId(userId);
 	}
 
 }

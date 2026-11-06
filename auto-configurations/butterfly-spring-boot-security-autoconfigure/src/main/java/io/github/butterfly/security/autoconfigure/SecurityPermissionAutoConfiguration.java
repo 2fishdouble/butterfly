@@ -16,6 +16,7 @@
 
 package io.github.butterfly.security.autoconfigure;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -47,11 +48,20 @@ public class SecurityPermissionAutoConfiguration {
 	@ConditionalOnMissingBean(PermissionStorage.class)
 	PermissionStorage permissionStorage(SecurityPermissionProperties properties,
 			ObjectProvider<DataSource> dataSourceProvider) {
-		if (properties.isDb()) {
-			DataSource dataSource = dataSourceProvider.getIfAvailable();
-			if (dataSource != null) {
-				return new DbPermissionStorage(dataSource);
-			}
+		return createStorage(properties.isDb(), dataSourceProvider.getIfAvailable());
+	}
+
+	/**
+	 * 按配置与数据源情况选择存储实现.
+	 * <p>
+	 * 数据源允许为空,所以把它作为可空参数交给本方法处理,方法体里就不需要可空的局部变量。
+	 * @param db 是否要求走数据库存储
+	 * @param dataSource 容器中的数据源,可能为 {@code null}
+	 * @return 数据库存储或内存存储
+	 */
+	private static PermissionStorage createStorage(boolean db, @Nullable DataSource dataSource) {
+		if (db && dataSource != null) {
+			return new DbPermissionStorage(dataSource);
 		}
 		return new InMemoryPermissionStorage();
 	}
