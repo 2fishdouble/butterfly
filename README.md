@@ -18,7 +18,7 @@
 </dependency>
 ```
 
-- 当前版本：`0.1.7`（`butterfly-parent` 的 `revision` 属性统一控制）
+- 当前版本：`0.1.8`（`butterfly-parent` 的 `revision` 属性统一控制）
 - Java 21；Spring Boot 4.1.2
 - 包名：`io.github.butterfly.*`
 
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>io.github.2fishdouble</groupId>
             <artifactId>butterfly-bom</artifactId>
-            <version>0.1.7</version>
+            <version>0.1.8</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
