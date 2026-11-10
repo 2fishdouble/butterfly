@@ -164,7 +164,7 @@ class ExcelWriteHandlerTests {
 	}
 
 	private static Font font(Workbook workbook, CellStyle style) {
-		return workbook.getFontAt(style.getFontIndexAsInt());
+		return workbook.getFontAt(style.getFontIndex());
 	}
 
 	private static Workbook open(byte[] bytes) throws IOException {
