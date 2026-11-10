@@ -16,16 +16,16 @@
 
 package io.github.butterfly.excel.autoconfigure;
 
-import cn.idev.excel.converters.Converter;
-import cn.idev.excel.enums.CellDataTypeEnum;
-import cn.idev.excel.metadata.GlobalConfiguration;
-import cn.idev.excel.metadata.data.ReadCellData;
-import cn.idev.excel.metadata.data.WriteCellData;
-import cn.idev.excel.metadata.property.ExcelContentProperty;
+import org.apache.fesod.sheet.converters.Converter;
+import org.apache.fesod.sheet.enums.CellDataTypeEnum;
+import org.apache.fesod.sheet.metadata.GlobalConfiguration;
+import org.apache.fesod.sheet.metadata.data.ReadCellData;
+import org.apache.fesod.sheet.metadata.data.WriteCellData;
+import org.apache.fesod.sheet.metadata.property.ExcelContentProperty;
 import org.jspecify.annotations.Nullable;
 
 /**
- * FastExcel 转换器:在 {@link Boolean} 与 Excel 单元格文本之间互转,并支持字段级自定义文案.
+ * Fesod 转换器:在 {@link Boolean} 与 Excel 单元格文本之间互转,并支持字段级自定义文案.
  * <p>
  * 字段标注 {@link BooleanMapping} 时按其 {@code trueValue} / {@code falseValue} 双向映射; 未标注(或字段为
  * {@code null})时退回 {@code Boolean.toString()} 与 {@code Boolean.valueOf(String)} 的默认规则。

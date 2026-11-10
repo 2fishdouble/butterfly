@@ -16,17 +16,17 @@
 
 package io.github.butterfly.excel.autoconfigure;
 
-import cn.idev.excel.converters.Converter;
-import cn.idev.excel.enums.CellDataTypeEnum;
-import cn.idev.excel.metadata.GlobalConfiguration;
-import cn.idev.excel.metadata.data.ReadCellData;
-import cn.idev.excel.metadata.data.WriteCellData;
-import cn.idev.excel.metadata.property.ExcelContentProperty;
 import io.github.butterfly.core.BaseEnum;
+import org.apache.fesod.sheet.converters.Converter;
+import org.apache.fesod.sheet.enums.CellDataTypeEnum;
+import org.apache.fesod.sheet.metadata.GlobalConfiguration;
+import org.apache.fesod.sheet.metadata.data.ReadCellData;
+import org.apache.fesod.sheet.metadata.data.WriteCellData;
+import org.apache.fesod.sheet.metadata.property.ExcelContentProperty;
 import org.jspecify.annotations.Nullable;
 
 /**
- * FastExcel 转换器:在实现 {@link BaseEnum} 的枚举与单元格标题文本之间互转.
+ * Fesod 转换器:在实现 {@link BaseEnum} 的枚举与单元格标题文本之间互转.
  * <p>
  * 导出时取枚举的 {@code getTitle()} 作为单元格文本;导入时按当前字段声明的枚举类型遍历其枚举 常量,匹配 {@code getTitle()}
  * 相同的常量,匹配不到则抛异常。需随读/写构造器显式注册后生效。

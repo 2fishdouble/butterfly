@@ -16,17 +16,17 @@
 
 package io.github.butterfly.excel.autoconfigure;
 
-import cn.idev.excel.annotation.ExcelProperty;
 import io.github.butterfly.core.BaseEnum;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.fesod.sheet.annotation.ExcelProperty;
 
 import java.util.List;
 
 /**
  * 测试用行实体:每个字段显式注册本模块的转换器,用于覆盖枚举、枚举集合与布尔文案三类转换场景.
  * <p>
- * FastExcel 会通过反射读写该类型,因此类与构造器必须为 {@code public}.
+ * Fesod 会通过反射读写该类型,因此类与构造器必须为 {@code public}.
  */
 @Setter
 @Getter

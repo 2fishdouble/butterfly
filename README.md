@@ -35,7 +35,7 @@
 | `butterfly-spring-boot-log-autoconfigure` | 统一日志：Logback 配置，引用即生效，也可按服务覆盖/继承 |
 | `butterfly-spring-boot-redis-autoconfigure` | 按实体注册 `RedisTemplate`、分布式锁幂等 `@Idempotent` |
 | `butterfly-spring-boot-mybatis-plus-autoconfigure` | 分页 + 乐观锁插件、`BaseEntity` 审计字段自动填充 |
-| `butterfly-spring-boot-excel-autoconfigure` | FastExcel 静态工具 `ExcelUtil`（读/写/下载） |
+| `butterfly-spring-boot-excel-autoconfigure` | Fesod 静态工具 `ExcelUtil`（读/写/下载） |
 | `butterfly-spring-boot-mail-autoconfigure` | 邮件发送门面 `MailTemplate` |
 | `butterfly-spring-boot-security-autoconfigure` | 权限枚举收集、JWT 认证与 `@RequirePermission` 方法级授权 |
 | `butterfly-spring-boot-rabbitmq-autoconfigure` | 按实体声明拓扑（死信/延时/重试）+ 监听容器工厂 |
@@ -299,7 +299,7 @@ ExcelUtil.write(response, fieldsMap, "用户列表", rows);
 ```
 
 还支持从字节数组读、按模板写出（`write(InputStream, ...)`）、注册 `WriteHandler`，
-以及用 `getResponse` 把字节数组包成带下载响应头的 `ResponseEntity`。读写都走 FastExcel 注解，
+以及用 `getResponse` 把字节数组包成带下载响应头的 `ResponseEntity`。读写都走 Fesod 注解，
 `BaseEnumConverter` 系列让枚举列按 code 与文本互转。
 
 ---

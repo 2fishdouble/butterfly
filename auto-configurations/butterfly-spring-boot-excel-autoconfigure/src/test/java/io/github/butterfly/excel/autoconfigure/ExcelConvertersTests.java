@@ -16,12 +16,12 @@
 
 package io.github.butterfly.excel.autoconfigure;
 
-import cn.idev.excel.enums.CellDataTypeEnum;
-import cn.idev.excel.metadata.GlobalConfiguration;
-import cn.idev.excel.metadata.data.ReadCellData;
-import cn.idev.excel.metadata.data.WriteCellData;
-import cn.idev.excel.metadata.property.ExcelContentProperty;
 import io.github.butterfly.core.BaseEnum;
+import org.apache.fesod.sheet.enums.CellDataTypeEnum;
+import org.apache.fesod.sheet.metadata.GlobalConfiguration;
+import org.apache.fesod.sheet.metadata.data.ReadCellData;
+import org.apache.fesod.sheet.metadata.data.WriteCellData;
+import org.apache.fesod.sheet.metadata.property.ExcelContentProperty;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- * 覆盖三个 FastExcel 转换器的读写规则与异常分支.
+ * 覆盖三个 Fesod 转换器的读写规则与异常分支.
  */
 class ExcelConvertersTests {
 

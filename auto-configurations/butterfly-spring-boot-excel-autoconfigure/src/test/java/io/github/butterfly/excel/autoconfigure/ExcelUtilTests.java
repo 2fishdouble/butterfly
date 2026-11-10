@@ -16,18 +16,18 @@
 
 package io.github.butterfly.excel.autoconfigure;
 
-import cn.idev.excel.annotation.ExcelProperty;
-import cn.idev.excel.converters.Converter;
-import cn.idev.excel.converters.WriteConverterContext;
-import cn.idev.excel.enums.CellDataTypeEnum;
-import cn.idev.excel.metadata.GlobalConfiguration;
-import cn.idev.excel.metadata.data.WriteCellData;
-import cn.idev.excel.metadata.property.ExcelContentProperty;
-import cn.idev.excel.write.handler.CellWriteHandler;
-import cn.idev.excel.write.handler.context.CellWriteHandlerContext;
 import io.github.butterfly.core.BusinessException;
 import jakarta.servlet.ServletOutputStream;
 import lombok.Getter;
+import org.apache.fesod.sheet.annotation.ExcelProperty;
+import org.apache.fesod.sheet.converters.Converter;
+import org.apache.fesod.sheet.converters.WriteConverterContext;
+import org.apache.fesod.sheet.enums.CellDataTypeEnum;
+import org.apache.fesod.sheet.metadata.GlobalConfiguration;
+import org.apache.fesod.sheet.metadata.data.WriteCellData;
+import org.apache.fesod.sheet.metadata.property.ExcelContentProperty;
+import org.apache.fesod.sheet.write.handler.CellWriteHandler;
+import org.apache.fesod.sheet.write.handler.context.CellWriteHandlerContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -69,7 +69,7 @@ class ExcelUtilTests {
 		assertThat(first.getAge()).isEqualTo(3);
 		assertThat(first.getType()).isEqualTo(SampleEnum.FIRST);
 		assertThat(first.getTypes()).containsExactly(SampleEnum.FIRST, SampleEnum.SECOND);
-		// 空集合写出为空单元格,读回时 FastExcel 不会调用转换器,字段保持 null
+		// 空集合写出为空单元格,读回时 Fesod 不会调用转换器,字段保持 null
 		assertThat(first.getEmptyTypes()).isNullOrEmpty();
 		assertThat(first.getEnabled()).isTrue();
 		assertThat(first.getPlain()).isFalse();

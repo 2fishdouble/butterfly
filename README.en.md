@@ -37,7 +37,7 @@ Two design rules drive everything here:
 | `butterfly-spring-boot-log-autoconfigure` | Logback configuration that applies on its own, overridable per service |
 | `butterfly-spring-boot-redis-autoconfigure` | Per-entity `RedisTemplate` beans, distributed-lock idempotency via `@Idempotent` |
 | `butterfly-spring-boot-mybatis-plus-autoconfigure` | Pagination + optimistic locking, audit-field filling for `BaseEntity` |
-| `butterfly-spring-boot-excel-autoconfigure` | FastExcel helper `ExcelUtil` (read / write / download) |
+| `butterfly-spring-boot-excel-autoconfigure` | Fesod helper `ExcelUtil` (read / write / download) |
 | `butterfly-spring-boot-mail-autoconfigure` | `MailTemplate` mail-sending facade |
 | `butterfly-spring-boot-security-autoconfigure` | Permission enum collection, JWT authentication and `@RequirePermission` method authorization |
 | `butterfly-spring-boot-rabbitmq-autoconfigure` | Per-entity topology (dead letter / delay / retry) + listener container factories |
@@ -318,7 +318,7 @@ ExcelUtil.write(response, fieldsMap, "users", rows);
 
 Reading from a byte array, writing through a template (`write(InputStream, ...)`), registering a
 `WriteHandler`, and wrapping bytes into a download `ResponseEntity` with `getResponse` are all supported.
-Reading and writing rely on FastExcel annotations; the `BaseEnumConverter` family maps enums by code and text.
+Reading and writing rely on Fesod annotations; the `BaseEnumConverter` family maps enums by code and text.
 
 ---
 

@@ -16,13 +16,13 @@
 
 package io.github.butterfly.excel.autoconfigure;
 
-import cn.idev.excel.converters.Converter;
-import cn.idev.excel.enums.CellDataTypeEnum;
-import cn.idev.excel.metadata.GlobalConfiguration;
-import cn.idev.excel.metadata.data.ReadCellData;
-import cn.idev.excel.metadata.data.WriteCellData;
-import cn.idev.excel.metadata.property.ExcelContentProperty;
 import io.github.butterfly.core.BaseEnum;
+import org.apache.fesod.sheet.converters.Converter;
+import org.apache.fesod.sheet.enums.CellDataTypeEnum;
+import org.apache.fesod.sheet.metadata.GlobalConfiguration;
+import org.apache.fesod.sheet.metadata.data.ReadCellData;
+import org.apache.fesod.sheet.metadata.data.WriteCellData;
+import org.apache.fesod.sheet.metadata.property.ExcelContentProperty;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.ParameterizedType;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * FastExcel 转换器:在元素为实现 {@link BaseEnum} 的 {@link Collection} 与逗号分隔的标题文本 之间互转.
+ * Fesod 转换器:在元素为实现 {@link BaseEnum} 的 {@link Collection} 与逗号分隔的标题文本 之间互转.
  * <p>
  * 导出时把各元素的 {@code getTitle()} 用逗号拼接;导入时按逗号切分并逐个匹配标题。字段需声明为 带具体枚举类型参数的集合(如
  * {@code List<XxxEnum>}),以便从字段泛型中解析出元素枚举类型。

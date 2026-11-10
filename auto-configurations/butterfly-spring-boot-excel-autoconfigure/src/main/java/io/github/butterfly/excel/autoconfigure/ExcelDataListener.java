@@ -16,12 +16,12 @@
 
 package io.github.butterfly.excel.autoconfigure;
 
-import cn.idev.excel.context.AnalysisContext;
-import cn.idev.excel.exception.ExcelDataConvertException;
-import cn.idev.excel.metadata.data.ReadCellData;
-import cn.idev.excel.read.listener.ReadListener;
 import io.github.butterfly.core.BusinessException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.fesod.sheet.context.AnalysisContext;
+import org.apache.fesod.sheet.exception.ExcelDataConvertException;
+import org.apache.fesod.sheet.metadata.data.ReadCellData;
+import org.apache.fesod.sheet.read.listener.ReadListener;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * FastExcel 读监听器:逐行校验并缓存,全部解析完成后把整批数据一次性交给回调.
+ * Fesod 读监听器:逐行校验并缓存,全部解析完成后把整批数据一次性交给回调.
  * <p>
  * 每读到一行先执行 {@code verifyCallback}(校验不通过时可在其中抛异常中断读取),再放入内部缓存; {@link #doAfterAllAnalysed}
  * 时以整个缓存列表调用 {@code callback}。解析异常经 {@link #onException} 转换为

@@ -15,7 +15,7 @@
  */
 
 /**
- * Butterfly 的 Excel 读写支撑包,基于 FastExcel 提供可直接调用的工具与转换器.
+ * Butterfly 的 Excel 读写支撑包,基于 Fesod 提供可直接调用的工具与转换器.
  * <p>
  * 本包不提供任何自动配置类:使用方按需直接调用 {@link io.github.butterfly.excel.autoconfigure.ExcelUtil}
  * 完成读、写与下载包装,并在需要时注册 {@link io.github.butterfly.excel.autoconfigure.BaseEnumConverter}、
