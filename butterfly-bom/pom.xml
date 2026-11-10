@@ -22,7 +22,7 @@
         <hutool.version>5.8.48</hutool.version>
         <guava.version>33.8.0-jre</guava.version>
         <redisson.version>4.8.0</redisson.version>
-        <aspectjweaver.version>1.9.26</aspectjweaver.version>
+        <aspectjweaver.version>1.9.27</aspectjweaver.version>
         <fastexcel.version>1.3.0</fastexcel.version>
         <commons-collections4.version>4.6.0</commons-collections4.version>
         <commons-io.version>2.22.0</commons-io.version>
