@@ -320,6 +320,19 @@ Reading from a byte array, writing through a template (`write(InputStream, ...)`
 `WriteHandler`, and wrapping bytes into a download `ResponseEntity` with `getResponse` are all supported.
 Reading and writing rely on Fesod annotations; the `BaseEnumConverter` family maps enums by code and text.
 
+Three reusable write handlers are bundled and can be combined as varargs of `write`:
+
+```java
+byte[] report = ExcelUtil.write(users, User.class,
+        new ExcelStyleWriteHandler(),                                  // header fill/bold + thin borders
+        new ExcelRowHeightWriteHandler(30f, 20f),                      // 30pt header, 20pt data rows
+        new ExcelMergeWriteHandler(new ExcelMergeRange(1, 2, 0, 0)));  // merge rows 2-3 of column 1
+```
+
+Row and column indexes are zero based and the end values are inclusive. Module tests write their
+generated workbooks to `test-files/` at the project root, so styling, row height and merged regions
+can be inspected directly in Excel.
+
 ---
 
 ## Mail: `butterfly-spring-boot-mail-autoconfigure`

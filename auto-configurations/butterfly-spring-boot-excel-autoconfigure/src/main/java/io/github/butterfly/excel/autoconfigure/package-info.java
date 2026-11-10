@@ -15,12 +15,15 @@
  */
 
 /**
- * Butterfly 的 Excel 读写支撑包,基于 Fesod 提供可直接调用的工具与转换器.
+ * Butterfly 的 Excel 读写支撑包,基于 Fesod 提供可直接调用的工具、转换器与写处理器.
  * <p>
  * 本包不提供任何自动配置类:使用方按需直接调用 {@link io.github.butterfly.excel.autoconfigure.ExcelUtil}
  * 完成读、写与下载包装,并在需要时注册 {@link io.github.butterfly.excel.autoconfigure.BaseEnumConverter}、
  * {@link io.github.butterfly.excel.autoconfigure.CollectionBaseEnumConverter}、
- * {@link io.github.butterfly.excel.autoconfigure.BooleanStringGenericConverter} 等转换器。
+ * {@link io.github.butterfly.excel.autoconfigure.BooleanStringGenericConverter} 等转换器,以及
+ * {@link io.github.butterfly.excel.autoconfigure.ExcelStyleWriteHandler}、
+ * {@link io.github.butterfly.excel.autoconfigure.ExcelRowHeightWriteHandler}、
+ * {@link io.github.butterfly.excel.autoconfigure.ExcelMergeWriteHandler} 等写处理器。
  */
 @NullMarked
 package io.github.butterfly.excel.autoconfigure;

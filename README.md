@@ -302,6 +302,18 @@ ExcelUtil.write(response, fieldsMap, "用户列表", rows);
 以及用 `getResponse` 把字节数组包成带下载响应头的 `ResponseEntity`。读写都走 Fesod 注解，
 `BaseEnumConverter` 系列让枚举列按 code 与文本互转。
 
+模块内置三个可叠加的写处理器，直接作为 `write` 的可变参数传入：
+
+```java
+byte[] report = ExcelUtil.write(users, User.class,
+        new ExcelStyleWriteHandler(),                                  // 表头深蓝底白字 + 细边框，数据行细边框
+        new ExcelRowHeightWriteHandler(30f, 20f),                      // 表头 30 磅、数据行 20 磅
+        new ExcelMergeWriteHandler(new ExcelMergeRange(1, 2, 0, 0)));  // 合并第 2-3 行第 1 列
+```
+
+`ExcelMergeRange` 的行列号从 0 开始、结束值包含在内；模块测试会把生成的示例工作簿写到项目根目录的
+`test-files/`，可直接用 Excel 打开核对样式、行高与合并效果。
+
 ---
 
 ## 邮件：`butterfly-spring-boot-mail-autoconfigure`
