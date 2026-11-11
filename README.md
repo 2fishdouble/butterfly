@@ -36,6 +36,7 @@
 | `butterfly-spring-boot-redis-autoconfigure` | 按实体注册 `RedisTemplate`、分布式锁幂等 `@Idempotent` |
 | `butterfly-spring-boot-mybatis-plus-autoconfigure` | 分页 + 乐观锁插件、`BaseEntity` 审计字段自动填充 |
 | `butterfly-spring-boot-excel-autoconfigure` | Fesod 静态工具 `ExcelUtil`（读/写/下载） |
+| `butterfly-spring-boot-file-autoconfigure` | MySQL 单表文件存储、自动建表与上传/下载接口 |
 | `butterfly-spring-boot-mail-autoconfigure` | 邮件发送门面 `MailTemplate` |
 | `butterfly-spring-boot-security-autoconfigure` | 权限枚举收集、JWT 认证与 `@RequirePermission` 方法级授权 |
 | `butterfly-spring-boot-rabbitmq-autoconfigure` | 按实体声明拓扑（死信/延时/重试）+ 监听容器工厂 |
@@ -313,6 +314,79 @@ byte[] report = ExcelUtil.write(users, User.class,
 
 `ExcelMergeRange` 的行列号从 0 开始、结束值包含在内；模块测试会把生成的示例工作簿写到项目根目录的
 `test-files/`，可直接用 Excel 打开核对样式、行高与合并效果。
+
+---
+
+## 文件：`butterfly-spring-boot-file-autoconfigure`
+
+文件内容与元信息都存在 **MySQL 单表**（默认表名 `file`），建表由模块自动完成，并直接提供上传/下载接口。
+存储走纯 JDBC，不绑定 MyBatis / JPA。
+
+### 依赖与最小配置
+
+只要容器里有 `DataSource`（例如引 `spring-boot-starter-jdbc` 加 MySQL 驱动）：
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/demo
+    username: root
+    password: secret
+```
+
+第一次上传或下载时才执行 `CREATE TABLE IF NOT EXISTS`，所以应用启动不要求数据库已经就绪；
+表由 DBA 预先建好、或当前账号没有 DDL 权限时，设 `butterfly.file.create-table=false`。
+
+表结构（单表）：
+
+| 列 | 类型 | 说明 |
+| --- | --- | --- |
+| `id` | `char(32)` | 主键，32 位十六进制 UUID |
+| `original_name` | `varchar(255)` | 原始文件名（已去路径与控制字符） |
+| `content_type` | `varchar(255)` | 上传方给的内容类型，可为空 |
+| `file_size` | `bigint` | 字节数 |
+| `sha256` | `char(64)` | 内容摘要，带索引 |
+| `content` | `longblob` | 文件内容 |
+| `create_time` | `datetime(3)` | 入库时间 |
+
+### 接口
+
+```bash
+# 上传：multipart/form-data，表单字段名固定为 file
+curl -F "file=@/tmp/report.pdf" http://localhost:8080/file/upload
+# {"code":200,"isSuccess":true,"data":{"id":"0f3c...","originalName":"report.pdf","size":"12345",...}}
+
+# 下载：直接返回二进制，带 Content-Disposition: attachment（中文名按 RFC 5987 编码）
+curl -OJ http://localhost:8080/file/0f3c...9a
+```
+
+业务代码也可以直接用 `FileService`：`store(InputStream | byte[], name, contentType)`、`load(id)`、`delete(id)`。
+校验只在 `FileService` 做一次，所以 HTTP 接口和业务调用行为一致：
+
+- 文件名去掉路径和控制字符，长度上限 255；
+- 大小先按声明的 `size` 判断，读完再按实际字节数复核，声明值不可信也不会写超限内容；
+- `allowed-extensions` 非空时按扩展名过滤（大小写不敏感）。
+
+### 配置
+
+| 项 | 默认 | 说明 |
+| --- | --- | --- |
+| `butterfly.file.enabled` | `true` | 总开关，关掉后存储、服务与接口都不注册 |
+| `table-name` | `file` | 只允许字母、数字与下划线 |
+| `create-table` | `true` | 首次读写时自动建表 |
+| `max-size` | `10MB` | 单文件上限；需不大于 `spring.servlet.multipart.max-file-size` 与 MySQL `max_allowed_packet` |
+| `allowed-extensions` | 空 | 为空表示不限制 |
+| `upload-path` | `/file/upload` | 上传路径 |
+| `download-path` | `/file/{id}` | 下载路径，必须保留 `{id}` 占位符 |
+
+### 替换与边界
+
+- 自定义 `FileStorage` Bean：换存储实现（对象存储、本地磁盘等），`FileService` 的校验仍然生效；
+- 自定义 `FileService` 或 `FileController` Bean：整体接管；
+- 没有 `DataSource` → 存储与接口都不注册；没有 Web 依赖 → 只注册存储与服务，接口跳过。
+
+`longblob` 适合中小文件（默认 10MB）。大文件或高并发下载建议实现 `FileStorage` 存到对象存储，
+数据库只保留元信息。
 
 ---
 

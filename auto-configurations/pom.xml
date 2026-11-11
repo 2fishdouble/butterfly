@@ -21,6 +21,7 @@
         <module>butterfly-spring-boot-log-autoconfigure</module>
         <module>butterfly-spring-boot-redis-autoconfigure</module>
         <module>butterfly-spring-boot-excel-autoconfigure</module>
+        <module>butterfly-spring-boot-file-autoconfigure</module>
         <module>butterfly-spring-boot-security-autoconfigure</module>
         <module>butterfly-spring-boot-mybatis-plus-autoconfigure</module>
         <module>butterfly-spring-boot-mail-autoconfigure</module>

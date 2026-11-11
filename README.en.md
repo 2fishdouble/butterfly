@@ -38,6 +38,7 @@ Two design rules drive everything here:
 | `butterfly-spring-boot-redis-autoconfigure` | Per-entity `RedisTemplate` beans, distributed-lock idempotency via `@Idempotent` |
 | `butterfly-spring-boot-mybatis-plus-autoconfigure` | Pagination + optimistic locking, audit-field filling for `BaseEntity` |
 | `butterfly-spring-boot-excel-autoconfigure` | Fesod helper `ExcelUtil` (read / write / download) |
+| `butterfly-spring-boot-file-autoconfigure` | MySQL single-table file storage, auto-created schema, upload/download endpoints |
 | `butterfly-spring-boot-mail-autoconfigure` | `MailTemplate` mail-sending facade |
 | `butterfly-spring-boot-security-autoconfigure` | Permission enum collection, JWT authentication and `@RequirePermission` method authorization |
 | `butterfly-spring-boot-rabbitmq-autoconfigure` | Per-entity topology (dead letter / delay / retry) + listener container factories |
@@ -332,6 +333,74 @@ byte[] report = ExcelUtil.write(users, User.class,
 Row and column indexes are zero based and the end values are inclusive. Module tests write their
 generated workbooks to `test-files/` at the project root, so styling, row height and merged regions
 can be inspected directly in Excel.
+
+---
+
+## Files: `butterfly-spring-boot-file-autoconfigure`
+
+File content and metadata live in a **single MySQL table** (default name `file`). The schema is created
+by the module and upload/download endpoints come with it. Storage is plain JDBC, so it does not bind you
+to MyBatis or JPA.
+
+### Dependency and minimal config
+
+All you need is a `DataSource` (for example `spring-boot-starter-jdbc` plus the MySQL driver):
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/demo
+    username: root
+    password: secret
+```
+
+`CREATE TABLE IF NOT EXISTS` runs on the first upload or download, so startup does not require the
+database to be ready. Set `butterfly.file.create-table=false` when a DBA pre-creates the table or the
+account has no DDL permission.
+
+Columns: `id` (32-char UUID), `original_name`, `content_type`, `file_size`, `sha256`, `content`
+(`longblob`) and `create_time`.
+
+### Endpoints
+
+```bash
+# upload: multipart/form-data, part name is always "file"
+curl -F "file=@/tmp/report.pdf" http://localhost:8080/file/upload
+# {"code":200,"isSuccess":true,"data":{"id":"0f3c...","originalName":"report.pdf","size":"12345",...}}
+
+# download: binary stream with Content-Disposition: attachment (RFC 5987 for non-ASCII names)
+curl -OJ http://localhost:8080/file/0f3c...9a
+```
+
+Business code can use `FileService` directly: `store(InputStream | byte[], name, contentType)`,
+`load(id)`, `delete(id)`. Validation happens only there, so HTTP calls and direct calls behave the same:
+
+- the file name loses its path and control characters, max 255 characters;
+- the declared `size` is checked first and re-checked against the bytes actually read;
+- when `allowed-extensions` is not empty, extensions are filtered case-insensitively.
+
+### Configuration
+
+| Property | Default | Description |
+| --- | --- | --- |
+| `butterfly.file.enabled` | `true` | Master switch; disables storage, service and endpoints |
+| `table-name` | `file` | Letters, digits and underscores only |
+| `create-table` | `true` | Create the table on first read/write |
+| `max-size` | `10MB` | Per-file limit; keep it within `spring.servlet.multipart.max-file-size` and MySQL `max_allowed_packet` |
+| `allowed-extensions` | empty | Empty means no restriction |
+| `upload-path` | `/file/upload` | Upload path |
+| `download-path` | `/file/{id}` | Download path, must keep the `{id}` placeholder |
+
+### Replacing it
+
+- define a `FileStorage` bean to change where bytes go (object storage, disk, ...); `FileService`
+  validation still applies;
+- define a `FileService` or `FileController` bean to take over that layer;
+- without a `DataSource` nothing is registered; without web dependencies only storage and service are
+  registered.
+
+`longblob` suits small and medium files (10MB by default). For large files or heavy download traffic,
+implement `FileStorage` against object storage and keep only metadata in the database.
 
 ---
 

@@ -75,9 +75,13 @@ butterfly:
       # 原来的示例接口保持免登录,新加的 /api/** 一律要求认证
       permit-paths:
         - /error
-        - /
+        - /file/**
         - /time
+      enabled: true
     authorization:
       enabled: true
+  file:
+    create-table: true
+    enabled: true
   mail:
     default-from: 2737224577@qq.com

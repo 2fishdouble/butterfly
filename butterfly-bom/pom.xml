@@ -91,6 +91,12 @@
 
             <dependency>
                 <groupId>io.github.2fishdouble</groupId>
+                <artifactId>butterfly-spring-boot-file-autoconfigure</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.2fishdouble</groupId>
                 <artifactId>butterfly-spring-boot-security-autoconfigure</artifactId>
                 <version>${revision}</version>
             </dependency>
