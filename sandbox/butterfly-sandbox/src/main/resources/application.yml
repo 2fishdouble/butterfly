@@ -72,9 +72,10 @@ butterfly:
       jwt:
         secret: sandbox-demo-jwt-secret-0123456789abcdef
         expiration: 2h
-      # 原来的示例接口保持免登录,新加的 /api/** 一律要求认证
+      # 原来的示例接口与文件接口保持免登录, 新加的 /api/** 一律要求认证
       permit-paths:
         - /error
+        - /
         - /file/**
         - /time
       enabled: true

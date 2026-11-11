@@ -96,7 +96,7 @@ class FileAutoConfigurationTests {
 		this.contextRunner
 			.withPropertyValues("butterfly.file.table-name=attachment", "butterfly.file.create-table=false",
 					"butterfly.file.max-size=2MB", "butterfly.file.allowed-extensions=png,jpg",
-					"butterfly.file.upload-path=/upload", "butterfly.file.download-path=/download/{id}")
+					"butterfly.file.upload-path=/upload", "butterfly.file.download-path=/download")
 			.run((context) -> {
 				FileProperties properties = context.getBean(FileProperties.class);
 
@@ -105,7 +105,7 @@ class FileAutoConfigurationTests {
 				assertThat(properties.getMaxSize()).isEqualTo(DataSize.ofMegabytes(2));
 				assertThat(properties.getAllowedExtensions()).containsExactly("png", "jpg");
 				assertThat(properties.getUploadPath()).isEqualTo("/upload");
-				assertThat(properties.getDownloadPath()).isEqualTo("/download/{id}");
+				assertThat(properties.getDownloadPath()).isEqualTo("/download");
 			});
 	}
 
@@ -120,7 +120,7 @@ class FileAutoConfigurationTests {
 			assertThat(properties.getMaxSize()).isEqualTo(DataSize.ofMegabytes(10));
 			assertThat(properties.getAllowedExtensions()).isEmpty();
 			assertThat(properties.getUploadPath()).isEqualTo("/file/upload");
-			assertThat(properties.getDownloadPath()).isEqualTo("/file/{id}");
+			assertThat(properties.getDownloadPath()).isEqualTo("/file");
 		});
 	}
 

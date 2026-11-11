@@ -39,9 +39,10 @@ import java.nio.charset.StandardCharsets;
 /**
  * 文件上传/下载接口,默认 {@code POST /file/upload} 与 {@code GET /file/{id}}.
  * <p>
- * 两个路径分别由 {@code butterfly.file.upload-path} 与 {@code butterfly.file.download-path} 决定
- * (注解上直接取值,不需要重新注册 handler);上传只接受 {@code multipart/form-data},表单字段名固定为
- * {@code file}。上传返回统一响应 {@link R},下载直接回二进制流并带 {@code Content-Disposition: attachment}。
+ * 上传路径由 {@code butterfly.file.upload-path} 决定;下载路径由 {@code butterfly.file.download-path}
+ * 作为前缀 拼上 {@code /{id}},默认 {@code /file} 即 {@code GET /file/{id}}。注解上直接取值,不需要重新注册
+ * handler; 上传只接受 {@code multipart/form-data},表单字段名固定为 {@code file}。上传返回统一响应 {@link R},
+ * 下载直接回二进制流并带 {@code Content-Disposition: attachment}。
  */
 @RestController
 public class FileController {
@@ -79,7 +80,7 @@ public class FileController {
 	 * @return 文件内容与下载响应头,文件名按 RFC 5987 编码以支持中文
 	 * @throws BusinessException 主键格式非法或文件不存在时抛出
 	 */
-	@GetMapping("${butterfly.file.download-path:/file/}/{id}")
+	@GetMapping("${butterfly.file.download-path:/file}/{id}")
 	public ResponseEntity<Resource> download(@PathVariable("id") String id) {
 		StoredFile storedFile = this.fileService.load(id);
 		return ResponseEntity.ok()

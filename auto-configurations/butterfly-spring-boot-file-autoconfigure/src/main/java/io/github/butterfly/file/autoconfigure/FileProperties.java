@@ -66,8 +66,9 @@ public class FileProperties {
 	private String uploadPath = "/file/upload";
 
 	/**
-	 * 下载接口路径,必须保留 {@code {id}} 占位符.
+	 * 下载接口路径前缀(不要以 {@code /} 结尾),实际路径为 {@code {download-path}/{id}},默认 {@code /file} 即
+	 * {@code GET /file/{id}}.
 	 */
-	private String downloadPath = "/file/{id}";
+	private String downloadPath = "/file";
 
 }

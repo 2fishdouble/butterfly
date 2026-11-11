@@ -360,6 +360,10 @@ curl -F "file=@/tmp/report.pdf" http://localhost:8080/file/upload
 curl -OJ http://localhost:8080/file/0f3c...9a
 ```
 
+> 本模块**不自带鉴权**，接口是否免登录完全由使用方的安全配置决定。沙箱把 `/file/**` 放进了
+> `butterfly.security.authentication.permit-paths`，所以本地可以直接 curl；生产环境请按需放行，
+> 或让请求带 `Authorization: Bearer <token>`。
+
 业务代码也可以直接用 `FileService`：`store(InputStream | byte[], name, contentType)`、`load(id)`、`delete(id)`。
 校验只在 `FileService` 做一次，所以 HTTP 接口和业务调用行为一致：
 
@@ -377,7 +381,7 @@ curl -OJ http://localhost:8080/file/0f3c...9a
 | `max-size` | `10MB` | 单文件上限；需不大于 `spring.servlet.multipart.max-file-size` 与 MySQL `max_allowed_packet` |
 | `allowed-extensions` | 空 | 为空表示不限制 |
 | `upload-path` | `/file/upload` | 上传路径 |
-| `download-path` | `/file/{id}` | 下载路径，必须保留 `{id}` 占位符 |
+| `download-path` | `/file` | 下载路径前缀（不要以 `/` 结尾），实际路径为 `{download-path}/{id}` |
 
 ### 替换与边界
 

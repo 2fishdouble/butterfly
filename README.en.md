@@ -372,6 +372,11 @@ curl -F "file=@/tmp/report.pdf" http://localhost:8080/file/upload
 curl -OJ http://localhost:8080/file/0f3c...9a
 ```
 
+> This module does **not** impose authentication; whether the endpoints are anonymous is up to your
+> security configuration. The sandbox puts `/file/**` into
+> `butterfly.security.authentication.permit-paths`, so plain `curl` works locally. In production,
+> permit it explicitly or send `Authorization: Bearer <token>`.
+
 Business code can use `FileService` directly: `store(InputStream | byte[], name, contentType)`,
 `load(id)`, `delete(id)`. Validation happens only there, so HTTP calls and direct calls behave the same:
 
@@ -389,7 +394,7 @@ Business code can use `FileService` directly: `store(InputStream | byte[], name,
 | `max-size` | `10MB` | Per-file limit; keep it within `spring.servlet.multipart.max-file-size` and MySQL `max_allowed_packet` |
 | `allowed-extensions` | empty | Empty means no restriction |
 | `upload-path` | `/file/upload` | Upload path |
-| `download-path` | `/file/{id}` | Download path, must keep the `{id}` placeholder |
+| `download-path` | `/file` | Download path prefix (no trailing slash); the actual path is `{download-path}/{id}` |
 
 ### Replacing it
 

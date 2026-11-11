@@ -128,6 +128,23 @@ class FileControllerTests {
 		assertThat(downloadResult.getResponse().getContentAsByteArray()).isEqualTo(content);
 	}
 
+	@Test
+	void exposesConfiguredPaths() throws Exception {
+		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(this.fileController)
+			.addPlaceholderValue("butterfly.file.upload-path", "/upload")
+			.addPlaceholderValue("butterfly.file.download-path", "/download")
+			.build();
+		byte[] content = "configured".getBytes(StandardCharsets.UTF_8);
+
+		mockMvc.perform(multipart("/upload").file(new MockMultipartFile("file", "a.txt", "text/plain", content)))
+			.andExpect(status().isOk());
+
+		FileInfo seeded = this.fileService.store(content, "a.txt", "text/plain");
+		mockMvc.perform(get("/download/{id}", seeded.id()))
+			.andExpect(status().isOk())
+			.andExpect(content().bytes(content));
+	}
+
 	/**
 	 * 内存存储:只用于接口测试,避免依赖数据库.
 	 */

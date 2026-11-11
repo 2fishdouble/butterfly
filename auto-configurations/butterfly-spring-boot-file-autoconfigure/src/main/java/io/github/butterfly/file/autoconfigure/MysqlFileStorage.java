@@ -16,7 +16,6 @@
 
 package io.github.butterfly.file.autoconfigure;
 
-
 import javax.sql.DataSource;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
