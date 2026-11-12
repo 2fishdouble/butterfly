@@ -14,11 +14,11 @@
 <dependency>
     <groupId>io.github.2fishdouble</groupId>
     <artifactId>butterfly-spring-boot-starter</artifactId>
-    <version>0.1.8</version>
+    <version>0.1.9</version>
 </dependency>
 ```
 
-- 当前版本：`0.1.8`（`butterfly-parent` 的 `revision` 属性统一控制）
+- 当前版本：`0.1.9`（`butterfly-parent` 的 `revision` 属性统一控制）
 - Java 21；Spring Boot 4.1.2
 - 包名：`io.github.butterfly.*`
 
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>io.github.2fishdouble</groupId>
             <artifactId>butterfly-bom</artifactId>
-            <version>0.1.8</version>
+            <version>0.1.9</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -611,7 +611,7 @@ public class MyPermissionRepository implements PermissionRepository {
 
 ```bash
 ./mvnw -pl sandbox/butterfly-sandbox -am spring-boot:run
-# 或者：java -jar sandbox/butterfly-sandbox/target/butterfly-sandbox-0.1.7.jar
+# 或者：java -jar sandbox/butterfly-sandbox/target/butterfly-sandbox-0.1.9.jar
 ```
 
 ```bash
