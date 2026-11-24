@@ -416,8 +416,10 @@ class EnableRabbitMqTemplatesTests {
 	}
 
 	private static ExponentialBackOff backOff(ApplicationContext context, String beanName) {
+		// spring-rabbit 4.2 起拦截器内部持有的是 Spring Framework 的 RetryTemplate,字段名由
+		// retryOperations 变为 retryTemplate
 		RetryTemplate retryTemplate = Objects.requireNonNull(
-				(RetryTemplate) ReflectionTestUtils.getField(retryAdvice(context, beanName), "retryOperations"),
+				(RetryTemplate) ReflectionTestUtils.getField(retryAdvice(context, beanName), "retryTemplate"),
 				"retryAdvice must hold a RetryTemplate");
 		RetryPolicy retryPolicy = retryTemplate.getRetryPolicy();
 		return (ExponentialBackOff) retryPolicy.getBackOff();

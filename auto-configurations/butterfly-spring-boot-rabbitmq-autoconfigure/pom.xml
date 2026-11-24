@@ -18,9 +18,15 @@
             <artifactId>butterfly-spring-boot-autoconfigure</artifactId>
         </dependency>
 
+        <!--
+            Spring Boot 4.2 起 spring-boot-starter-amqp 变成"通用 AMQP 1.0"(spring-amqp-client,
+            包名 org.springframework.amqp.client),原来的 RabbitMQ 客户端(spring-rabbit,
+            包名 org.springframework.amqp.rabbit)搬到 spring-boot-starter-rabbitmq。
+            本模块用的是 RabbitMQ 专有的拓扑声明、模板与监听容器,因此必须用 rabbitmq 这一个 starter。
+        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
+            <artifactId>spring-boot-starter-rabbitmq</artifactId>
         </dependency>
 
         <!-- spring-amqp 的 JacksonJsonMessageConverter 把 Jackson 声明为可选依赖,这里显式引入以支持 JSON 序列化 -->
