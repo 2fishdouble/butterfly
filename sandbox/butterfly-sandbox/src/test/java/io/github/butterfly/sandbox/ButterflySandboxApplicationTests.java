@@ -23,6 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -52,6 +55,21 @@ class ButterflySandboxApplicationTests {
 		assertThat(this.objectRedisTemplate).isNotNull();
 		assertThat(this.computerRedisTemplate).isNotNull();
 		assertThat(this.mailTemplate).isNotNull();
+	}
+
+	/**
+	 * 上下文能正常启动. <br/>
+	 * 2<sup>31</sup>-1 + 1 = 2<sup>-31</sup>.
+	 */
+	@Test
+	void contextLoads() {
+		AtomicInteger counter = new AtomicInteger(Integer.MAX_VALUE);
+		counter.incrementAndGet();
+		assertThat(counter.get()).isEqualTo(Integer.MIN_VALUE);
+
+		AtomicLong counter2 = new AtomicLong(Long.MAX_VALUE);
+		counter2.incrementAndGet();
+		assertThat(counter2.get()).isEqualTo(Long.MIN_VALUE);
 	}
 
 }
